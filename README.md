@@ -139,9 +139,8 @@ Go to **Settings → LLM Connections** → add your model provider API key (e.g.
 
 Go to **LLM-as-a-Judge**. The first time you visit it will prompt you to set the **Default Evaluation Model** — select the LLM connection you added in step 1.
 
-**Step 3 — Create evaluator and rule (UI or script):**
+**Step 3 — Create evaluator and rule (UI):**
 
-*Option A — UI:*
 1. Go to **LLM-as-a-Judge** → click `Create Evaluator`
 2. In the **Set up evaluator** wizard, click on a managed evaluator:
    - For **`Observations` target (live traces)**: use evaluators that only need `input` and `output`, e.g. **Hallucination** or **Helpfulness** — ground truth is not available for live production traces
