@@ -8,7 +8,7 @@ A Python banking assistant agent built with [Strands Agents](https://strandsagen
 ## Prerequisites
 
 - Python 3.11+
-- [uv](https://docs.astral.sh/uv/) or pip
+- [uv](https://docs.astral.sh/uv/)
 - Docker + Docker Compose
 - [Ollama](https://ollama.com) (for local LLM, default provider)
 
