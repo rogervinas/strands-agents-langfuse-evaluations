@@ -93,10 +93,21 @@ Open [http://localhost:8000](http://localhost:8000) to use the chat UI.
 
 ### Approach 1: Native Strands Evals (local)
 
-Runs evaluation cases locally using the Strands Evals SDK. No Langfuse required.
+Runs evaluation cases using the Strands Evals SDK. No Langfuse required.
+
+Two targets are supported:
+
+**Embedded** — agent runs in-process, no server needed. Ideal for local dev and mocking specific scenarios:
 
 ```bash
-uv run python -m evals.strands.run_evaluations
+uv run python -m evals.strands.run_evaluations embedded
+```
+
+**API** — evaluates a deployed agent via HTTP, treating it as a black box. Suitable for staging or production:
+
+```bash
+uv run python -m evals.strands.run_evaluations api --url http://localhost:8000
+uv run python -m evals.strands.run_evaluations api --url https://your-agent.example.com
 ```
 
 ### Approach 2: Langfuse Experiments (delegated)
