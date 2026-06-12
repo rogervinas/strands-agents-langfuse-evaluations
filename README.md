@@ -120,10 +120,11 @@ Create the dataset (idempotent, safe to re-run):
 uv run python -m evals.langfuse.create_dataset
 ```
 
-Run the experiment:
+Run the experiment (dataset is created automatically if missing):
 
 ```bash
-uv run python -m evals.langfuse.run_experiment
+uv run python -m evals.langfuse.run_experiment embedded
+uv run python -m evals.langfuse.run_experiment api --url http://localhost:8000
 ```
 
 View results at [http://localhost:3000](http://localhost:3000) → project `banking-sentinel` → Datasets.
