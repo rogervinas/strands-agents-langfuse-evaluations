@@ -31,7 +31,7 @@ Edit `.env` as needed. Defaults work out of the box for local dev with Ollama + 
 ### 3. Start Langfuse
 
 ```bash
-docker compose up -d
+docker compose -f docker-compose-langfuse.yml up -d
 ```
 
 Langfuse UI will be available at [http://localhost:3000](http://localhost:3000).
@@ -49,19 +49,19 @@ Langfuse UI will be available at [http://localhost:3000](http://localhost:3000).
 Wait for all services to be healthy:
 
 ```bash
-docker compose ps
+docker compose -f docker-compose-langfuse.yml ps
 ```
 
 To stop:
 
 ```bash
-docker compose down
+docker compose -f docker-compose-langfuse.yml down
 ```
 
 To stop and remove all data:
 
 ```bash
-docker compose down -v
+docker compose -f docker-compose-langfuse.yml down -v
 ```
 
 ### 4. Start Ollama (default model provider)
@@ -143,5 +143,5 @@ static/
 └── chat.html          # Chat UI
 scripts/
 └── create-dataset.sh  # Bash dataset creation via Langfuse REST API
-docker-compose.yml     # Langfuse stack (postgres, clickhouse, minio, redis)
+docker-compose-langfuse.yml  # Langfuse stack (postgres, clickhouse, minio, redis)
 ```
