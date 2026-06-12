@@ -1,5 +1,6 @@
 import argparse
 import sys
+import uuid
 from datetime import date
 
 import httpx
@@ -74,20 +75,24 @@ def embedded_task(case: Case) -> dict:
     agent = create_sentinel_agent(_model, tools, inp["accountTier"], inp["accountId"], REFERENCE_DATE)
     response = chat(agent, inp["message"])
     return {
-        "answer": response.answer,
-        "suggested_actions": [a.value for a in response.suggested_actions],
+        "output": {
+            "answer": response.answer,
+            "suggested_actions": [a.value for a in response.suggested_actions],
+        }
     }
 
 
 def api_task(api_url: str):
     """Returns a task function that calls the deployed agent via HTTP.
     Treats the agent as a black box — suitable for staging/production evals."""
+    run_id = uuid.uuid4().hex[:8]
+
     def task(case: Case) -> dict:
         inp = case.input
         response = httpx.post(
             f"{api_url}/chat",
             json={
-                "user_id": inp["userId"],
+                "user_id": f"{inp['userId']}-{run_id}",
                 "account_id": inp["accountId"],
                 "user_tier": inp["accountTier"],
                 "message": inp["message"],
@@ -97,8 +102,10 @@ def api_task(api_url: str):
         response.raise_for_status()
         data = response.json()
         return {
-            "answer": data["answer"],
-            "suggested_actions": data["suggested_actions"],
+            "output": {
+                "answer": data["answer"],
+                "suggested_actions": data["suggested_actions"],
+            }
         }
     return task
 
