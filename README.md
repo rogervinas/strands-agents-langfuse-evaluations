@@ -173,7 +173,7 @@ See: [Langfuse user feedback docs](https://langfuse.com/docs/scores/user-feedbac
    - `0.0` = thumbs down
 4. The backend calls `langfuse.create_score(trace_id=..., name="user-feedback", value=...)` — the score appears on the trace in the Langfuse UI immediately
 
-View feedback scores at [http://localhost:3000](http://localhost:3000) → Traces → click any trace → Scores tab.
+View feedback scores at [http://localhost:3000](http://localhost:3000) → Traces → click any trace → **Scores** tab. The score also appears as a small badge on the root span in the trace tree.
 
 ## Project Structure
 
