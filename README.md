@@ -144,8 +144,9 @@ Go to **LLM-as-a-Judge**. The first time you visit it will prompt you to set the
 *Option A — UI:*
 1. Go to **LLM-as-a-Judge Evaluators** → click `Create Evaluator`
 2. In the **Set up evaluator** wizard, click on a managed evaluator (e.g. Hallucination, Correctness)
-3. In step **Run Evaluator**, set target to `Observations`, filter by `Type = GENERATION` and `tags contains banking-sentinel`
-4. Save — every new generation will be scored automatically
+3. In step **Run Evaluator**, set target to `Observations`, filter by `Type = GENERATION`
+4. Click `Add filter` → select `Tags` → value `banking-sentinel`
+5. Save — every new generation tagged `banking-sentinel` will be scored automatically
 
 *Option B — Script (uses unstable Langfuse API — may break with future SDK updates):*
 
