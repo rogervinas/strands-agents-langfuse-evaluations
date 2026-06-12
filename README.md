@@ -137,12 +137,12 @@ Go to **Settings → LLM Connections** → add your model provider API key (e.g.
 
 **Step 2 — Set default evaluation model (UI only):**
 
-Go to **LLM-as-a-Judge Evaluators** → **Evaluator Library** → set the **Default Evaluation Model**.
+Go to **LLM-as-a-Judge Evaluators** → **Evaluator Library**. The first time you visit it will prompt you to set the **Default Evaluation Model** — select the LLM connection you added in step 1.
 
 **Step 3 — Create evaluator and rule (UI or script):**
 
 *Option A — UI:*
-1. Go to **LLM-as-a-Judge Evaluators** → click `Create Evaluator`
+1. Go to **LLM-as-a-Judge** → click `Create Evaluator`
 2. In the **Set up evaluator** wizard, choose a managed evaluator (e.g. Hallucination, Correctness) or click `+ Create Custom Evaluator`
 3. In step **Run Evaluator**, set target to `Observations`, filter by `Type = GENERATION`
 4. Save — every new generation will be scored automatically
