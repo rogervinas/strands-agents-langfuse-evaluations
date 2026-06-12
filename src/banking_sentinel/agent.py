@@ -1,7 +1,10 @@
+import logging
 import os
 from datetime import date
 
 from strands import Agent
+
+logger = logging.getLogger(__name__)
 
 from banking_sentinel.knowledge_base import KNOWLEDGE_BASE
 from banking_sentinel.models import ChatResponse
@@ -29,6 +32,7 @@ Provide accurate account support and perform banking actions. Your answers must 
 
 def create_model(provider: str | None = None):
     provider = provider or os.getenv("MODEL_PROVIDER", "ollama")
+    logger.info("Using model provider: %s", provider)
 
     if provider == "ollama":
         from strands.models.ollama import OllamaModel
