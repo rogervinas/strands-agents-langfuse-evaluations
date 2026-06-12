@@ -148,7 +148,7 @@ Go to **LLM-as-a-Judge**. The first time you visit it will prompt you to set the
 4. Click `Add filter` → select `Tags` → operator `any of` → value `banking-sentinel`
 5. Set **Sampling** (100% is fine for this PoC — reduce in production to control costs)
 6. **Run on live incoming observations** is enabled by default — keep it on to score new traces continuously
-7. Map prompt variables: `input` → `input`, `output` → `output` — a preview shows how real traces will be evaluated
+7. Map prompt variables to observation fields — use the live preview to inspect the actual data structure of your traces. Use JSONPath (e.g. `$.choices[0].message.content`) to extract specific nested fields if needed. See: [Langfuse variable mapping docs](https://langfuse.com/docs/evaluation/evaluation-methods/llm-as-a-judge)
 8. Click `Execute` — scores existing matching observations immediately and all new ones going forward
 
 *Option B — Script (uses unstable Langfuse API — may break with future SDK updates):*
