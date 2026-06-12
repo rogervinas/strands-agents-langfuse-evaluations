@@ -142,13 +142,13 @@ Go to **LLM-as-a-Judge**. The first time you visit it will prompt you to set the
 **Step 3 — Create evaluator and rule (UI or script):**
 
 *Option A — UI:*
-1. Go to **LLM-as-a-Judge Evaluators** → click `Create Evaluator`
-2. In the **Set up evaluator** wizard, click on a managed evaluator (e.g. Hallucination, Correctness)
+1. Go to **LLM-as-a-Judge** → click `Create Evaluator`
+2. In the **Set up evaluator** wizard, click on a managed evaluator — prefer ones that only need `input` and `output` for live traces, e.g. **Hallucination** or **Helpfulness** (avoid **Correctness** — it requires `ground_truth` which is not available for live traces)
 3. In step **Run Evaluator**, set target to `Observations`, filter by `Type = GENERATION`
 4. Click `Add filter` → select `Tags` → operator `any of` → value `banking-sentinel`
 5. Set **Sampling** (100% is fine for this PoC — reduce in production to control costs)
 6. **Run on live incoming observations** is enabled by default — keep it on to score new traces continuously
-7. Map prompt variables (`{{input}}`, `{{output}}`) to the corresponding trace fields — a preview shows how real traces will be evaluated
+7. Map prompt variables: `input` → `input`, `output` → `output` — a preview shows how real traces will be evaluated
 8. Click `Execute` — scores existing matching observations immediately and all new ones going forward
 
 *Option B — Script (uses unstable Langfuse API — may break with future SDK updates):*
