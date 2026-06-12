@@ -138,7 +138,7 @@ Go to **Settings → LLM Connections** → add your model provider API key (e.g.
 **Step 2 — Create evaluator and rule (UI or script):**
 
 *Option A — UI:*
-1. Go to **Evaluators** → click `+ Set up Evaluator`
+1. Go to **LLM-as-a-Judge** → click `+ Set up Evaluator`
 2. Choose a built-in evaluator (e.g. Hallucination, Toxicity) or write a custom prompt
 3. Set **Evaluation target** to `Live Observations`
 4. Add a filter: `tag = banking-sentinel`
