@@ -142,8 +142,8 @@ Go to **LLM-as-a-Judge Evaluators** → **Evaluator Library**. The first time yo
 **Step 3 — Create evaluator and rule (UI or script):**
 
 *Option A — UI:*
-1. Go to **LLM-as-a-Judge** → click `Create Evaluator`
-2. In the **Set up evaluator** wizard, choose a managed evaluator (e.g. Hallucination, Correctness) or click `+ Create Custom Evaluator`
+1. Go to **LLM-as-a-Judge Evaluators** → click `Create Evaluator`
+2. In the **Set up evaluator** wizard, click on a managed evaluator (e.g. Hallucination, Correctness)
 3. In step **Run Evaluator**, set target to `Observations`, filter by `Type = GENERATION`
 4. Save — every new generation will be scored automatically
 
