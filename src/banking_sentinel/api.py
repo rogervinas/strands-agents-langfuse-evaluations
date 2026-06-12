@@ -21,6 +21,9 @@ from banking_sentinel.tools import create_tools
 
 app = FastAPI()
 
+_model = create_model()
+_sessions: dict[str, object] = {}
+
 
 class ChatRequest(BaseModel):
     user_id: str
@@ -31,14 +34,16 @@ class ChatRequest(BaseModel):
 
 @app.post("/chat")
 def chat_endpoint(request: ChatRequest) -> ChatResponse:
-    reference_date = date.today()
-    transactions = build_transactions(reference_date)
-    card_state = CardState()
-    dispute_store = DisputeStore(transactions)
-    tools = create_tools(card_state, dispute_store, transactions, reference_date)
-    model = create_model()
-    agent = create_sentinel_agent(model, tools, request.user_tier, request.account_id, reference_date)
-    return chat(agent, request.message)
+    session_key = f"{request.user_id}:{request.account_id}"
+    if session_key not in _sessions:
+        reference_date = date.today()
+        transactions = build_transactions(reference_date)
+        card_state = CardState()
+        dispute_store = DisputeStore(transactions)
+        tools = create_tools(card_state, dispute_store, transactions, reference_date)
+        _sessions[session_key] = create_sentinel_agent(_model, tools, request.user_tier, request.account_id, reference_date)
+        logger.info("New session: %s", session_key)
+    return chat(_sessions[session_key], request.message)
 
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
