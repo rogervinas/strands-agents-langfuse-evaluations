@@ -120,11 +120,19 @@ Create the dataset (idempotent, safe to re-run):
 uv run python -m evals.langfuse.create_dataset
 ```
 
-Run the experiment (dataset is created automatically if missing):
+Run the experiment (dataset is created automatically if missing).
+
+**Embedded** — agent runs in-process, no server needed:
 
 ```bash
 uv run python -m evals.langfuse.run_experiment embedded
+```
+
+**API** — evaluates a deployed agent via HTTP, treating it as a black box:
+
+```bash
 uv run python -m evals.langfuse.run_experiment api --url http://localhost:8000
+uv run python -m evals.langfuse.run_experiment api --url https://your-agent.example.com
 ```
 
 View results at [http://localhost:3000](http://localhost:3000) → project `banking-sentinel` → Datasets.
