@@ -1,8 +1,13 @@
 from datetime import date
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from langfuse import get_client
 from pydantic import BaseModel
+
+load_dotenv()
+get_client()  # initializes OTel → Langfuse tracing
 
 from banking_sentinel.agent import create_model, create_sentinel_agent, chat
 from banking_sentinel.data import CardState, DisputeStore, build_transactions
