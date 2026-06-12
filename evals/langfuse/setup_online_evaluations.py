@@ -33,6 +33,7 @@ from langfuse.api.unstable.evaluation_rules.types import (
 from langfuse.api.unstable.commons.types.evaluation_rule_mapping import (
     EvaluationRuleMapping,
 )
+from langfuse.api.unstable.commons.types.evaluator_model_config import EvaluatorModelConfig
 from langfuse.api.unstable.commons.types.evaluator_scope import EvaluatorScope
 
 EVALUATOR_NAME = "banking-sentinel-claim-match"
@@ -50,15 +51,49 @@ Score 0.0 if the response is unhelpful, inaccurate, or inappropriate.
 """.strip()
 
 
+def _get_model_config(langfuse) -> EvaluatorModelConfig:
+    """Fetches the first configured LLM connection and pairs it with the MODEL env var."""
+    connections = langfuse.api.llm_connections.list()
+    if not connections.data:
+        raise RuntimeError(
+            "No LLM connections found. Add one in Langfuse UI: Settings → LLM Connections"
+        )
+    conn = connections.data[0]
+    provider = conn.provider
+
+    model_env = {
+        "gemini": "GEMINI_MODEL",
+        "openai": "OPENAI_MODEL",
+        "anthropic": "ANTHROPIC_MODEL",
+        "bedrock": "BEDROCK_MODEL",
+    }
+    import os
+    model = os.getenv(model_env.get(provider, ""), "") or _default_model(provider)
+    print(f"  Using LLM connection: provider={provider}, model={model}")
+    return EvaluatorModelConfig(provider=provider, model=model)
+
+
+def _default_model(provider: str) -> str:
+    defaults = {
+        "gemini": "gemini-2.5-flash",
+        "openai": "gpt-4o-mini",
+        "anthropic": "claude-haiku-4-5-20251001",
+    }
+    return defaults.get(provider, "unknown")
+
+
 def setup():
     langfuse = get_client()
     unstable = langfuse.api.unstable
+
+    model_config = _get_model_config(langfuse)
 
     # Step 1: Create evaluator (idempotent — Langfuse creates a new version if name exists)
     print(f"Creating evaluator '{EVALUATOR_NAME}' ...")
     evaluator = unstable.evaluators.create(
         name=EVALUATOR_NAME,
         prompt=EVALUATOR_PROMPT,
+        model_config=model_config,
         output_definition=EvaluatorOutputDefinition_Numeric(
             reasoning=EvaluatorOutputFieldDefinition(
                 description="Explain why the response is helpful or not.",
