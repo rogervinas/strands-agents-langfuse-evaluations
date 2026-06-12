@@ -143,7 +143,9 @@ Go to **LLM-as-a-Judge**. The first time you visit it will prompt you to set the
 
 *Option A — UI:*
 1. Go to **LLM-as-a-Judge** → click `Create Evaluator`
-2. In the **Set up evaluator** wizard, click on a managed evaluator — prefer ones that only need `input` and `output` for live traces, e.g. **Hallucination** or **Helpfulness** (avoid **Correctness** — it requires `ground_truth` which is not available for live traces)
+2. In the **Set up evaluator** wizard, click on a managed evaluator:
+   - For **`Observations` target (live traces)**: use evaluators that only need `input` and `output`, e.g. **Hallucination** or **Helpfulness** — ground truth is not available for live production traces
+   - For **`Experiments` target**: use **Correctness** — `expected_output` from the dataset is available as `ground_truth` and can be mapped to `{{ground_truth}}`
 3. In step **Run Evaluator**, set target to `Observations`, filter by `Type = GENERATION`
 4. Click `Add filter` → select `Tags` → operator `any of` → value `banking-sentinel`
 5. Set **Sampling** (100% is fine for this PoC — reduce in production to control costs)
