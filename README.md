@@ -3,14 +3,14 @@
 A Python banking assistant agent built with [Strands Agents](https://strandsagents.com) (AWS), demonstrating two evaluation approaches using [Langfuse](https://langfuse.com):
 
 1. **Native (Strands Evals SDK)** — local reports, no infrastructure required
-2. **Langfuse delegated** — scores persisted in Langfuse dashboard, CI/CD gate via GitHub Actions
+2. **Langfuse delegated** — scores persisted in Langfuse dashboard, CI/CD integration
 
 ## Prerequisites
 
 - Python 3.11+
 - [uv](https://docs.astral.sh/uv/)
 - Docker + Docker Compose
-- [Ollama](https://ollama.com) (for local LLM, default provider)
+- A model provider (see [Model Providers](#model-providers))
 
 ## Setup
 
@@ -26,21 +26,22 @@ uv sync
 cp .env.example .env
 ```
 
-Edit `.env` as needed. Defaults work out of the box for local dev with Ollama + Langfuse.
+Edit `.env` to set your model provider and credentials. See [Model Providers](#model-providers).
 
 ### 3. Start Langfuse
+
+Required for tracing and Langfuse evaluations. Skip if only using Strands Evals.
 
 ```bash
 docker compose -f docker-compose-langfuse.yml up -d
 ```
 
-Langfuse UI will be available at [http://localhost:3000](http://localhost:3000).
+Langfuse UI: [http://localhost:3000](http://localhost:3000)
 
 **Pre-provisioned credentials:**
 
 | | |
 |---|---|
-| URL | http://localhost:3000 |
 | Email | `admin@local.dev` |
 | Password | `password` |
 | Public key | `publickey-local` |
@@ -64,14 +65,15 @@ To stop and remove all data:
 docker compose -f docker-compose-langfuse.yml down -v
 ```
 
-### 4. Start Ollama (default model provider)
+## Model Providers
 
-```bash
-ollama serve
-ollama pull llama3.1:8b
-```
+Set `MODEL_PROVIDER` in `.env`:
 
-Alternatively, set `MODEL_PROVIDER=bedrock` or `MODEL_PROVIDER=gemini` in `.env`.
+| Provider | `MODEL_PROVIDER` | Requirements |
+|---|---|---|
+| Ollama (default) | `ollama` | `ollama serve` + `ollama pull llama3.1:8b` |
+| AWS Bedrock | `bedrock` | AWS credentials configured |
+| Google Gemini | `gemini` | `GOOGLE_API_KEY` in `.env` |
 
 ## Running the Agent
 
@@ -81,67 +83,46 @@ uv run uvicorn banking_sentinel.api:app --reload
 
 Open [http://localhost:8000](http://localhost:8000) to use the chat UI.
 
-## Model Providers
-
-| Provider | `MODEL_PROVIDER` | Requirements |
-|---|---|---|
-| Ollama (default) | `ollama` | `ollama serve` + `ollama pull llama3.1:8b` |
-| AWS Bedrock | `bedrock` | AWS credentials configured |
-| Google Gemini | `gemini` | `GOOGLE_API_KEY` in `.env` |
+Agent traces are sent to Langfuse automatically via OpenTelemetry when `LANGFUSE_*` and `OTEL_*` env vars are set.
 
 ## Evaluations
 
-### Approach 1: Native Strands Evals (local)
+Both evaluation approaches support two targets:
 
-Runs evaluation cases using the Strands Evals SDK. No Langfuse required.
+- **Embedded** — agent runs in-process, no server needed. Ideal for local dev and mocking specific scenarios (inject any `CardState`, `DisputeStore`, or transactions).
+- **API** — evaluates a deployed agent via HTTP, treating it as a black box. Suitable for staging or production.
 
-Two targets are supported:
+### Approach 1: Native Strands Evals
 
-**Embedded** — agent runs in-process, no server needed. Ideal for local dev and mocking specific scenarios:
+Uses the Strands Evals SDK with `Case`, `Experiment`, and `OutputEvaluator`. Runs locally, no Langfuse required.
 
 ```bash
 uv run python -m evals.strands.run_evaluations embedded
-```
 
-**API** — evaluates a deployed agent via HTTP, treating it as a black box. Suitable for staging or production:
-
-```bash
 uv run python -m evals.strands.run_evaluations api --url http://localhost:8000
 uv run python -m evals.strands.run_evaluations api --url https://your-agent.example.com
 ```
 
-### Approach 2: Langfuse Experiments (delegated)
+### Approach 2: Langfuse Experiments
 
-Requires Langfuse running (`docker compose up -d`).
+Requires Langfuse running (`docker compose -f docker-compose-langfuse.yml up -d`).
 
-Create the dataset (idempotent, safe to re-run):
+The dataset is created automatically on first run, but can also be created explicitly (idempotent):
 
 ```bash
 uv run python -m evals.langfuse.create_dataset
 ```
 
-Run the experiment (dataset is created automatically if missing).
-
-**Embedded** — agent runs in-process, no server needed:
+Run the experiment:
 
 ```bash
 uv run python -m evals.langfuse.run_experiment embedded
-```
 
-**API** — evaluates a deployed agent via HTTP, treating it as a black box:
-
-```bash
 uv run python -m evals.langfuse.run_experiment api --url http://localhost:8000
 uv run python -m evals.langfuse.run_experiment api --url https://your-agent.example.com
 ```
 
 View results at [http://localhost:3000](http://localhost:3000) → project `banking-sentinel` → Datasets.
-
-### Bash alternative (dataset creation)
-
-```bash
-bash scripts/create-dataset.sh
-```
 
 ## Project Structure
 
@@ -150,18 +131,16 @@ src/banking_sentinel/
 ├── models.py          # Pydantic models (ChatResponse, SuggestedAction)
 ├── data.py            # Mock transactions, card state, dispute store
 ├── knowledge_base.py  # Policy documents (embedded in system prompt)
-├── tools.py           # 7 Strands @tool functions
-├── agent.py           # Agent factory (ollama/bedrock/gemini)
-└── api.py             # FastAPI app + chat UI
+├── tools.py           # 7 Strands @tool functions (factory pattern)
+├── agent.py           # Agent factory (ollama/bedrock/gemini) + chat()
+└── api.py             # FastAPI app + session management + Langfuse tracing
 evals/
 ├── strands/
-│   └── run_evaluations.py   # Native Strands Evals
+│   └── run_evaluations.py   # Native Strands Evals (embedded + api targets)
 └── langfuse/
-    ├── create_dataset.py    # Create Langfuse dataset
-    └── run_experiment.py    # Run Langfuse experiment
+    ├── create_dataset.py    # Create Langfuse dataset (idempotent)
+    └── run_experiment.py    # Run Langfuse experiment (embedded + api targets)
 static/
-└── chat.html          # Chat UI
-scripts/
-└── create-dataset.sh  # Bash dataset creation via Langfuse REST API
+└── index.html         # Chat UI
 docker-compose-langfuse.yml  # Langfuse stack (postgres, clickhouse, minio, redis)
 ```
