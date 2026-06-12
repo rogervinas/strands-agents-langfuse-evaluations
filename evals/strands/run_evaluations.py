@@ -120,15 +120,16 @@ def run(task):
         print(f"Evaluator: {report.evaluator_name}")
         print(f"Overall score: {report.overall_score:.2f}")
         for i, case in enumerate(CASES):
-            print(f"  [{'+' if report.test_passes[i] else '-'}] {case.name}: score={report.scores[i]:.2f} — {report.reasons[i]}")
+            icon = "✅" if report.test_passes[i] else "❌"
+            print(f"  {icon} {case.name}: score={report.scores[i]:.2f} — {report.reasons[i]}")
         if report.overall_score < 0.8:
             failed = True
 
     if failed:
-        print("\nEvaluation FAILED: one or more scores below 0.8")
+        print("\n❌ Evaluation FAILED: one or more scores below 0.8")
         sys.exit(1)
     else:
-        print("\nEvaluation PASSED")
+        print("\n✅ Evaluation PASSED")
 
 
 if __name__ == "__main__":
