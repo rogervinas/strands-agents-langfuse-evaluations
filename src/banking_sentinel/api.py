@@ -16,9 +16,12 @@ load_dotenv()
 langfuse = get_client()
 logger.info("Model provider: %s", os.getenv("MODEL_PROVIDER", "ollama"))
 
+from opentelemetry import trace as otel_trace
+from opentelemetry.trace import format_trace_id
+
 from banking_sentinel.agent import create_model, create_sentinel_agent, chat
 from banking_sentinel.data import CardState, DisputeStore, Transaction, build_transactions
-from banking_sentinel.models import ChatResponse
+from banking_sentinel.models import ChatApiResponse, ChatResponse
 from banking_sentinel.tools import create_tools
 
 app = FastAPI()
@@ -46,8 +49,14 @@ class ChatRequest(BaseModel):
     message: str
 
 
+class FeedbackRequest(BaseModel):
+    trace_id: str
+    value: float  # 1.0 = thumbs up, 0.0 = thumbs down
+    comment: str | None = None
+
+
 @app.post("/chat")
-def chat_endpoint(request: ChatRequest) -> ChatResponse:
+def chat_endpoint(request: ChatRequest) -> ChatApiResponse:
     session_id = request.session_id or f"{request.user_id}-{request.account_id}"
 
     if session_id not in _tool_states:
@@ -68,7 +77,22 @@ def chat_endpoint(request: ChatRequest) -> ChatResponse:
         tools = create_tools(state.card_state, state.dispute_store, state.transactions, state.reference_date)
         session_manager = FileSessionManager(session_id=session_id, storage_dir="sessions")
         agent = create_sentinel_agent(_model, tools, state.user_tier, request.account_id, state.reference_date, session_manager=session_manager)
-        return chat(agent, request.message)
+        response = chat(agent, request.message)
+        span_ctx = otel_trace.get_current_span().get_span_context()
+        trace_id = format_trace_id(span_ctx.trace_id) if span_ctx.is_valid else None
+        return ChatApiResponse(answer=response.answer, suggested_actions=response.suggested_actions, trace_id=trace_id)
+
+
+@app.post("/feedback")
+def feedback_endpoint(request: FeedbackRequest):
+    langfuse.create_score(
+        trace_id=request.trace_id,
+        name="user-feedback",
+        value=request.value,
+        comment=request.comment,
+    )
+    langfuse.flush()
+    return {"ok": True}
 
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

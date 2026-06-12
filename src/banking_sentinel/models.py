@@ -14,3 +14,9 @@ class SuggestedAction(str, Enum):
 class ChatResponse(BaseModel):
     answer: str = Field(description="The response to the user")
     suggested_actions: list[SuggestedAction] = Field(description="Suggested next actions")
+
+
+class ChatApiResponse(BaseModel):
+    answer: str
+    suggested_actions: list[SuggestedAction]
+    trace_id: str | None = None

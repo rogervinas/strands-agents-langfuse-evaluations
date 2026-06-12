@@ -159,6 +159,22 @@ Results appear as scores on each trace in the Langfuse UI.
 
 > **Note:** Langfuse provides an [unstable API](https://langfuse.com/docs/scores/model-based-evals) to create evaluators and rules programmatically, but it is currently only available on Langfuse Cloud — not in self-hosted deployments.
 
+## User Feedback
+
+The chat UI includes 👍 / 👎 buttons on every assistant message. Clicking one sends a score to Langfuse immediately.
+See: [Langfuse user feedback docs](https://langfuse.com/docs/scores/user-feedback)
+
+**How it works:**
+
+1. The `/chat` endpoint returns a `trace_id` alongside the response — derived from the active OpenTelemetry span
+2. The UI attaches thumbs up/down buttons to each message, keyed to that `trace_id`
+3. On click, the UI posts to `/feedback`:
+   - `1.0` = thumbs up
+   - `0.0` = thumbs down
+4. The backend calls `langfuse.create_score(trace_id=..., name="user-feedback", value=...)` — the score appears on the trace in the Langfuse UI immediately
+
+View feedback scores at [http://localhost:3000](http://localhost:3000) → Traces → click any trace → Scores tab.
+
 ## Project Structure
 
 ```

@@ -30,6 +30,11 @@
         .actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0; }
         .action-chip { display: inline-block; padding: 4px 10px; background: #eef; color: #1a1a2e; border: 1px solid #ccd; border-radius: 16px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
         .action-chip:hover { background: #ddf; }
+        .feedback { display: flex; gap: 6px; margin-top: 8px; }
+        .feedback-btn { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 2px 8px; font-size: 14px; cursor: pointer; color: #999; transition: all 0.15s; }
+        .feedback-btn:hover { border-color: #aaa; color: #333; }
+        .feedback-btn.selected-up { border-color: #4a4; color: #4a4; background: #efe; }
+        .feedback-btn.selected-down { border-color: #a44; color: #a44; background: #fee; }
         .input-bar { background: #fff; border-top: 1px solid #ddd; padding: 16px 24px; display: flex; gap: 12px; }
         .input-bar input { flex: 1; padding: 10px 16px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; outline: none; }
         .input-bar input:focus { border-color: #1a1a2e; }
@@ -96,6 +101,21 @@
                     });
                     div.appendChild(actions);
                 }
+                if (content.trace_id) {
+                    const feedback = document.createElement("div");
+                    feedback.className = "feedback";
+                    const up = document.createElement("button");
+                    up.className = "feedback-btn";
+                    up.textContent = "👍";
+                    const down = document.createElement("button");
+                    down.className = "feedback-btn";
+                    down.textContent = "👎";
+                    up.addEventListener("click", () => sendFeedback(content.trace_id, 1.0, up, down));
+                    down.addEventListener("click", () => sendFeedback(content.trace_id, 0.0, down, up));
+                    feedback.appendChild(up);
+                    feedback.appendChild(down);
+                    div.appendChild(feedback);
+                }
             } else {
                 div.textContent = content;
             }
@@ -150,6 +170,16 @@
                 .replace(/^- (.+)$/gm, "<li>$1</li>")
                 .replace(/(<li>.*<\/li>)/s, "<ul>$1</ul>")
                 .replace(/\n/g, "<br>");
+        }
+
+        async function sendFeedback(trace_id, value, selected, other) {
+            selected.classList.add(value === 1.0 ? "selected-up" : "selected-down");
+            other.classList.remove("selected-up", "selected-down");
+            await fetch("/feedback", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ trace_id, value }),
+            });
         }
 
         async function send() {
