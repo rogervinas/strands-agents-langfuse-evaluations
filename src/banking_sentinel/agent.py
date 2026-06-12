@@ -60,7 +60,7 @@ def create_sentinel_agent(model, tools, user_tier: str, account_id: str, referen
         account_id=account_id,
         knowledge_base=KNOWLEDGE_BASE,
     )
-    return Agent(model=model, tools=tools, system_prompt=system_prompt, callback_handler={})
+    return Agent(model=model, tools=tools, system_prompt=system_prompt, callback_handler=lambda **_: None)
 
 
 def chat(agent: Agent, message: str) -> ChatResponse:
