@@ -81,18 +81,25 @@ def chat_endpoint(request: ChatRequest) -> ChatApiResponse:
             agent = create_sentinel_agent(_model, tools, state.user_tier, request.account_id, state.reference_date, session_manager=session_manager)
             response = chat(agent, request.message)
         trace_id = format_trace_id(span.get_span_context().trace_id)
+        logger.info("Chat trace_id: %s", trace_id)
         return ChatApiResponse(answer=response.answer, suggested_actions=response.suggested_actions, trace_id=trace_id)
 
 
 @app.post("/feedback")
 def feedback_endpoint(request: FeedbackRequest):
-    langfuse.create_score(
-        trace_id=request.trace_id,
-        name="user-feedback",
-        value=request.value,
-        comment=request.comment,
-    )
-    langfuse.flush()
+    logger.info("Feedback: trace_id=%s value=%s", request.trace_id, request.value)
+    try:
+        score = langfuse.create_score(
+            trace_id=request.trace_id,
+            name="user-feedback",
+            value=request.value,
+            comment=request.comment,
+        )
+        logger.info("Score created: %s", score)
+        langfuse.flush()
+    except Exception as e:
+        logger.error("Failed to create score: %s", e)
+        raise
     return {"ok": True}
 
 
