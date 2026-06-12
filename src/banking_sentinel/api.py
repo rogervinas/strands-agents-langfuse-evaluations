@@ -6,7 +6,7 @@ from datetime import date
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from langfuse import get_client
+from langfuse import get_client, propagate_attributes
 from pydantic import BaseModel
 from strands.session.file_session_manager import FileSessionManager
 
@@ -65,7 +65,9 @@ def chat_endpoint(request: ChatRequest) -> ChatResponse:
     tools = create_tools(state.card_state, state.dispute_store, state.transactions, state.reference_date)
     session_manager = FileSessionManager(session_id=session_id, storage_dir="sessions")
     agent = create_sentinel_agent(_model, tools, state.user_tier, request.account_id, state.reference_date, session_manager=session_manager)
-    return chat(agent, request.message)
+
+    with propagate_attributes(user_id=request.user_id, session_id=session_id):
+        return chat(agent, request.message)
 
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
