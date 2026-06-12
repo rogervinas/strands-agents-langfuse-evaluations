@@ -146,7 +146,9 @@ Go to **LLM-as-a-Judge**. The first time you visit it will prompt you to set the
 2. In the **Set up evaluator** wizard, click on a managed evaluator (e.g. Hallucination, Correctness)
 3. In step **Run Evaluator**, set target to `Observations`, filter by `Type = GENERATION`
 4. Click `Add filter` → select `Tags` → operator `any of` → value `banking-sentinel`
-5. Save — every new generation tagged `banking-sentinel` will be scored automatically
+5. Set **Sampling** (default 100% — reduce to control costs)
+6. Map prompt variables (`{{input}}`, `{{output}}`) to the corresponding trace fields — a preview shows how real traces will be evaluated
+7. Save — every new generation tagged `banking-sentinel` will be scored automatically
 
 *Option B — Script (uses unstable Langfuse API — may break with future SDK updates):*
 
