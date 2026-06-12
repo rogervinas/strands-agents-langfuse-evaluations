@@ -1,6 +1,8 @@
+import argparse
 import sys
 from datetime import date
 
+import httpx
 from dotenv import load_dotenv
 from strands_evals import Case, Experiment
 from strands_evals.evaluators import OutputEvaluator
@@ -61,7 +63,9 @@ Score 0.0 if the answer does not match the claim.
 )
 
 
-def task(case: Case) -> dict:
+def embedded_task(case: Case) -> dict:
+    """Runs the agent in-process. Useful for local dev and unit-style evals.
+    Inject any CardState/DisputeStore/transactions to mock specific scenarios."""
     inp = case.input
     transactions = build_transactions(REFERENCE_DATE)
     card_state = CardState()
@@ -75,7 +79,31 @@ def task(case: Case) -> dict:
     }
 
 
-if __name__ == "__main__":
+def api_task(api_url: str):
+    """Returns a task function that calls the deployed agent via HTTP.
+    Treats the agent as a black box — suitable for staging/production evals."""
+    def task(case: Case) -> dict:
+        inp = case.input
+        response = httpx.post(
+            f"{api_url}/chat",
+            json={
+                "user_id": inp["userId"],
+                "account_id": inp["accountId"],
+                "user_tier": inp["accountTier"],
+                "message": inp["message"],
+            },
+            timeout=60,
+        )
+        response.raise_for_status()
+        data = response.json()
+        return {
+            "answer": data["answer"],
+            "suggested_actions": data["suggested_actions"],
+        }
+    return task
+
+
+def run(task):
     experiment = Experiment(cases=CASES, evaluators=[correctness_evaluator, claim_evaluator])
     reports = experiment.run_evaluations(task)
 
@@ -94,3 +122,22 @@ if __name__ == "__main__":
         sys.exit(1)
     else:
         print("\nEvaluation PASSED")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="target", required=True)
+
+    subparsers.add_parser("embedded", help="Run agent in-process (no server needed)")
+
+    api_parser = subparsers.add_parser("api", help="Run against a deployed agent via HTTP")
+    api_parser.add_argument("--url", default="http://localhost:8000", help="Base URL of the deployed agent")
+
+    args = parser.parse_args()
+
+    if args.target == "embedded":
+        print("Target: embedded")
+        run(embedded_task)
+    else:
+        print(f"Target: api ({args.url})")
+        run(api_task(args.url))
