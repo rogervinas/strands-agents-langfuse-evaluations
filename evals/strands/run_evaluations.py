@@ -47,7 +47,15 @@ CASES = [
 
 _model = create_model()
 
-correctness_evaluator = OutputEvaluator(
+class CorrectnessEvaluator(OutputEvaluator):
+    pass
+
+
+class ClaimEvaluator(OutputEvaluator):
+    pass
+
+
+correctness_evaluator = CorrectnessEvaluator(
     model=_model,
     rubric="""
 Score 1.0 if the actual output's suggested_actions contains all actions listed in expected_output's suggestedActions.
@@ -55,7 +63,7 @@ Score 0.0 if any expected action is missing from the actual output.
 """.strip(),
 )
 
-claim_evaluator = OutputEvaluator(
+claim_evaluator = ClaimEvaluator(
     model=_model,
     rubric="""
 Score 1.0 if the actual output's answer matches the claim in expected_output.
