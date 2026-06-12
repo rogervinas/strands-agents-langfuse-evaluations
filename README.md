@@ -148,7 +148,7 @@ Go to **LLM-as-a-Judge**. The first time you visit it will prompt you to set the
 4. Click `Add filter` → select `Tags` → operator `any of` → value `banking-sentinel`
 5. Set **Sampling** (100% is fine for this PoC — reduce in production to control costs)
 6. Map prompt variables (`{{input}}`, `{{output}}`) to the corresponding trace fields — a preview shows how real traces will be evaluated
-7. Save — every new generation tagged `banking-sentinel` will be scored automatically
+7. Click `Execute` — every new generation tagged `banking-sentinel` will be scored automatically
 
 *Option B — Script (uses unstable Langfuse API — may break with future SDK updates):*
 
