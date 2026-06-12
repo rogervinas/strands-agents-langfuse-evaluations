@@ -100,7 +100,7 @@ def api_task(api_url: str):
         response = httpx.post(
             f"{api_url}/chat",
             json={
-                "user_id": f"test-user-{run_id}",
+                "user_id": f"strands-eval-user-{run_id}",
                 "account_id": inp["accountId"],
                 "user_tier": inp["accountTier"],
                 "message": inp["message"],
