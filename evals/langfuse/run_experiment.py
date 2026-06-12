@@ -11,6 +11,7 @@ from strands import Agent
 load_dotenv()
 
 from langfuse import get_client
+from langfuse.experiment import Evaluation
 
 from banking_sentinel.agent import create_model, create_sentinel_agent, chat
 from banking_sentinel.data import CardState, DisputeStore, build_transactions
@@ -71,11 +72,11 @@ def correctness_evaluator(*, output, expected_output, **kwargs):
     expected = set(expected_output.get("suggestedActions", []))
     actual = set(output.get("suggested_actions", []))
     score = len(expected & actual) / len(expected) if expected else 1.0
-    return {
-        "name": "correctness",
-        "value": score,
-        "comment": f"Expected {expected}, got {actual}",
-    }
+    return Evaluation(
+        name="correctness",
+        value=score,
+        comment=f"Expected {expected}, got {actual}",
+    )
 
 
 def claim_evaluator(*, output, expected_output, **kwargs):
@@ -89,11 +90,11 @@ def claim_evaluator(*, output, expected_output, **kwargs):
         f"Claim: {claim}"
     )
     passed = "YES" in str(result).upper()
-    return {
-        "name": "claim_match",
-        "value": 1.0 if passed else 0.0,
-        "comment": f"Claim: {claim}",
-    }
+    return Evaluation(
+        name="claim_match",
+        value=1.0 if passed else 0.0,
+        comment=f"Claim: {claim}",
+    )
 
 
 # --- Runner ---
