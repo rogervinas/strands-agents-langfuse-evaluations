@@ -1,3 +1,5 @@
+import logging
+import os
 from datetime import date
 
 from dotenv import load_dotenv
@@ -6,8 +8,12 @@ from fastapi.staticfiles import StaticFiles
 from langfuse import get_client
 from pydantic import BaseModel
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 load_dotenv()
 langfuse = get_client()
+logger.info("Model provider: %s", os.getenv("MODEL_PROVIDER", "ollama"))
 
 from banking_sentinel.agent import create_model, create_sentinel_agent, chat
 from banking_sentinel.data import CardState, DisputeStore, build_transactions

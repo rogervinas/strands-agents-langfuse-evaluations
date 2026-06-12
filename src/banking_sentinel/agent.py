@@ -32,7 +32,6 @@ Provide accurate account support and perform banking actions. Your answers must 
 
 def create_model(provider: str | None = None):
     provider = provider or os.getenv("MODEL_PROVIDER", "ollama")
-    logger.info("Using model provider: %s", provider)
 
     if provider == "ollama":
         from strands.models.ollama import OllamaModel
