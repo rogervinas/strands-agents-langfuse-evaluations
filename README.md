@@ -131,19 +131,21 @@ See: [Langfuse LLM-as-judge docs](https://langfuse.com/docs/scores/model-based-e
 
 All chat traces are tagged `banking-sentinel` and named `chat`, making them easy to target.
 
-**Step 1 — LLM Connection (UI only, no API available):**
+**Step 1 — Add LLM Connection (UI only, no API available):**
 
 Go to **Settings → LLM Connections** → add your model provider API key (e.g. Gemini, OpenAI).
 
-**Step 2 — Create evaluator and rule (UI or script):**
+**Step 2 — Set default evaluation model (UI only):**
+
+Go to **LLM-as-a-Judge Evaluators** → **Evaluator Library** → set the **Default Evaluation Model**.
+
+**Step 3 — Create evaluator and rule (UI or script):**
 
 *Option A — UI:*
-1. Go to **LLM-as-a-Judge** → click `Create Evaluator`
-2. Choose a built-in evaluator (e.g. Hallucination, Toxicity) or write a custom prompt
-3. Set **Evaluation target** to `Live Observations`
-4. Add a filter: `tag = banking-sentinel`
-5. Map `{{input}}` and `{{output}}` to your trace fields
-6. Save
+1. Go to **LLM-as-a-Judge Evaluators** → click `Create Evaluator`
+2. In the **Set up evaluator** wizard, choose a managed evaluator (e.g. Hallucination, Correctness) or click `+ Create Custom Evaluator`
+3. In step **Run Evaluator**, set target to `Observations`, filter by `Type = GENERATION`
+4. Save — every new generation will be scored automatically
 
 *Option B — Script (uses unstable Langfuse API — may break with future SDK updates):*
 
