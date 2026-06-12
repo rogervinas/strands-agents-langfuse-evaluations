@@ -53,14 +53,14 @@ def create_model(provider: str | None = None):
         raise ValueError(f"Unknown MODEL_PROVIDER: {provider!r}. Use 'ollama', 'bedrock' or 'gemini'.")
 
 
-def create_sentinel_agent(model, tools, user_tier: str, account_id: str, reference_date: date) -> Agent:
+def create_sentinel_agent(model, tools, user_tier: str, account_id: str, reference_date: date, session_manager=None) -> Agent:
     system_prompt = _SYSTEM_PROMPT_TEMPLATE.format(
         user_tier=user_tier,
         current_date=reference_date.isoformat(),
         account_id=account_id,
         knowledge_base=KNOWLEDGE_BASE,
     )
-    return Agent(model=model, tools=tools, system_prompt=system_prompt, callback_handler=lambda **_: None)
+    return Agent(model=model, tools=tools, system_prompt=system_prompt, session_manager=session_manager, callback_handler=lambda **_: None)
 
 
 def chat(agent: Agent, message: str) -> ChatResponse:
