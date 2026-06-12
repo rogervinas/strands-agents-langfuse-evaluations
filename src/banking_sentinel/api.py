@@ -7,6 +7,7 @@ from langfuse import get_client
 from pydantic import BaseModel
 
 load_dotenv()
+load_dotenv(".env.local", override=True)
 langfuse = get_client()
 
 from banking_sentinel.agent import create_model, create_sentinel_agent, chat
