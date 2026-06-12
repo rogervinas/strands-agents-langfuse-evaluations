@@ -2,6 +2,7 @@
 Set up online evaluations (LLM-as-judge on live traces) in Langfuse.
 
 WARNING: Uses the Langfuse unstable API — may break with future SDK updates.
+WARNING: Only works on Langfuse Cloud — the unstable API is not available in self-hosted.
 See: https://langfuse.com/docs/scores/model-based-evals
 
 Prerequisites (UI only — no API available):

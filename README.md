@@ -156,7 +156,7 @@ Go to **LLM-as-a-Judge**. The first time you visit it will prompt you to set the
    Use the live preview to verify the mapping looks correct with your real traces before activating
 8. Click `Execute` — scores existing matching observations immediately and all new ones going forward
 
-*Option B — Script (uses unstable Langfuse API — may break with future SDK updates):*
+*Option B — Script (uses unstable Langfuse API — **Langfuse Cloud only**, not available in self-hosted):*
 
 ```bash
 uv run python -m evals.langfuse.setup_online_evaluations
