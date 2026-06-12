@@ -137,14 +137,14 @@ Go to **Settings → LLM Connections** → add your model provider API key (e.g.
 
 **Step 2 — Set default evaluation model (UI only):**
 
-Go to **LLM-as-a-Judge Evaluators** → **Evaluator Library**. The first time you visit it will prompt you to set the **Default Evaluation Model** — select the LLM connection you added in step 1.
+Go to **LLM-as-a-Judge**. The first time you visit it will prompt you to set the **Default Evaluation Model** — select the LLM connection you added in step 1.
 
 **Step 3 — Create evaluator and rule (UI or script):**
 
 *Option A — UI:*
 1. Go to **LLM-as-a-Judge Evaluators** → click `Create Evaluator`
 2. In the **Set up evaluator** wizard, click on a managed evaluator (e.g. Hallucination, Correctness)
-3. In step **Run Evaluator**, set target to `Observations`, filter by `Type = GENERATION`
+3. In step **Run Evaluator**, set target to `Observations`, filter by `Type = GENERATION` and `tags contains banking-sentinel`
 4. Save — every new generation will be scored automatically
 
 *Option B — Script (uses unstable Langfuse API — may break with future SDK updates):*
