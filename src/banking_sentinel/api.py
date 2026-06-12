@@ -8,8 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from langfuse import get_client
 from pydantic import BaseModel
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("uvicorn.error")
 
 load_dotenv()
 langfuse = get_client()
