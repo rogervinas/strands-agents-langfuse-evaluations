@@ -124,6 +124,24 @@ uv run python -m evals.langfuse.run_experiment api --url https://your-agent.exam
 
 View results at [http://localhost:3000](http://localhost:3000) → project `banking-sentinel` → Datasets.
 
+### Online Evaluations (LLM-as-judge on live traces)
+
+Langfuse can automatically score live production traces as they arrive — no code changes needed beyond what's already set up.
+
+All chat traces are tagged `banking-sentinel` and named `chat`, making them easy to target.
+
+**Setup in Langfuse UI:**
+
+1. Go to **Settings → LLM Connections** → add your model provider API key (e.g. Gemini, OpenAI)
+2. Go to **Evaluators** → click `+ Set up Evaluator`
+3. Choose a built-in evaluator (e.g. Hallucination, Toxicity) or write a custom prompt
+4. Set **Evaluation target** to `Live Observations`
+5. Add a filter: `tag = banking-sentinel`
+6. Map `{{input}}` and `{{output}}` to your trace fields
+7. Save — every new chat trace will be scored automatically
+
+Results appear as scores on each trace in the Langfuse UI.
+
 ## Project Structure
 
 ```
