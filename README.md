@@ -147,8 +147,9 @@ Go to **LLM-as-a-Judge**. The first time you visit it will prompt you to set the
 3. In step **Run Evaluator**, set target to `Observations`, filter by `Type = GENERATION`
 4. Click `Add filter` → select `Tags` → operator `any of` → value `banking-sentinel`
 5. Set **Sampling** (100% is fine for this PoC — reduce in production to control costs)
-6. Map prompt variables (`{{input}}`, `{{output}}`) to the corresponding trace fields — a preview shows how real traces will be evaluated
-7. Click `Execute` — every new generation tagged `banking-sentinel` will be scored automatically
+6. **Run on live incoming observations** is enabled by default — keep it on to score new traces continuously
+7. Map prompt variables (`{{input}}`, `{{output}}`) to the corresponding trace fields — a preview shows how real traces will be evaluated
+8. Click `Execute` — scores existing matching observations immediately and all new ones going forward
 
 *Option B — Script (uses unstable Langfuse API — may break with future SDK updates):*
 
