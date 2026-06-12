@@ -10,7 +10,7 @@ ITEMS = [
     {
         "id": "banking-sentinel-evals-unauthorized-netflix-charge",
         "input": {
-            "userId": "user-1001",
+            "userId": "langfuse-eval-1001",
             "accountId": "ACC-1001",
             "accountTier": "Standard",
             "message": "I don't have Netflix but I see a charge on my account",
@@ -24,7 +24,7 @@ ITEMS = [
     {
         "id": "banking-sentinel-evals-expired-dispute-window",
         "input": {
-            "userId": "user-1002",
+            "userId": "langfuse-eval-1002",
             "accountId": "ACC-1002",
             "accountTier": "Standard",
             "message": "I see a Best Buy charge on my account but I never bought anything there",
