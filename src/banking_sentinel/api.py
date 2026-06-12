@@ -42,12 +42,13 @@ class ChatRequest(BaseModel):
     user_id: str
     account_id: str
     user_tier: str = "Standard"
+    session_id: str | None = None
     message: str
 
 
 @app.post("/chat")
 def chat_endpoint(request: ChatRequest) -> ChatResponse:
-    session_id = f"{request.user_id}-{request.account_id}"
+    session_id = request.session_id or f"{request.user_id}-{request.account_id}"
 
     if session_id not in _tool_states:
         reference_date = date.today()

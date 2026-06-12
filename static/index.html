@@ -53,6 +53,8 @@
             <option value="Standard" selected>Standard</option>
             <option value="Metal">Metal</option>
         </select>
+        <label>Session ID</label>
+        <input type="text" id="sessionId" placeholder="auto" style="width:160px">
     </div>
 
     <div class="chat-container" id="chat"></div>
@@ -157,6 +159,7 @@
             const user_id = document.getElementById("userId").value.trim();
             const account_id = document.getElementById("accountId").value.trim();
             const user_tier = document.getElementById("userTier").value;
+            const session_id = document.getElementById("sessionId").value.trim() || null;
 
             addMessage("user", message);
             questionInput.value = "";
@@ -172,7 +175,7 @@
                 const res = await fetch("/chat", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ user_id, account_id, user_tier, message }),
+                    body: JSON.stringify({ user_id, account_id, user_tier, session_id, message }),
                 });
                 typing.remove();
                 if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
