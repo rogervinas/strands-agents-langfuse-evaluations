@@ -17,7 +17,7 @@ A Python banking assistant agent built with [Strands Agents](https://strandsagen
 ### 1. Install dependencies
 
 ```bash
-pip install -e ".[dev]"
+uv sync
 ```
 
 ### 2. Configure environment
@@ -76,7 +76,7 @@ Alternatively, set `MODEL_PROVIDER=bedrock` or `MODEL_PROVIDER=gemini` in `.env`
 ## Running the Agent
 
 ```bash
-uvicorn banking_sentinel.api:app --reload
+uv run uvicorn banking_sentinel.api:app --reload
 ```
 
 Open [http://localhost:8000](http://localhost:8000) to use the chat UI.
@@ -96,7 +96,7 @@ Open [http://localhost:8000](http://localhost:8000) to use the chat UI.
 Runs evaluation cases locally using the Strands Evals SDK. No Langfuse required.
 
 ```bash
-python -m evals.strands.run_evaluations
+uv run python -m evals.strands.run_evaluations
 ```
 
 ### Approach 2: Langfuse Experiments (delegated)
@@ -106,13 +106,13 @@ Requires Langfuse running (`docker compose up -d`).
 Create the dataset (idempotent, safe to re-run):
 
 ```bash
-python -m evals.langfuse.create_dataset
+uv run python -m evals.langfuse.create_dataset
 ```
 
 Run the experiment:
 
 ```bash
-python -m evals.langfuse.run_experiment
+uv run python -m evals.langfuse.run_experiment
 ```
 
 View results at [http://localhost:3000](http://localhost:3000) → project `banking-sentinel` → Datasets.
