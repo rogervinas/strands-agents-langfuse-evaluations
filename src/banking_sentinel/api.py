@@ -17,8 +17,6 @@ load_dotenv()
 langfuse = get_client()
 logger.info("Model provider: %s", os.getenv("MODEL_PROVIDER", "ollama"))
 
-from opentelemetry import trace as otel_trace
-from opentelemetry.trace import format_trace_id
 
 from banking_sentinel.agent import create_model, create_sentinel_agent, chat
 from banking_sentinel.data import CardState, DisputeStore, Transaction, build_transactions
@@ -28,8 +26,7 @@ from banking_sentinel.tools import create_tools
 app = FastAPI()
 
 _model = create_model()
-_tracer = otel_trace.get_tracer("banking-sentinel")
-_annotation_queue_id = os.getenv("ANNOTATION_QUEUE_ID")  # set by evals/langfuse/create_annotation_queue.py
+_annotation_queue_id = os.getenv("ANNOTATION_QUEUE_ID")
 
 
 @dataclass
@@ -76,13 +73,17 @@ def chat_endpoint(request: ChatRequest) -> ChatApiResponse:
 
     state = _tool_states[session_id]
 
-    with _tracer.start_as_current_span("chat") as span:
+    # start_as_current_observation creates a root Langfuse span with proper input/output
+    # visible in annotation queues and the trace view.
+    # See: https://langfuse.com/docs/sdk/python/sdk-v3
+    with langfuse.start_as_current_observation(name="chat", as_type="span") as span:
         with propagate_attributes(user_id=request.user_id, session_id=session_id, trace_name="chat", tags=["banking-sentinel"]):
             tools = create_tools(state.card_state, state.dispute_store, state.transactions, state.reference_date)
             session_manager = FileSessionManager(session_id=session_id, storage_dir="sessions")
             agent = create_sentinel_agent(_model, tools, state.user_tier, request.account_id, state.reference_date, session_manager=session_manager)
             response = chat(agent, request.message)
-        trace_id = format_trace_id(span.get_span_context().trace_id)
+        span.set_trace_io(input=request.message, output=response.answer)
+        trace_id = span.trace_id
         logger.info("Chat trace_id: %s", trace_id)
         return ChatApiResponse(answer=response.answer, suggested_actions=response.suggested_actions, trace_id=trace_id)
 
