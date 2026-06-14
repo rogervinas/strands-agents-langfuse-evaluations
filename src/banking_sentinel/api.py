@@ -16,7 +16,6 @@ logger = logging.getLogger("uvicorn.error")
 load_dotenv()
 langfuse = get_client()
 logger.info("Model provider: %s", os.getenv("MODEL_PROVIDER", "ollama"))
-_annotation_queue_id = os.getenv("ANNOTATION_QUEUE_ID")
 
 from opentelemetry import trace as otel_trace
 from opentelemetry.trace import format_trace_id
@@ -85,6 +84,9 @@ def chat_endpoint(request: ChatRequest) -> ChatApiResponse:
         trace_id = format_trace_id(span.get_span_context().trace_id)
         logger.info("Chat trace_id: %s", trace_id)
         return ChatApiResponse(answer=response.answer, suggested_actions=response.suggested_actions, trace_id=trace_id)
+
+
+_annotation_queue_id = os.getenv("ANNOTATION_QUEUE_ID")
 
 
 @app.post("/feedback")
