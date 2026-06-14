@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from langfuse import get_client, propagate_attributes
+from langfuse.api.annotation_queues.types.annotation_queue_object_type import AnnotationQueueObjectType
 from pydantic import BaseModel
 from strands.session.file_session_manager import FileSessionManager
 
@@ -15,6 +16,7 @@ logger = logging.getLogger("uvicorn.error")
 load_dotenv()
 langfuse = get_client()
 logger.info("Model provider: %s", os.getenv("MODEL_PROVIDER", "ollama"))
+_annotation_queue_id = os.getenv("ANNOTATION_QUEUE_ID")
 
 from opentelemetry import trace as otel_trace
 from opentelemetry.trace import format_trace_id
@@ -89,16 +91,22 @@ def chat_endpoint(request: ChatRequest) -> ChatApiResponse:
 def feedback_endpoint(request: FeedbackRequest):
     logger.info("Feedback: trace_id=%s value=%s", request.trace_id, request.value)
     try:
-        score = langfuse.create_score(
+        langfuse.create_score(
             trace_id=request.trace_id,
             name="user-feedback",
             value=request.value,
             comment=request.comment,
         )
-        logger.info("Score created: %s", score)
+        if request.value == 0.0 and _annotation_queue_id:
+            langfuse.api.annotation_queues.create_queue_item(
+                _annotation_queue_id,
+                object_id=request.trace_id,
+                object_type=AnnotationQueueObjectType.TRACE,
+            )
+            logger.info("Trace added to annotation queue: %s", request.trace_id)
         langfuse.flush()
     except Exception as e:
-        logger.error("Failed to create score: %s", e)
+        logger.error("Failed to process feedback: %s", e)
         raise
     return {"ok": True}
 
