@@ -187,7 +187,7 @@ See: [Langfuse annotation queues docs](https://langfuse.com/docs/evaluation/eval
 Create the score config and queue:
 
 ```bash
-uv run python -m evals.langfuse.setup_annotation_queue
+uv run python -m evals.langfuse.create_annotation_queue
 ```
 
 ### Adding items to the queue
@@ -214,7 +214,7 @@ This PoC implements the first use case — when a user gives negative feedback, 
 Setup (creates the score config and queue, idempotent):
 
 ```bash
-uv run python -m evals.langfuse.setup_annotation_queue
+uv run python -m evals.langfuse.create_annotation_queue
 ```
 
 The `/feedback` endpoint in `api.py` calls `create_queue_item` when `value == 0.0`:
