@@ -34,9 +34,10 @@ def setup():
         print(f"✅ Score config created: '{SCORE_CONFIG_NAME}' (id: {score_config.id})")
 
     # Step 2: Create annotation queue
-    existing_queues = langfuse.api.annotation_queues.list_queues(name=QUEUE_NAME)
-    if existing_queues.data:
-        queue = existing_queues.data[0]
+    all_queues = langfuse.api.annotation_queues.list_queues()
+    existing_queues = [q for q in all_queues.data if q.name == QUEUE_NAME]
+    if existing_queues:
+        queue = existing_queues[0]
         print(f"Queue '{QUEUE_NAME}' already exists (id: {queue.id})")
     else:
         queue = langfuse.api.annotation_queues.create_queue(
