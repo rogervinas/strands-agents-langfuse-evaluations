@@ -201,11 +201,32 @@ Use this for ad-hoc review of interesting traces.
 
 Your code calls `langfuse.api.annotation_queues.create_queue_item(...)` explicitly. Common triggers:
 
-- **User gives 👎** — route negative feedback traces for human investigation *(implemented in this PoC)*
+- **User gives 👎** — route negative feedback traces for human investigation
 - **Experiment score below threshold** — after `run_experiment()`, enqueue failing traces to build better ground truth
 - **Online evaluator scores low** — poll scores and enqueue traces below a quality threshold
 - **Specific intent detected** — route traces matching certain patterns (e.g. complaints, edge cases) for review
 - **Random sampling** — periodically enqueue a % of production traces for ongoing quality checks
+
+### Implementation: triggered by 👎
+
+This PoC implements the first use case — when a user gives negative feedback, the trace is automatically added to the queue for human investigation.
+
+Setup (creates the score config and queue, idempotent):
+
+```bash
+uv run python -m evals.langfuse.setup_annotation_queue
+```
+
+The `/feedback` endpoint in `api.py` calls `create_queue_item` when `value == 0.0`:
+
+```python
+if request.value == 0.0:
+    langfuse.api.annotation_queues.create_queue_item(
+        queue_id=QUEUE_ID,
+        object_id=request.trace_id,
+        object_type=AnnotationQueueObjectType.TRACE,
+    )
+```
 
 ### Human review workflow
 
