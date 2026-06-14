@@ -85,6 +85,20 @@ Open [http://localhost:8000](http://localhost:8000) to use the chat UI.
 
 Agent traces are sent to Langfuse automatically via OpenTelemetry when `LANGFUSE_*` and `OTEL_*` env vars are set.
 
+### Tracing notes
+
+**OTel instrumentation gap:** Raw OTel spans may not carry all the context Langfuse expects (e.g. trace-level `input`, `output`). This depends on how well the SDK/library instruments itself. Strands `[otel]` generates spans but does not set trace input/output on the root span — you get `undefined` in the annotation queue.
+
+**Langfuse SDK support gap:** Not all languages have first-class Langfuse SDK support. Python v3 has the best support, TypeScript v4 is good, Java has none (see the Spring Boot PoC).
+
+**Pattern used in this project:** `langfuse.start_as_current_observation()` wraps the root span — this is a Langfuse-native Python method, independent of Strands, that works with any Python code (OpenAI, LangChain, raw HTTP, etc.). It ensures trace input/output is set correctly. Strands OTel spans are captured as children automatically.
+
+```
+langfuse.start_as_current_observation()  ← Langfuse-native root span (input/output/user_id)
+  └── propagate_attributes()              ← propagates session/user to all child spans
+        └── Strands OTel spans            ← captured automatically via OTel
+```
+
 ## Evaluations
 
 Both evaluation approaches support two targets:
