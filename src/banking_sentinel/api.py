@@ -29,6 +29,7 @@ app = FastAPI()
 
 _model = create_model()
 _tracer = otel_trace.get_tracer("banking-sentinel")
+_annotation_queue_id = os.getenv("ANNOTATION_QUEUE_ID")  # set by evals/langfuse/create_annotation_queue.py
 
 
 @dataclass
@@ -85,8 +86,6 @@ def chat_endpoint(request: ChatRequest) -> ChatApiResponse:
         logger.info("Chat trace_id: %s", trace_id)
         return ChatApiResponse(answer=response.answer, suggested_actions=response.suggested_actions, trace_id=trace_id)
 
-
-_annotation_queue_id = os.getenv("ANNOTATION_QUEUE_ID")
 
 
 @app.post("/feedback")
