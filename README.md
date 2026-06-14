@@ -175,6 +175,43 @@ See: [Langfuse user feedback docs](https://langfuse.com/docs/scores/user-feedbac
 
 View feedback scores at [http://localhost:3000](http://localhost:3000) → Traces → click any trace → **Scores** tab. The score also appears as a small badge on the root span in the trace tree.
 
+## Annotation Queues
+
+Annotation queues are a human review workflow — domain experts manually score traces to build ground truth, validate LLM-as-judge results, or investigate failures.
+See: [Langfuse annotation queues docs](https://langfuse.com/docs/evaluation/evaluation-methods/annotation-queues)
+
+**Key concept:** Langfuse provides the queue infrastructure, but **your code decides what goes in and when**. There is no automatic routing — items only enter a queue through an explicit call, either from the UI or from your code.
+
+### Setup (once, idempotent)
+
+Create the score config and queue:
+
+```bash
+uv run python -m evals.langfuse.setup_annotation_queue
+```
+
+### Adding items to the queue
+
+**Option A — Manually via UI:**
+
+Go to **Traces** → select one or more traces → **Actions** → **Add to annotation queue**.
+Use this for ad-hoc review of interesting traces.
+
+**Option B — Programmatically (your code decides when):**
+
+Your code calls `langfuse.api.annotation_queues.create_queue_item(...)` explicitly.
+This PoC demonstrates two triggers:
+
+1. **User gives 👎** — the `/feedback` endpoint automatically adds the trace to the queue for investigation
+2. **Experiment score below threshold** — `run_experiment.py` adds failing traces to the queue after evaluation
+
+### Human review workflow
+
+1. Go to **Annotation Queues** in the Langfuse UI
+2. Open the `banking-sentinel-review` queue
+3. For each trace: review the conversation, assign a score, click **Complete + next**
+4. Scores appear on the trace and contribute to your evaluation dashboard
+
 ## Project Structure
 
 ```
