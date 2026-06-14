@@ -18,9 +18,10 @@ def setup():
     langfuse = get_client()
 
     # Step 1: Create score config (defines what reviewers score on)
-    existing_configs = langfuse.api.score_configs.get(name=SCORE_CONFIG_NAME)
-    if existing_configs.data:
-        score_config = existing_configs.data[0]
+    all_configs = langfuse.api.score_configs.get()
+    existing = [c for c in all_configs.data if c.name == SCORE_CONFIG_NAME]
+    if existing:
+        score_config = existing[0]
         print(f"Score config '{SCORE_CONFIG_NAME}' already exists (id: {score_config.id})")
     else:
         score_config = langfuse.api.score_configs.create(
