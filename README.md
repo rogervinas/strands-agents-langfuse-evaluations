@@ -234,7 +234,9 @@ See: [Langfuse prompt version control docs](https://langfuse.com/docs/prompt-man
 **Linking prompts to traces:** simply calling `get_prompt()` does NOT automatically link it to a trace. You must explicitly call `langfuse.update_current_generation(prompt=prompt_obj)` during the LLM generation.
 See: [Langfuse link to traces docs](https://langfuse.com/docs/prompt-management/features/link-to-traces)
 
-`create_agent()` returns `(agent, prompt_obj)` — `api.py` calls `update_current_generation(prompt=prompt_obj)` after the agent response to link the prompt version to the trace. Eval scripts use `agent, _ = create_agent(...)`.
+`create_agent()` returns `(agent, prompt_obj)` — `api.py` calls `update_current_generation(prompt=prompt_obj)` after the agent response to attempt linking. Eval scripts use `agent, _ = create_agent(...)`.
+
+> **Limitation:** with OTel-based tracing (Strands `[otel]`), `update_current_generation` may not link the prompt reliably — the Strands generation span is already closed by the time we call it. Prompt linking works as expected when using the Langfuse Python SDK directly (decorator or context manager), without OTel instrumentation.
 
 ## Annotation Queues
 
