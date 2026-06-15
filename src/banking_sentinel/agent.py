@@ -63,7 +63,7 @@ def _create_system_prompt(user_tier: str, account_id: str, reference_date: date)
     )
 
 
-def _create_system_prompt_from_langfuse(langfuse, user_tier: str, account_id: str, reference_date: date) -> str:
+def _get_system_prompt_from_langfuse(langfuse, user_tier: str, account_id: str, reference_date: date) -> str:
     """Fetches system prompt from Langfuse (label='production') and compiles it.
     Enables prompt versioning and iteration without redeploying the app.
     See: https://langfuse.com/docs/prompt-management/get-started
@@ -82,7 +82,7 @@ def create_agent(langfuse, model, tools, user_tier: str, account_id: str, refere
     """Creates agent using hardcoded or Langfuse-managed prompt (USE_LANGFUSE_PROMPT=true)."""
     if os.getenv("USE_LANGFUSE_PROMPT", "false").lower() == "true":
         logger.info("Using Langfuse prompt management")
-        system_prompt = _create_system_prompt_from_langfuse(langfuse, user_tier, account_id, reference_date)
+        system_prompt = _get_system_prompt_from_langfuse(langfuse, user_tier, account_id, reference_date)
     else:
         logger.info("Using hardcoded prompt")
         system_prompt = _create_system_prompt(user_tier, account_id, reference_date)
