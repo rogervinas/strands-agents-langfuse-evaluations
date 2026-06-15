@@ -208,13 +208,19 @@ USE_LANGFUSE_PROMPT=false
 
 The prompt is stored in Langfuse with `{{variable}}` (Mustache) syntax. At runtime, `langfuse.get_prompt()` fetches the `production`-labelled version (cached) and `prompt.compile()` fills in the variables.
 
-Create or update the prompt in Langfuse (each run creates a new version):
+**Create the prompt — Option A (script):**
 
 ```bash
 uv run python -m evals.langfuse.create_prompt
 ```
 
-Then enable it:
+Each run creates a new version. The `production` label is set automatically, so it is served at runtime.
+
+**Create the prompt — Option B (UI):**
+
+Go to **Prompts** → click `+ New prompt` → name it `banking-sentinel-system`, type `Text`, paste the template using `{{variable}}` syntax → add the `production` label → save.
+
+Then enable Langfuse-managed prompts:
 
 ```
 USE_LANGFUSE_PROMPT=true
@@ -222,7 +228,7 @@ USE_LANGFUSE_PROMPT=true
 
 **Benefits:** version history, compare prompt versions in experiments, iterate without redeploying, A/B test prompts via Langfuse experiments.
 
-The dispatcher in `agent.py:create_agent()` reads `USE_LANGFUSE_PROMPT` and calls either `create_sentinel_agent()` (hardcoded) or `create_sentinel_agent_with_langfuse_prompt()` (Langfuse). All callers — `api.py` and both eval runners — use `create_agent()`.
+The dispatcher in `agent.py:create_agent()` reads `USE_LANGFUSE_PROMPT` and calls either `_create_system_prompt()` (hardcoded) or `_get_system_prompt_from_langfuse()` (Langfuse). All callers — `api.py` and both eval runners — use `create_agent()`.
 
 ## Annotation Queues
 
