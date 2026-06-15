@@ -82,9 +82,7 @@ def chat_endpoint(request: ChatRequest) -> ChatApiResponse:
             session_manager = FileSessionManager(session_id=session_id, storage_dir="sessions")
             agent, prompt_obj = create_agent(langfuse, _model, tools, state.user_tier, request.account_id, state.reference_date, session_manager=session_manager)
             response = chat(agent, request.message)
-            if prompt_obj:
-                langfuse.update_current_generation(prompt=prompt_obj)
-        span.update(input=request.message, output=response.answer)
+        span.update(input=request.message, output=response.answer, prompt=prompt_obj)
         trace_id = span.trace_id
         logger.info("Chat trace_id: %s", trace_id)
         return ChatApiResponse(answer=response.answer, suggested_actions=response.suggested_actions, trace_id=trace_id)

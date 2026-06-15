@@ -236,7 +236,7 @@ See: [Langfuse link to traces docs](https://langfuse.com/docs/prompt-management/
 
 `create_agent()` returns `(agent, prompt_obj)` — `api.py` calls `update_current_generation(prompt=prompt_obj)` after the agent response to attempt linking. Eval scripts use `agent, _ = create_agent(...)`.
 
-> **Limitation:** Strands manages the LLM call internally via OTel — we never call the model directly. The inner generation span (where the prompt should be linked) is created and closed by Strands, so we can't inject `prompt=prompt_obj` into it. `update_current_generation` is called after `chat()` returns but the span is already closed at that point, so the link is not created. Prompt linking works when the application calls the LLM directly using the Langfuse Python SDK (decorator or context manager), where you control the generation span. This is a general limitation of any OTel-auto-instrumented framework (Strands, LangChain, etc.). See: [Langfuse Strands Agents integration](https://langfuse.com/integrations/frameworks/strands-agents)
+> **Note:** Strands manages the LLM call internally via OTel — we never call the model directly. The prompt is linked via `span.update(prompt=prompt_obj)` on the root `chat` span, which stores `prompt_name` and `prompt_version` on that span. This means the link is on the **root trace span**, not on the inner Strands generation span. Linking directly to the inner generation span requires controlling that span yourself (Langfuse-native SDK, without OTel). This is a general limitation of any OTel-auto-instrumented framework (Strands, LangChain, etc.). See: [Langfuse Strands Agents integration](https://langfuse.com/integrations/frameworks/strands-agents)
 
 ## Annotation Queues
 
