@@ -64,6 +64,7 @@ def _get_system_prompt_from_langfuse(langfuse, user_tier: str, account_id: str, 
     Run evals/langfuse/create_prompt.py to create/update the prompt in Langfuse.
     """
     prompt = langfuse.get_prompt("banking-sentinel-system", label="production")
+    logger.info("Fetched Langfuse prompt: name=%s version=%s", prompt.name, prompt.version)
     compiled = prompt.compile(
         user_tier=user_tier,
         current_date=reference_date.isoformat(),
