@@ -77,7 +77,7 @@ def chat_endpoint(request: ChatRequest) -> ChatApiResponse:
     # start_as_current_observation creates a root Langfuse span with proper input/output
     # visible in annotation queues and the trace view.
     # See: https://langfuse.com/docs/sdk/python/sdk-v3
-    with langfuse.start_as_current_observation(name="chat", as_type="span") as span:
+    with langfuse.start_as_current_observation(name="chat", as_type="generation") as span:
         with propagate_attributes(user_id=request.user_id, session_id=session_id, trace_name="chat", tags=["banking-sentinel"]):
             tools = create_tools(state.card_state, state.dispute_store, state.transactions, state.reference_date)
             session_manager = FileSessionManager(session_id=session_id, storage_dir="sessions")
