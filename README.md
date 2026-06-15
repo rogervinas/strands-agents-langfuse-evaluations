@@ -228,7 +228,13 @@ USE_LANGFUSE_PROMPT=true
 
 **Benefits:** version history, compare prompt versions in experiments, iterate without redeploying, A/B test prompts via Langfuse experiments.
 
-The dispatcher in `agent.py:create_agent()` reads `USE_LANGFUSE_PROMPT` and calls either `_create_system_prompt()` (hardcoded) or `_get_system_prompt_from_langfuse()` (Langfuse). All callers — `api.py` and both eval runners — use `create_agent()`.
+**Version control:** each `create_prompt.py` run creates a new version. To rollback, reassign the `production` label to any previous version in the UI (**Prompts** → select version → set label). `latest` always points to the newest version.
+See: [Langfuse prompt version control docs](https://langfuse.com/docs/prompt-management/features/prompt-version-control)
+
+**Linking prompts to traces:** simply calling `get_prompt()` does NOT automatically link it to a trace. You must explicitly call `langfuse.update_current_generation(prompt=prompt_obj)` during the LLM generation.
+See: [Langfuse link to traces docs](https://langfuse.com/docs/prompt-management/features/link-to-traces)
+
+`create_agent()` returns `(agent, prompt_obj)` — `api.py` calls `update_current_generation(prompt=prompt_obj)` after the agent response to link the prompt version to the trace. Eval scripts use `agent, _ = create_agent(...)`.
 
 ## Annotation Queues
 

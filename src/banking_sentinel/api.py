@@ -80,8 +80,10 @@ def chat_endpoint(request: ChatRequest) -> ChatApiResponse:
         with propagate_attributes(user_id=request.user_id, session_id=session_id, trace_name="chat", tags=["banking-sentinel"]):
             tools = create_tools(state.card_state, state.dispute_store, state.transactions, state.reference_date)
             session_manager = FileSessionManager(session_id=session_id, storage_dir="sessions")
-            agent = create_agent(langfuse, _model, tools, state.user_tier, request.account_id, state.reference_date, session_manager=session_manager)
+            agent, prompt_obj = create_agent(langfuse, _model, tools, state.user_tier, request.account_id, state.reference_date, session_manager=session_manager)
             response = chat(agent, request.message)
+            if prompt_obj:
+                langfuse.update_current_generation(prompt=prompt_obj)
         span.set_trace_io(input=request.message, output=response.answer)
         trace_id = span.trace_id
         logger.info("Chat trace_id: %s", trace_id)

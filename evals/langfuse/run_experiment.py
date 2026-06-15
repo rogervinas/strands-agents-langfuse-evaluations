@@ -32,7 +32,7 @@ def embedded_task(*, item, **kwargs):
     card_state = CardState()
     dispute_store = DisputeStore(transactions)
     tools = create_tools(card_state, dispute_store, transactions, REFERENCE_DATE)
-    agent = create_agent(langfuse, _model, tools, inp["accountTier"], inp["accountId"], REFERENCE_DATE)
+    agent, _ = create_agent(langfuse, _model, tools, inp["accountTier"], inp["accountId"], REFERENCE_DATE)
     response = chat(agent, inp["message"])
     return {
         "answer": response.answer,
