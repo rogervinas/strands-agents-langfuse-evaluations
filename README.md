@@ -299,6 +299,25 @@ if request.value == 0.0:
 3. For each trace: review the conversation, assign a score, click **Complete + next**
 4. Scores appear on the trace and contribute to your evaluation dashboard
 
+## Known Nuances and Limitations
+
+Things discovered while building this PoC that are worth being aware of:
+
+**Tracing with OTel + Langfuse SDK (hybrid approach):**
+- Our root `banking-sentinel-chat` span is a Langfuse-native generation. Token usage and model name are tracked on the inner Strands spans (`invoke_agent`, `chat`), not on the root — because we don't call the LLM directly. Usage is still visible in the trace, just one level down.
+- Two spans share the `banking-sentinel` tag (root + Strands inner `chat` generation). The online evaluator filter must include `Name = banking-sentinel-chat` to avoid double-scoring.
+
+**Prompt linking with OTel frameworks:**
+- `span.update(prompt=prompt_obj)` only works on `generation` type spans. Silently ignored on `span` type.
+- Linking attaches to our root generation, not the inner Strands LLM generation. Functionally correct but not ideal.
+- See: [Langfuse Strands Agents integration](https://langfuse.com/integrations/frameworks/strands-agents)
+
+**Online evaluators (LLM-as-judge) — unstable API:**
+- Creating evaluators and rules programmatically requires the unstable Langfuse API, which is **only available on Langfuse Cloud** (not self-hosted). Use the UI for self-hosted.
+
+**Session memory:**
+- `FileSessionManager` persists conversation history to `sessions/`. The agent remembers prior turns within a session — useful for multi-turn conversations but can affect evaluation behaviour if sessions are not isolated between test runs.
+
 ## Project Structure
 
 ```
