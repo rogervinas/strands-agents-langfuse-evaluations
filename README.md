@@ -161,13 +161,14 @@ Go to **LLM-as-a-Judge**. The first time you visit it will prompt you to set the
    - For **`Experiments` target**: use **Correctness** — `expected_output` from the dataset is available as `ground_truth` and can be mapped to `{{ground_truth}}`
 3. In step **Run Evaluator**, set target to `Observations`, filter by `Type = GENERATION`
 4. Click `Add filter` → select `Tags` → operator `any of` → value `banking-sentinel`
-5. Set **Sampling** (100% is fine for this PoC — reduce in production to control costs)
-6. **Run on live incoming observations** is enabled by default — keep it on to score new traces continuously
-7. Map prompt variables to observation fields ([docs](https://langfuse.com/docs/evaluation/evaluation-methods/llm-as-a-judge)):
+5. Click `Add filter` → select `Name` → operator `=` → value `banking-sentinel-chat` — this targets only our root generation span and avoids double-scoring the inner Strands LLM generation (both carry the tag but have different names)
+6. Set **Sampling** (100% is fine for this PoC — reduce in production to control costs)
+7. **Run on live incoming observations** is enabled by default — keep it on to score new traces continuously
+8. Map prompt variables to observation fields ([docs](https://langfuse.com/docs/evaluation/evaluation-methods/llm-as-a-judge)):
    - `input` variable → source `input` (no JSONPath — full messages array including system prompt)
    - `output` variable → source `output` (no JSONPath — full response object)
    Use the live preview to verify the mapping looks correct with your real traces before activating
-8. Click `Execute` — scores existing matching observations immediately and all new ones going forward
+9. Click `Execute` — scores existing matching observations immediately and all new ones going forward
 
 Results appear as scores on each trace in the Langfuse UI.
 
