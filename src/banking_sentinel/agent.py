@@ -5,7 +5,7 @@ from datetime import date
 
 from strands import Agent
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("uvicorn.error")
 
 from banking_sentinel.knowledge_base import KNOWLEDGE_BASE
 from banking_sentinel.models import ChatResponse
