@@ -84,7 +84,7 @@ def chat_endpoint(request: ChatRequest) -> ChatApiResponse:
             response = chat(agent, request.message)
             if prompt_obj:
                 langfuse.update_current_generation(prompt=prompt_obj)
-        span.set_trace_io(input=request.message, output=response.answer)
+        span.update(input=request.message, output=response.answer)
         trace_id = span.trace_id
         logger.info("Chat trace_id: %s", trace_id)
         return ChatApiResponse(answer=response.answer, suggested_actions=response.suggested_actions, trace_id=trace_id)

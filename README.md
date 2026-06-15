@@ -180,7 +180,7 @@ See: [Langfuse user feedback docs](https://langfuse.com/docs/scores/user-feedbac
 
 **How it works:**
 
-1. The `/chat` endpoint wraps each request in a `langfuse.start_as_current_observation()` span, which sets the trace `input` (user message) and `output` (agent answer) via `set_trace_io()` — making them visible in the annotation queue and trace view. The `trace_id` is read directly from `span.trace_id`. See: [Langfuse Python SDK docs](https://langfuse.com/docs/sdk/python/sdk-v3)
+1. The `/chat` endpoint wraps each request in a `langfuse.start_as_current_observation()` span, which sets the trace `input` (user message) and `output` (agent answer) via `span.update()` — making them visible in the annotation queue and trace view. The `trace_id` is read directly from `span.trace_id`. See: [Langfuse Python SDK docs](https://langfuse.com/docs/sdk/python/sdk-v3)
 2. The UI attaches thumbs up/down buttons to each message, keyed to that `trace_id`
 3. On click, the UI posts to `/feedback`:
    - `1.0` = thumbs up
