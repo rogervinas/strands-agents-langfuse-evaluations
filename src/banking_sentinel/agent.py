@@ -54,6 +54,7 @@ def create_model(provider: str | None = None):
 
 
 def create_sentinel_agent(model, tools, user_tier: str, account_id: str, reference_date: date, session_manager=None) -> Agent:
+    """Creates agent with system prompt hardcoded in source."""
     system_prompt = _SYSTEM_PROMPT_TEMPLATE.format(
         user_tier=user_tier,
         current_date=reference_date.isoformat(),
@@ -61,6 +62,31 @@ def create_sentinel_agent(model, tools, user_tier: str, account_id: str, referen
         knowledge_base=KNOWLEDGE_BASE,
     )
     return Agent(model=model, tools=tools, system_prompt=system_prompt, session_manager=session_manager, callback_handler=lambda **_: None)
+
+
+def create_sentinel_agent_with_langfuse_prompt(langfuse, model, tools, user_tier: str, account_id: str, reference_date: date, session_manager=None) -> Agent:
+    """Creates agent with system prompt fetched from Langfuse (label='production').
+    Enables prompt versioning and iteration without redeploying the app.
+    See: https://langfuse.com/docs/prompt-management/get-started
+    Run evals/langfuse/create_prompt.py to create/update the prompt in Langfuse.
+    """
+    prompt = langfuse.get_prompt("banking-sentinel-system", label="production")
+    system_prompt = prompt.compile(
+        user_tier=user_tier,
+        current_date=reference_date.isoformat(),
+        account_id=account_id,
+        knowledge_base=KNOWLEDGE_BASE,
+    )
+    return Agent(model=model, tools=tools, system_prompt=system_prompt, session_manager=session_manager, callback_handler=lambda **_: None)
+
+
+def create_agent(langfuse, model, tools, user_tier: str, account_id: str, reference_date: date, session_manager=None) -> Agent:
+    """Dispatcher: uses Langfuse prompt when USE_LANGFUSE_PROMPT=true, otherwise hardcoded."""
+    if os.getenv("USE_LANGFUSE_PROMPT", "false").lower() == "true":
+        logger.info("Using Langfuse prompt management")
+        return create_sentinel_agent_with_langfuse_prompt(langfuse, model, tools, user_tier, account_id, reference_date, session_manager)
+    logger.info("Using hardcoded prompt")
+    return create_sentinel_agent(model, tools, user_tier, account_id, reference_date, session_manager)
 
 
 def chat(agent: Agent, message: str) -> ChatResponse:

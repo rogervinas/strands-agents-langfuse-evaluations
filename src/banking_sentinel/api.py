@@ -18,7 +18,7 @@ langfuse = get_client()
 logger.info("Model provider: %s", os.getenv("MODEL_PROVIDER", "ollama"))
 
 
-from banking_sentinel.agent import create_model, create_sentinel_agent, chat
+from banking_sentinel.agent import create_agent, create_model, chat
 from banking_sentinel.data import CardState, DisputeStore, Transaction, build_transactions
 from banking_sentinel.models import ChatApiResponse, ChatResponse
 from banking_sentinel.tools import create_tools
@@ -80,7 +80,7 @@ def chat_endpoint(request: ChatRequest) -> ChatApiResponse:
         with propagate_attributes(user_id=request.user_id, session_id=session_id, trace_name="chat", tags=["banking-sentinel"]):
             tools = create_tools(state.card_state, state.dispute_store, state.transactions, state.reference_date)
             session_manager = FileSessionManager(session_id=session_id, storage_dir="sessions")
-            agent = create_sentinel_agent(_model, tools, state.user_tier, request.account_id, state.reference_date, session_manager=session_manager)
+            agent = create_agent(langfuse, _model, tools, state.user_tier, request.account_id, state.reference_date, session_manager=session_manager)
             response = chat(agent, request.message)
         span.set_trace_io(input=request.message, output=response.answer)
         trace_id = span.trace_id

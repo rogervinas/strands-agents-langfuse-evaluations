@@ -13,7 +13,7 @@ load_dotenv()
 from langfuse import get_client
 from langfuse.experiment import Evaluation
 
-from banking_sentinel.agent import create_model, create_sentinel_agent, chat
+from banking_sentinel.agent import create_agent, create_model, chat
 from banking_sentinel.data import CardState, DisputeStore, build_transactions
 from banking_sentinel.tools import create_tools
 from evals.langfuse.create_dataset import DATASET_NAME, create_dataset
@@ -32,7 +32,7 @@ def embedded_task(*, item, **kwargs):
     card_state = CardState()
     dispute_store = DisputeStore(transactions)
     tools = create_tools(card_state, dispute_store, transactions, REFERENCE_DATE)
-    agent = create_sentinel_agent(_model, tools, inp["accountTier"], inp["accountId"], REFERENCE_DATE)
+    agent = create_agent(langfuse, _model, tools, inp["accountTier"], inp["accountId"], REFERENCE_DATE)
     response = chat(agent, inp["message"])
     return {
         "answer": response.answer,

@@ -189,6 +189,41 @@ See: [Langfuse user feedback docs](https://langfuse.com/docs/scores/user-feedbac
 
 View feedback scores at [http://localhost:3000](http://localhost:3000) → Traces → click any trace → **Scores** tab. The score also appears as a small badge on the root span in the trace tree.
 
+## Prompt Management
+
+Langfuse can store and version system prompts independently of your code — iterate on the prompt without redeploying the app.
+See: [Langfuse prompt management docs](https://langfuse.com/docs/prompt-management/get-started)
+
+This PoC demonstrates both approaches side by side, controlled by `USE_LANGFUSE_PROMPT` in `.env`.
+
+### Approach 1: Hardcoded (default)
+
+The system prompt lives in `agent.py:_SYSTEM_PROMPT_TEMPLATE`. Python `str.format()` fills in `{user_tier}`, `{current_date}`, `{account_id}`, `{knowledge_base}`.
+
+```
+USE_LANGFUSE_PROMPT=false
+```
+
+### Approach 2: Langfuse-managed
+
+The prompt is stored in Langfuse with `{{variable}}` (Mustache) syntax. At runtime, `langfuse.get_prompt()` fetches the `production`-labelled version (cached) and `prompt.compile()` fills in the variables.
+
+Create or update the prompt in Langfuse (each run creates a new version):
+
+```bash
+uv run python -m evals.langfuse.create_prompt
+```
+
+Then enable it:
+
+```
+USE_LANGFUSE_PROMPT=true
+```
+
+**Benefits:** version history, compare prompt versions in experiments, iterate without redeploying, A/B test prompts via Langfuse experiments.
+
+The dispatcher in `agent.py:create_agent()` reads `USE_LANGFUSE_PROMPT` and calls either `create_sentinel_agent()` (hardcoded) or `create_sentinel_agent_with_langfuse_prompt()` (Langfuse). All callers — `api.py` and both eval runners — use `create_agent()`.
+
 ## Annotation Queues
 
 Annotation queues are a human review workflow — domain experts manually score traces to build ground truth, validate LLM-as-judge results, or investigate failures.
