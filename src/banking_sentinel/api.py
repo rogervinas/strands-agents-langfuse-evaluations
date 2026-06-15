@@ -16,6 +16,7 @@ logger = logging.getLogger("uvicorn.error")
 load_dotenv()
 langfuse = get_client()
 logger.info("Model provider: %s", os.getenv("MODEL_PROVIDER", "ollama"))
+logger.info("Prompt: %s", "Langfuse-managed (USE_LANGFUSE_PROMPT=true)" if os.getenv("USE_LANGFUSE_PROMPT", "false").lower() == "true" else "hardcoded")
 
 
 from banking_sentinel.agent import create_agent, create_model, chat
