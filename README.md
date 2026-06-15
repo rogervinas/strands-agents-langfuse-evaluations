@@ -40,12 +40,12 @@ Langfuse UI: [http://localhost:3000](http://localhost:3000)
 
 **Pre-provisioned credentials:**
 
-| | |
-|---|---|
-| Email | `admin@local.dev` |
-| Password | `password` |
-| Public key | `publickey-local` |
-| Secret key | `secretkey-local` |
+```
+Email:      admin@local.dev
+Password:   password
+Public key: publickey-local
+Secret key: secretkey-local
+```
 
 Wait for all services to be healthy:
 
