@@ -29,6 +29,10 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/banking_sentinel"]
 
+[[tool.uv.index]]
+url = "https://pypi.org/simple"
+default = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
