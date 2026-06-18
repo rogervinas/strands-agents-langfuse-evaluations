@@ -80,7 +80,7 @@ def create_agent(langfuse, model, tools, user_tier: str, account_id: str, refere
     pass it to langfuse.update_current_generation(prompt=prompt_obj) to link to traces.
     See: https://langfuse.com/docs/prompt-management/features/link-to-traces
     """
-    if os.getenv("USE_LANGFUSE_PROMPT", "false").lower() == "true":
+    if langfuse is not None and os.getenv("USE_LANGFUSE_PROMPT", "false").lower() == "true":
         logger.info("Using Langfuse prompt management")
         system_prompt, prompt_obj = _get_system_prompt_from_langfuse(langfuse, user_tier, account_id, reference_date)
     else:

@@ -2,11 +2,12 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 jobs:
-  build-and-test:
-    name: Build & Test
+  ci:
+    name: CI
     runs-on: ubuntu-latest
 
     steps:
@@ -18,10 +19,17 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies
-        run: uv sync --extra dev
+        run: uv sync --extra dev --extra evals
 
       - name: Build package
         run: uv build
 
       - name: Run unit tests
         run: uv run pytest
+
+      - name: Run evals
+        env:
+          MODEL_PROVIDER: gemini
+          GEMINI_MODEL: gemini-3.5-flash
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: uv run python -m evals.strands.run_evaluations embedded
