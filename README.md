@@ -1,0 +1,340 @@
+# Banking Sentinel — Strands Agents + Langfuse Evaluations
+
+A Python banking assistant agent built with [Strands Agents](https://strandsagents.com) (AWS), demonstrating two evaluation approaches using [Langfuse](https://langfuse.com):
+
+1. **Native (Strands Evals SDK)** — local reports, no infrastructure required
+2. **Langfuse delegated** — scores persisted in Langfuse dashboard, CI/CD integration
+
+## Prerequisites
+
+- Python 3.11+
+- [uv](https://docs.astral.sh/uv/)
+- Docker + Docker Compose
+- A model provider (see [Model Providers](#model-providers))
+
+## Setup
+
+### 1. Install dependencies
+
+```bash
+uv sync
+```
+
+### 2. Configure environment
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` to set your model provider and credentials. See [Model Providers](#model-providers).
+
+### 3. Start Langfuse
+
+Required for tracing and Langfuse evaluations. Skip if only using Strands Evals.
+
+```bash
+docker compose -f docker-compose-langfuse.yml up -d
+```
+
+Langfuse UI: [http://localhost:3000](http://localhost:3000)
+
+**Pre-provisioned credentials:**
+
+```
+Email:      admin@local.dev
+Password:   password
+Public key: publickey-local
+Secret key: secretkey-local
+```
+
+Wait for all services to be healthy:
+
+```bash
+docker compose -f docker-compose-langfuse.yml ps
+```
+
+To stop:
+
+```bash
+docker compose -f docker-compose-langfuse.yml down
+```
+
+To stop and remove all data:
+
+```bash
+docker compose -f docker-compose-langfuse.yml down -v
+```
+
+## Model Providers
+
+Set `MODEL_PROVIDER` in `.env`:
+
+| Provider | `MODEL_PROVIDER` | Requirements |
+|---|---|---|
+| Ollama (default) | `ollama` | `ollama serve` + `ollama pull llama3.1:8b` |
+| AWS Bedrock | `bedrock` | AWS credentials configured |
+| Google Gemini | `gemini` | `GOOGLE_API_KEY` in `.env` |
+
+## Running the Agent
+
+```bash
+uv run uvicorn banking_sentinel.api:app --reload
+```
+
+Open [http://localhost:8000](http://localhost:8000) to use the chat UI.
+
+Agent traces are sent to Langfuse automatically via OpenTelemetry when `LANGFUSE_*` and `OTEL_*` env vars are set.
+
+### Tracing notes
+
+**OTel instrumentation gap:** Raw OTel spans may not carry all the context Langfuse expects (e.g. trace-level `input`, `output`). This depends on how well the SDK/library instruments itself. Strands `[otel]` generates spans but does not set trace input/output on the root span — you get `undefined` in the annotation queue.
+
+**Langfuse SDK support gap:** Not all languages have first-class Langfuse SDK support. Python v3 has the best support, TypeScript v4 is good, Java has none (see the Spring Boot PoC).
+
+**Pattern used in this project:** `langfuse.start_as_current_observation()` wraps the root span — this is a Langfuse-native Python method, independent of Strands, that works with any Python code (OpenAI, LangChain, raw HTTP, etc.). It ensures trace input/output is set correctly. Strands OTel spans are captured as children automatically.
+
+```
+langfuse.start_as_current_observation()  ← Langfuse-native root span (input/output/user_id)
+  └── propagate_attributes()              ← propagates session/user to all child spans
+        └── Strands OTel spans            ← captured automatically via OTel
+```
+
+## Evaluations
+
+Both evaluation approaches support two targets:
+
+- **Embedded** — agent runs in-process, no server needed. Ideal for local dev and mocking specific scenarios (inject any `CardState`, `DisputeStore`, or transactions).
+- **API** — evaluates a deployed agent via HTTP, treating it as a black box. Suitable for staging or production.
+
+### Approach 1: Native Strands Evals
+
+Uses the Strands Evals SDK with `Case`, `Experiment`, and `OutputEvaluator`. Runs locally, no Langfuse required.
+
+```bash
+uv run python -m evals.strands.run_evaluations embedded
+
+uv run python -m evals.strands.run_evaluations api --url http://localhost:8000
+uv run python -m evals.strands.run_evaluations api --url https://your-agent.example.com
+```
+
+### Approach 2: Langfuse Experiments
+
+Requires Langfuse running (`docker compose -f docker-compose-langfuse.yml up -d`).
+
+The dataset is created automatically on first run, but can also be created explicitly (idempotent):
+
+```bash
+uv run python -m evals.langfuse.create_dataset
+```
+
+Run the experiment:
+
+```bash
+uv run python -m evals.langfuse.run_experiment embedded
+
+uv run python -m evals.langfuse.run_experiment api --url http://localhost:8000
+uv run python -m evals.langfuse.run_experiment api --url https://your-agent.example.com
+```
+
+View results at [http://localhost:3000](http://localhost:3000) → project `banking-sentinel` → Datasets.
+
+### Online Evaluations (LLM-as-judge on live traces)
+
+Langfuse automatically scores live production traces as they arrive.
+See: [Langfuse LLM-as-judge docs](https://langfuse.com/docs/scores/model-based-evals)
+
+All chat traces are tagged `banking-sentinel` and named `chat`, making them easy to target.
+
+**Step 1 — Add LLM Connection (UI only, no API available):**
+
+Go to **Settings → LLM Connections** → add your model provider API key (e.g. Gemini, OpenAI).
+
+**Step 2 — Set default evaluation model (UI only):**
+
+Go to **LLM-as-a-Judge**. The first time you visit it will prompt you to set the **Default Evaluation Model** — select the LLM connection you added in step 1.
+
+**Step 3 — Create evaluator and rule (UI):**
+
+1. Go to **LLM-as-a-Judge** → click `Create Evaluator`
+2. In the **Set up evaluator** wizard, click on a managed evaluator:
+   - For **`Observations` target (live traces)**: use evaluators that only need `input` and `output`, e.g. **Hallucination** or **Helpfulness** — ground truth is not available for live production traces
+   - For **`Experiments` target**: use **Correctness** — `expected_output` from the dataset is available as `ground_truth` and can be mapped to `{{ground_truth}}`
+3. In step **Run Evaluator**, set target to `Observations`, filter by `Type = GENERATION`
+4. Click `Add filter` → select `Tags` → operator `any of` → value `banking-sentinel`
+5. Click `Add filter` → select `Name` → operator `=` → value `banking-sentinel-chat` — this targets only our root generation span and avoids double-scoring the inner Strands LLM generation (both carry the tag but have different names)
+6. Set **Sampling** (100% is fine for this PoC — reduce in production to control costs)
+7. **Run on live incoming observations** is enabled by default — keep it on to score new traces continuously
+8. Map prompt variables to observation fields ([docs](https://langfuse.com/docs/evaluation/evaluation-methods/llm-as-a-judge)):
+   - `input` variable → source `input` (no JSONPath — full messages array including system prompt)
+   - `output` variable → source `output` (no JSONPath — full response object)
+   Use the live preview to verify the mapping looks correct with your real traces before activating
+9. Click `Execute` — scores existing matching observations immediately and all new ones going forward
+
+Results appear as scores on each trace in the Langfuse UI.
+
+> **Note:** Langfuse provides an [unstable API](https://langfuse.com/docs/scores/model-based-evals) to create evaluators and rules programmatically, but it is currently only available on Langfuse Cloud — not in self-hosted deployments.
+
+## User Feedback
+
+The chat UI includes 👍 / 👎 buttons on every assistant message. Clicking one sends a score to Langfuse immediately.
+See: [Langfuse user feedback docs](https://langfuse.com/docs/scores/user-feedback)
+
+**How it works:**
+
+1. The `/chat` endpoint wraps each request in a `langfuse.start_as_current_observation()` span, which sets the trace `input` (user message) and `output` (agent answer) via `span.update()` — making them visible in the annotation queue and trace view. The `trace_id` is read directly from `span.trace_id`. See: [Langfuse Python SDK docs](https://langfuse.com/docs/sdk/python/sdk-v3)
+2. The UI attaches thumbs up/down buttons to each message, keyed to that `trace_id`
+3. On click, the UI posts to `/feedback`:
+   - `1.0` = thumbs up
+   - `0.0` = thumbs down
+4. The backend calls `langfuse.create_score(trace_id=..., name="user-feedback", value=...)` — the score appears on the trace in the Langfuse UI immediately
+
+View feedback scores at [http://localhost:3000](http://localhost:3000) → Traces → click any trace → **Scores** tab. The score also appears as a small badge on the root span in the trace tree.
+
+## Prompt Management
+
+Langfuse can store and version system prompts independently of your code — iterate on the prompt without redeploying the app.
+See: [Langfuse prompt management docs](https://langfuse.com/docs/prompt-management/get-started)
+
+This PoC demonstrates both approaches side by side, controlled by `USE_LANGFUSE_PROMPT` in `.env`.
+
+### Approach 1: Hardcoded (default)
+
+The system prompt lives in `agent.py:_SYSTEM_PROMPT_TEMPLATE`. Python `str.format()` fills in `{user_tier}`, `{current_date}`, `{account_id}`, `{knowledge_base}`.
+
+```
+USE_LANGFUSE_PROMPT=false
+```
+
+### Approach 2: Langfuse-managed
+
+The prompt is stored in Langfuse with `{{variable}}` (Mustache) syntax. At runtime, `langfuse.get_prompt()` fetches the `production`-labelled version (cached) and `prompt.compile()` fills in the variables.
+
+**Create the prompt — Option A (script):**
+
+```bash
+uv run python -m evals.langfuse.create_prompt
+```
+
+Each run creates a new version. The `production` label is set automatically, so it is served at runtime.
+
+**Create the prompt — Option B (UI):**
+
+Go to **Prompts** → click `+ New prompt` → name it `banking-sentinel-system`, type `Text`, paste the template using `{{variable}}` syntax → add the `production` label → save.
+
+Then enable Langfuse-managed prompts:
+
+```
+USE_LANGFUSE_PROMPT=true
+```
+
+**Benefits:** version history, compare prompt versions in experiments, iterate without redeploying, A/B test prompts via Langfuse experiments.
+
+**Version control:** each `create_prompt.py` run creates a new version. To rollback, reassign the `production` label to any previous version in the UI (**Prompts** → select version → set label). `latest` always points to the newest version.
+See: [Langfuse prompt version control docs](https://langfuse.com/docs/prompt-management/features/prompt-version-control)
+
+**Linking prompts to traces:** simply calling `get_prompt()` does NOT automatically link it to a trace. You must explicitly call `langfuse.update_current_generation(prompt=prompt_obj)` during the LLM generation.
+See: [Langfuse link to traces docs](https://langfuse.com/docs/prompt-management/features/link-to-traces)
+
+`create_agent()` returns `(agent, prompt_obj)` — `api.py` calls `update_current_generation(prompt=prompt_obj)` after the agent response to attempt linking. Eval scripts use `agent, _ = create_agent(...)`.
+
+> **Note:** Strands manages the LLM call internally via OTel — we never call the model directly. The prompt is linked via `span.update(prompt=prompt_obj)` on the root `chat` span, which stores `prompt_name` and `prompt_version` on that span. This means the link is on the **root trace span**, not on the inner Strands generation span. Linking directly to the inner generation span requires controlling that span yourself (Langfuse-native SDK, without OTel). This is a general limitation of any OTel-auto-instrumented framework (Strands, LangChain, etc.). See: [Langfuse Strands Agents integration](https://langfuse.com/integrations/frameworks/strands-agents)
+
+## Annotation Queues
+
+Annotation queues are a human review workflow — domain experts manually score traces to build ground truth, validate LLM-as-judge results, or investigate failures.
+See: [Langfuse annotation queues docs](https://langfuse.com/docs/evaluation/evaluation-methods/annotation-queues)
+
+**Key concept:** Langfuse provides the queue infrastructure, but **your code decides what goes in and when**. There is no automatic routing — items only enter a queue through an explicit call, either from the UI or from your code.
+
+### Setup (once, idempotent)
+
+Create the score config and queue:
+
+```bash
+uv run python -m evals.langfuse.create_annotation_queue
+```
+
+### Adding items to the queue
+
+**Option A — Manually via UI:**
+
+Go to **Traces** → select one or more traces → **Actions** → **Add to annotation queue**.
+Use this for ad-hoc review of interesting traces.
+
+**Option B — Programmatically (your code decides when):**
+
+Your code calls `langfuse.api.annotation_queues.create_queue_item(...)` explicitly. Common triggers:
+
+- **User gives 👎** — route negative feedback traces for human investigation
+- **Experiment score below threshold** — after `run_experiment()`, enqueue failing traces to build better ground truth
+- **Online evaluator scores low** — poll scores and enqueue traces below a quality threshold
+- **Specific intent detected** — route traces matching certain patterns (e.g. complaints, edge cases) for review
+- **Random sampling** — periodically enqueue a % of production traces for ongoing quality checks
+
+### Implementation: triggered by 👎
+
+This PoC implements the first use case — when a user gives negative feedback, the trace is automatically added to the queue for human investigation.
+
+Setup (creates the score config and queue, idempotent):
+
+```bash
+uv run python -m evals.langfuse.create_annotation_queue
+```
+
+The `/feedback` endpoint in `api.py` calls `create_queue_item` when `value == 0.0`:
+
+```python
+if request.value == 0.0:
+    langfuse.api.annotation_queues.create_queue_item(
+        queue_id=QUEUE_ID,
+        object_id=request.trace_id,
+        object_type=AnnotationQueueObjectType.TRACE,
+    )
+```
+
+### Human review workflow
+
+1. Go to **Annotation Queues** in the Langfuse UI
+2. Open the `banking-sentinel-review` queue
+3. For each trace: review the conversation, assign a score, click **Complete + next**
+4. Scores appear on the trace and contribute to your evaluation dashboard
+
+## Known Nuances and Limitations
+
+Things discovered while building this PoC that are worth being aware of:
+
+**Tracing with OTel + Langfuse SDK (hybrid approach):**
+- Our root `banking-sentinel-chat` span is a Langfuse-native generation. Token usage and model name are tracked on the inner Strands spans (`invoke_agent`, `chat`), not on the root — because we don't call the LLM directly. Usage is still visible in the trace, just one level down.
+- Two spans share the `banking-sentinel` tag (root + Strands inner `chat` generation). The online evaluator filter must include `Name = banking-sentinel-chat` to avoid double-scoring.
+
+**Prompt linking with OTel frameworks:**
+- `span.update(prompt=prompt_obj)` only works on `generation` type spans. Silently ignored on `span` type.
+- Linking attaches to our root generation, not the inner Strands LLM generation. Functionally correct but not ideal.
+- See: [Langfuse Strands Agents integration](https://langfuse.com/integrations/frameworks/strands-agents)
+
+**Online evaluators (LLM-as-judge) — unstable API:**
+- Creating evaluators and rules programmatically requires the unstable Langfuse API, which is **only available on Langfuse Cloud** (not self-hosted). Use the UI for self-hosted.
+
+**Session memory:**
+- `FileSessionManager` persists conversation history to `sessions/`. The agent remembers prior turns within a session — useful for multi-turn conversations but can affect evaluation behaviour if sessions are not isolated between test runs.
+
+## Project Structure
+
+```
+src/banking_sentinel/
+├── models.py          # Pydantic models (ChatResponse, SuggestedAction)
+├── data.py            # Mock transactions, card state, dispute store
+├── knowledge_base.py  # Policy documents (embedded in system prompt)
+├── tools.py           # 7 Strands @tool functions (factory pattern)
+├── agent.py           # Agent factory (ollama/bedrock/gemini) + chat()
+└── api.py             # FastAPI app + session management + Langfuse tracing
+evals/
+├── strands/
+│   └── run_evaluations.py   # Native Strands Evals (embedded + api targets)
+└── langfuse/
+    ├── create_dataset.py    # Create Langfuse dataset (idempotent)
+    └── run_experiment.py    # Run Langfuse experiment (embedded + api targets)
+static/
+└── index.html         # Chat UI
+docker-compose-langfuse.yml  # Langfuse stack (postgres, clickhouse, minio, redis)
+```
