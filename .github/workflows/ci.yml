@@ -27,7 +27,7 @@ jobs:
       - name: Run unit tests
         run: uv run pytest
 
-      - name: Run evals
+      - name: Run standalone evals
         env:
           MODEL_PROVIDER: gemini
           GEMINI_MODEL: gemini-3.5-flash
