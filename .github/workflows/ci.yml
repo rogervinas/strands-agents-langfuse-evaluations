@@ -6,8 +6,8 @@ on:
   pull_request:
 
 jobs:
-  build-and-test:
-    name: Build & Test
+  ci:
+    name: CI
     runs-on: ubuntu-latest
 
     steps:
