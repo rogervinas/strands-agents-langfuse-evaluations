@@ -213,33 +213,35 @@ dependencies = [
     { name = "pydantic" },
     { name = "python-dotenv" },
     { name = "strands-agents", extra = ["gemini", "ollama", "otel"] },
-    { name = "strands-agents-evals" },
     { name = "strands-agents-tools" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
 [package.optional-dependencies]
 dev = [
-    { name = "httpx" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
+]
+evals = [
+    { name = "httpx" },
+    { name = "strands-agents-evals" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi" },
-    { name = "httpx", marker = "extra == 'dev'" },
-    { name = "langfuse" },
-    { name = "pydantic", specifier = ">=2.0" },
-    { name = "pytest", marker = "extra == 'dev'" },
-    { name = "pytest-asyncio", marker = "extra == 'dev'" },
-    { name = "python-dotenv" },
-    { name = "strands-agents", extras = ["ollama", "gemini", "otel"] },
-    { name = "strands-agents-evals" },
-    { name = "strands-agents-tools" },
-    { name = "uvicorn", extras = ["standard"] },
+    { name = "fastapi", specifier = "==0.136.3" },
+    { name = "httpx", marker = "extra == 'evals'", specifier = "==0.28.1" },
+    { name = "langfuse", specifier = "==4.7.1" },
+    { name = "pydantic", specifier = "==2.13.4" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = "==9.0.3" },
+    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = "==1.4.0" },
+    { name = "python-dotenv", specifier = "==1.2.2" },
+    { name = "strands-agents", extras = ["ollama", "gemini", "otel"], specifier = "==1.42.0" },
+    { name = "strands-agents-evals", marker = "extra == 'evals'", specifier = "==0.2.1" },
+    { name = "strands-agents-tools", specifier = "==0.8.0" },
+    { name = "uvicorn", extras = ["standard"], specifier = "==0.49.0" },
 ]
-provides-extras = ["dev"]
+provides-extras = ["dev", "evals"]
 
 [[package]]
 name = "beautifulsoup4"
