@@ -1,4 +1,11 @@
-# Banking Sentinel — Strands Agents + Langfuse Evaluations
+[![CI](https://github.com/rogervinas/strands-agents-langfuse-evaluations/actions/workflows/ci.yml/badge.svg)](https://github.com/rogervinas/strands-agents-langfuse-evaluations/actions/workflows/ci.yml)
+![StrandsAgents](https://img.shields.io/badge/strandsagents-1.42.0-blue?labelColor=black)
+
+![Gemini](https://img.shields.io/badge/Gemini-✓-4285F4?labelColor=black)
+![Bedrock](https://img.shields.io/badge/Bedrock-✓-FF9900?labelColor=black)
+![Ollama](https://img.shields.io/badge/Ollama-✓-FFFFFF?labelColor=black)
+
+# Strands Agents + Langfuse Evaluations
 
 A Python banking assistant agent built with [Strands Agents](https://strandsagents.com) (AWS), demonstrating two evaluation approaches using [Langfuse](https://langfuse.com):
 
@@ -7,7 +14,7 @@ A Python banking assistant agent built with [Strands Agents](https://strandsagen
 
 ## Prerequisites
 
-- Python 3.11+
+- Python 3.13 (pinned in `.python-version`)
 - [uv](https://docs.astral.sh/uv/)
 - Docker + Docker Compose
 - A model provider (see [Model Providers](#model-providers))
@@ -17,8 +24,10 @@ A Python banking assistant agent built with [Strands Agents](https://strandsagen
 ### 1. Install dependencies
 
 ```bash
-uv sync
+uv sync --extra dev
 ```
+
+The `dev` extras add `pytest` and `httpx` (needed for unit tests and API eval target).
 
 ### 2. Configure environment
 
@@ -64,6 +73,16 @@ To stop and remove all data:
 ```bash
 docker compose -f docker-compose-langfuse.yml down -v
 ```
+
+## Testing
+
+Unit tests cover the core business logic (`data.py`) and tool JSON contracts (`tools.py`). They run fully offline — no LLM or services required.
+
+```bash
+uv run pytest
+```
+
+CI runs automatically on every push and pull request via GitHub Actions (see `.github/workflows/ci.yml`).
 
 ## Model Providers
 
