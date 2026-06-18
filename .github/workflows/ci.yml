@@ -30,5 +30,6 @@ jobs:
       - name: Run evals
         env:
           MODEL_PROVIDER: gemini
+          GEMINI_MODEL: gemini-3.5-flash
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: uv run python -m evals.strands.run_evaluations embedded
