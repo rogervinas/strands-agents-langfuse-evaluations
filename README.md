@@ -24,10 +24,11 @@ A Python banking assistant agent built with [Strands Agents](https://strandsagen
 ### 1. Install dependencies
 
 ```bash
-uv sync --extra dev
+uv sync --extra dev --extra evals
 ```
 
-The `dev` extras add `pytest` and `httpx` (needed for unit tests and API eval target).
+- `dev` — `pytest`, `pytest-asyncio` (unit tests)
+- `evals` — `strands-agents-evals`, `httpx` (Strands evaluations)
 
 ### 2. Configure environment
 

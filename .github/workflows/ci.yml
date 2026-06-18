@@ -18,10 +18,16 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies
-        run: uv sync --extra dev
+        run: uv sync --extra dev --extra evals
 
       - name: Build package
         run: uv build
 
       - name: Run unit tests
         run: uv run pytest
+
+      - name: Run evals
+        env:
+          MODEL_PROVIDER: gemini
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: uv run python -m evals.strands.run_evaluations embedded
