@@ -104,6 +104,8 @@ flowchart LR
 
 The implementation is intentionally straightforward — no RAG (the knowledge base is short enough to inline directly in the system prompt), no MCP, no external service calls. The goal is to keep the agent logic simple so the focus stays on observability and evaluations. For implementation details, follow the [Strands Agents tutorial](https://strandsagents.com/latest/documentation/docs/get-started/quick-start/).
 
+`FileSessionManager` persists conversation history to local disk — fine for development, but in production you would replace it with `S3SessionManager` (built into Strands) or a custom `RepositorySessionManager` backed by your own store. See: [Strands session management docs](https://strandsagents.com/latest/documentation/docs/user-guide/concepts/sessions/).
+
 Run the agent:
 
 ```bash
