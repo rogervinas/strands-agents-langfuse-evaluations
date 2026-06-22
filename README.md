@@ -237,7 +237,7 @@ uv run python -m evals.strands.run_evaluations api --url http://localhost:8000
 
 ### Step 4: Langfuse Experiments
 
-Langfuse Experiments persist evaluation results to the Langfuse dashboard and CI can gate on them. Requires Langfuse running.
+Langfuse Experiments store both the **dataset** and the **results** in your Langfuse instance — everything lives there, not in local files. This means results are visible in the dashboard and CI can gate on them. Requires Langfuse running.
 
 **Create the dataset** (idempotent — safe to run repeatedly):
 
@@ -245,7 +245,7 @@ Langfuse Experiments persist evaluation results to the Langfuse dashboard and CI
 uv run python -m evals.langfuse.create_dataset
 ```
 
-This creates a dataset named `banking-sentinel-evals` with two items:
+The dataset is persisted in Langfuse under project `banking-sentinel`. Each item has an `input`, an `expected_output`, and optional `metadata`:
 
 ```python
 # evals/langfuse/create_dataset.py
@@ -266,7 +266,7 @@ ITEMS = [
 ]
 ```
 
-Two evaluators — one deterministic, one LLM-as-judge — score each result:
+Two evaluators score each result — one deterministic, one LLM-as-judge. The LLM-as-judge runs **locally** using whatever `MODEL_PROVIDER` you have configured (Ollama, Bedrock, Gemini) — it is not Langfuse's evaluation infrastructure, just your own model called from Python:
 
 ```python
 # evals/langfuse/run_experiment.py
@@ -278,7 +278,7 @@ def correctness_evaluator(*, output, expected_output, **kwargs):
     return Evaluation(name="correctness", value=score, comment=f"Expected {expected}, got {actual}")
 
 def claim_evaluator(*, output, expected_output, **kwargs):
-    """LLM-as-judge: checks if the agent's answer matches the expected claim."""
+    """LLM-as-judge: runs locally with your configured MODEL_PROVIDER."""
     judge = Agent(model=_model, callback_handler=lambda **_: None)
     result = judge(
         f"Does the following answer match the claim? Reply with YES or NO only.\n\n"
