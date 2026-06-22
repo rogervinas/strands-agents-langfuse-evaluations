@@ -266,18 +266,41 @@ ITEMS = [
 ]
 ```
 
+**Evaluators** are plain Python callables — there are no built-in evaluators in the SDK and no base class to inherit from. Any function that matches this signature works:
+
+```python
+from langfuse.experiment import Evaluation
+
+def my_evaluator(
+    *,
+    input: Any,           # the dataset item's input
+    output: Any,          # what the task returned
+    expected_output: Any, # the dataset item's expected_output
+    metadata: Optional[Dict[str, Any]],
+    **kwargs: Any,
+) -> Evaluation:          # or List[Evaluation] for multiple metrics at once
+    ...
+    return Evaluation(
+        name="my-metric",   # metric name shown in the dashboard
+        value=1.0,          # int | float | str | bool
+        comment="optional", # shown alongside the score
+    )
+```
+
+> The Langfuse SDK also ships a `create_evaluator_from_autoevals()` helper that wraps evaluators from the [autoevals](https://github.com/langfuse/autoevals) library into this interface, if you want pre-built options.
+
 Two evaluators score each result — one deterministic, one LLM-as-judge. The LLM-as-judge runs **locally** using whatever `MODEL_PROVIDER` you have configured (Ollama, Bedrock, Gemini) — it is not Langfuse's evaluation infrastructure, just your own model called from Python:
 
 ```python
 # evals/langfuse/run_experiment.py
-def correctness_evaluator(*, output, expected_output, **kwargs):
+def correctness_evaluator(*, output, expected_output, **kwargs) -> Evaluation:
     """Deterministic: checks if all expected suggested actions are present."""
     expected = set(expected_output.get("suggestedActions", []))
     actual = set(output.get("suggested_actions", []))
     score = len(expected & actual) / len(expected) if expected else 1.0
     return Evaluation(name="correctness", value=score, comment=f"Expected {expected}, got {actual}")
 
-def claim_evaluator(*, output, expected_output, **kwargs):
+def claim_evaluator(*, output, expected_output, **kwargs) -> Evaluation:
     """LLM-as-judge: runs locally with your configured MODEL_PROVIDER."""
     judge = Agent(model=_model, callback_handler=lambda **_: None)
     result = judge(
