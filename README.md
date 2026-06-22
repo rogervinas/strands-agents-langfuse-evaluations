@@ -11,19 +11,19 @@ In this project we will build a Python banking assistant agent using [Strands Ag
 
 LLM applications are **non-deterministic**: the same input may yield different outputs on each run. Traditional unit tests can verify tool contracts but cannot validate model reasoning or output quality. To operate these systems reliably you need two things: **traces** (a recorded tree of every LLM call, tool call, and sub-agent step — inputs, outputs, duration, cost) and **evaluations** (a repeatable way to measure quality — offline in CI and online against real traffic). Several platforms provide these capabilities — this project uses **Langfuse** because it is open-source and self-hostable with a single `docker compose up`:
 
-| Provider | Self-host | Tracing | Evals | Prompt Mgmt | Best for |
-|---|---|---|---|---|---|
-| **[Langfuse](https://langfuse.com/docs)** | ✅ | ✅ | ✅ | ✅ | POCs, full control, any stack |
-| **[Arize Phoenix](https://docs.arize.com/phoenix)** | ✅ | ✅ | ✅ | ✗ | Open-source, strong eval focus |
-| **[MLflow](https://mlflow.org/docs/latest/llms/tracing/index.html)** | ✅ | ✅ | Limited | ✅ | Teams already using MLflow |
-| **[LangSmith](https://docs.smith.langchain.com/)** | ✗ | ✅ | ✅ | ✅ | Teams already on LangChain |
-| **[W&B Weave](https://weave-docs.wandb.ai/)** | ✗ | ✅ | ✅ | ✗ | Teams already using W&B |
-| **[Datadog](https://docs.datadoghq.com/llm_observability/evaluations/)** | ✗ | ✅ | ✅ | ✗ | Observability-first teams |
-| **[AWS AgentCore](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/evaluations.html)** | ✗ | Limited | ✅ | ✗ | AWS-native teams |
-| **[Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-approach-gen-ai)** | ✗ | Limited | ✅ | ✗ | Azure-native teams |
-| **[Google Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview)** | ✗ | Limited | ✅ | ✗ | GCP-native teams |
+| Provider | Self-host | Tracing | Evals | Prompt Mgmt | User Feedback | Best for |
+|---|---|---|---|---|---|---|
+| **[Langfuse](https://langfuse.com/docs)** | ✅ | ✅ | ✅ | ✅ | ✅ | POCs, full control, any stack |
+| **[Arize Phoenix](https://docs.arize.com/phoenix)** | ✅ | ✅ | ✅ | ✗ | ✅ | Open-source, strong eval focus |
+| **[MLflow](https://mlflow.org/docs/latest/llms/tracing/index.html)** | ✅ | ✅ | Limited | ✅ | Limited | Teams already using MLflow |
+| **[LangSmith](https://docs.smith.langchain.com/)** | ✗ | ✅ | ✅ | ✅ | ✅ | Teams already on LangChain |
+| **[W&B Weave](https://weave-docs.wandb.ai/)** | ✗ | ✅ | ✅ | ✗ | ❓ | Teams already using W&B |
+| **[Datadog](https://docs.datadoghq.com/llm_observability/evaluations/)** | ✗ | ✅ | ✅ | ✗ | ✗ | Observability-first teams |
+| **[AWS AgentCore](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/evaluations.html)** | ✗ | Limited | ✅ | ✗ | ✗ | AWS-native teams |
+| **[Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-approach-gen-ai)** | ✗ | Limited | ✅ | ✗ | ✗ | Azure-native teams |
+| **[Google Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview)** | ✗ | Limited | ✅ | ✗ | ✗ | GCP-native teams |
 
-> **Prompt Mgmt** means versioning prompt templates and pulling them at runtime via SDK — a feature distinct from general observability.
+> **Prompt Mgmt** means versioning prompt templates and pulling them at runtime via SDK — a feature distinct from general observability. **User Feedback** means collecting end-user scores (👍/👎) on live traces via SDK and surfacing them in the platform.
 
 The **banking sentinel** is a customer support agent for ROGERVINAS bank: 3 mock accounts with 5 transactions each, and tools to freeze/unfreeze cards, look up transactions, and open or track disputes. This project demonstrates:
 
@@ -31,7 +31,8 @@ The **banking sentinel** is a customer support agent for ROGERVINAS bank: 3 mock
 - **Langfuse tracing** — hybrid OTel + Langfuse SDK approach for full span hierarchy
 - **Offline evaluations** — Strands Evals SDK (standalone, CI-friendly) and Langfuse Experiments (with dashboard)
 - **Online LLM-as-judge** — scoring live production traces as they arrive
-- **Annotation queues** — human review workflow triggered by negative user feedback
+- **User feedback** — collecting 👍/👎 scores from end users on live traces
+- **Annotation queues** — routing traces to human reviewers via explicit programmatic calls
 - **Prompt management** — versioned system prompts pulled from Langfuse at runtime
 
 ```mermaid
@@ -55,8 +56,9 @@ flowchart LR
   - [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations)
   - [Step 4: Langfuse Experiments](#step-4-langfuse-experiments)
   - [Step 5: Online Evaluations (LLM-as-judge)](#step-5-online-evaluations-llm-as-judge)
-  - [Step 6: Annotation Queues](#step-6-annotation-queues)
-  - [Step 7: Prompt Management](#step-7-prompt-management)
+  - [Step 6: User Feedback](#step-6-user-feedback)
+  - [Step 7: Annotation Queues](#step-7-annotation-queues)
+  - [Step 8: Prompt Management](#step-8-prompt-management)
 - [Configuration](#configuration)
 - [Run](#run)
 - [Testing](#testing)
@@ -363,9 +365,48 @@ Results appear as scores on each trace in the Langfuse UI.
 
 ---
 
-### Step 6: Annotation Queues
+### Step 6: User Feedback
 
-Annotation queues are a human review workflow — domain experts manually score traces to build ground truth, validate LLM-as-judge results, or investigate failures. Your code decides what enters the queue and when — items only appear through an explicit call.
+LLM applications are non-deterministic — automated evaluators catch a lot, but human judgment is still essential. Collecting 👍/👎 feedback from real users gives you a ground-truth signal that no automated evaluator can fully replace.
+See: [Langfuse user feedback docs](https://langfuse.com/docs/scores/user-feedback)
+
+**How it works:**
+
+1. The `/chat` endpoint returns a `trace_id` in every response (read from `span.trace_id`)
+2. The chat UI attaches 👍/👎 buttons to each assistant message, keyed to that `trace_id`
+3. On click, the UI posts to `/feedback` with `value: 1.0` (👍) or `value: 0.0` (👎)
+4. The backend calls `langfuse.create_score()` — the score appears on the trace immediately
+
+```python
+# api.py
+@app.post("/feedback")
+def feedback_endpoint(request: FeedbackRequest):
+    langfuse.create_score(
+        trace_id=request.trace_id,
+        name="user-feedback",
+        value=request.value,   # 1.0 = 👍, 0.0 = 👎
+        comment=request.comment,
+    )
+```
+
+View feedback scores at [http://localhost:3000](http://localhost:3000) → **Traces** → click any trace → **Scores** tab.
+
+---
+
+### Step 7: Annotation Queues
+
+Annotation queues are a human review workflow — domain experts manually score traces to build ground truth, validate LLM-as-judge results, or investigate failures.
+See: [Langfuse annotation queues docs](https://langfuse.com/docs/evaluation/evaluation-methods/annotation-queues)
+
+**Key concept:** Langfuse provides the queue infrastructure and a programmatic API to add items — but there are no automatic routing rules or triggers built in. Items only enter a queue through an explicit call, either from the UI (ad-hoc) or from your code. **Your code owns the routing logic.**
+
+Common triggers you can implement:
+
+- User gives 👎 — route negative feedback traces for human investigation
+- Experiment score below threshold — enqueue failing traces to build better ground truth
+- Online evaluator scores low — poll scores and enqueue traces below a quality bar
+- Specific intent detected — route traces matching certain patterns (complaints, edge cases)
+- Random sampling — periodically enqueue a % of production traces for ongoing quality checks
 
 **Setup (once, idempotent):**
 
@@ -375,14 +416,12 @@ uv run python -m evals.langfuse.create_annotation_queue
 
 This creates the `banking-sentinel-review` queue. Set `ANNOTATION_QUEUE_ID` in `.env` to the returned queue ID.
 
-**Trigger: negative user feedback (👎)**
+**Example: enqueue on 👎**
 
-The chat UI includes 👍 / 👎 buttons on every assistant message. The `/feedback` endpoint scores the trace and — on 👎 — enqueues it for human review:
+In this PoC, the `/feedback` endpoint adds the trace to the queue whenever the user gives a thumbs down:
 
 ```python
 # api.py
-langfuse.create_score(trace_id=request.trace_id, name="user-feedback", value=request.value)
-
 if request.value == 0.0 and _annotation_queue_id:
     langfuse.api.annotation_queues.create_queue_item(
         _annotation_queue_id,
@@ -390,8 +429,6 @@ if request.value == 0.0 and _annotation_queue_id:
         object_type=AnnotationQueueObjectType.TRACE,
     )
 ```
-
-Other common triggers: experiment score below threshold, online evaluator scores low, specific intent detected, random sampling.
 
 **Human review workflow:**
 1. Go to **Annotation Queues** in the Langfuse UI
@@ -401,7 +438,7 @@ Other common triggers: experiment score below threshold, online evaluator scores
 
 ---
 
-### Step 7: Prompt Management
+### Step 8: Prompt Management
 
 Langfuse can store and version system prompts independently of your code — iterate on the prompt without redeploying the app.
 
@@ -517,7 +554,7 @@ To stop and delete all data: `docker compose -f docker-compose-langfuse.yml down
 uv run uvicorn banking_sentinel.api:app --reload
 ```
 
-Open [http://localhost:8000](http://localhost:8000). The chat UI includes 👍 / 👎 buttons on every assistant message — clicking one sends a score to Langfuse immediately and, on 👎, enqueues the trace for human review (Step 6).
+Open [http://localhost:8000](http://localhost:8000). The chat UI includes 👍 / 👎 buttons on every assistant message — clicking one sends a score to Langfuse immediately (Step 6) and, on 👎, enqueues the trace for human review (Step 7).
 
 Agent traces are sent to Langfuse automatically via OpenTelemetry when `LANGFUSE_*` and `OTEL_*` env vars are set.
 
