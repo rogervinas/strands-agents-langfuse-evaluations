@@ -301,8 +301,6 @@ def my_evaluator(
     )
 ```
 
-> The Langfuse SDK also ships a `create_evaluator_from_autoevals()` helper that wraps evaluators from the [autoevals](https://github.com/braintrustdata/autoevals) library into this interface, if you want pre-built options.
-
 Two evaluators score each result — one deterministic, one LLM-as-judge. The LLM-as-judge runs **locally** using whatever `MODEL_PROVIDER` you have configured (Ollama, Bedrock, Gemini) — it is not Langfuse's evaluation infrastructure, just your own model called from Python:
 
 ```python
