@@ -13,7 +13,7 @@ LLM applications are **non-deterministic**: the same input may yield different o
 
 | Provider | Self-host | Tracing | Evals | Prompt Mgmt | User Feedback | Best for |
 |---|---|---|---|---|---|---|
-| **[Langfuse](https://langfuse.com/docs)** | ✅ | ✅ | ✅ | ✅ | ✅ | POCs, full control, any stack |
+| **[Langfuse](https://langfuse.com/docs)** | ✅ | ✅ | ✅ | ✅ | ✅ | Any stack, no vendor lock-in, self-hosted or cloud |
 | **[Arize Phoenix](https://docs.arize.com/phoenix)** | ✅ | ✅ | ✅ | ✗ | ✅ | Open-source, strong eval focus |
 | **[MLflow](https://mlflow.org/docs/latest/llms/tracing/index.html)** | ✅ | ✅ | Limited | ✅ | Limited | Teams already using MLflow |
 | **[LangSmith](https://docs.smith.langchain.com/)** | ✗ | ✅ | ✅ | ✅ | ✅ | Teams already on LangChain |
