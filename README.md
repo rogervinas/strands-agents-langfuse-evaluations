@@ -237,15 +237,28 @@ uv run python -m evals.strands.run_evaluations api --url http://localhost:8000
 
 ### Step 4: Langfuse Experiments
 
-Langfuse Experiments store both the **dataset** and the **results** in your Langfuse instance — everything lives there, not in local files. This means results are visible in the dashboard and CI can gate on them. Requires Langfuse running.
+A **dataset** is a versioned collection of test cases stored in Langfuse — each item has an `input`, an `expected_output`, and optional `metadata`. An **experiment** is a named run of a task against that dataset, with evaluator scores recorded for every item. Both live in your Langfuse instance, not in local files.
 
-**Create the dataset** (idempotent — safe to run repeatedly):
+You need experiments because Step 3 (Strands Evals) only gives you a local pass/fail report with no history. Langfuse Experiments add:
+
+- **Comparison across runs** — see how scores change between code versions, prompt changes, or model upgrades side by side in the dashboard
+- **Persistent results** — every run is stored; you can go back and audit any historical experiment
+- **CI quality gate** — the script exits non-zero if scores drop below threshold, blocking the build
+
+Requires Langfuse running.
+
+**Create the dataset**
+
+Datasets can be created in two ways:
+
+- **Via UI**: go to [http://localhost:3000](http://localhost:3000) → project `banking-sentinel` → **Datasets** → `+ New dataset`, then add items manually
+- **Programmatically** (idempotent — safe to run repeatedly):
 
 ```bash
 uv run python -m evals.langfuse.create_dataset
 ```
 
-The dataset is persisted in Langfuse under project `banking-sentinel`. Each item has an `input`, an `expected_output`, and optional `metadata`:
+Each item has an `input`, an `expected_output`, and optional `metadata`:
 
 ```python
 # evals/langfuse/create_dataset.py
