@@ -73,7 +73,7 @@ Let's implement this step by step.
 
 ### Step 1: The Banking Agent
 
-The domain: a banking customer support agent — the **Sentinel** — for ROGERVINAS bank. It has three mock accounts (`ACC-1001`, `ACC-1002`, `ACC-1003`), each with five transactions, and provides seven tools:
+The domain: a banking customer support agent — the **Sentinel** — for ROGERVINAS bank. Three mock accounts (`ACC-1001`, `ACC-1002`, `ACC-1003`), five transactions each, and seven tools:
 
 | Tool | Description |
 |---|---|
@@ -85,52 +85,24 @@ The domain: a banking customer support agent — the **Sentinel** — for ROGERV
 | `get_dispute_status` | Check dispute status |
 | `list_disputes` | List all disputes for an account |
 
-The domain state (`CardState`, `DisputeStore`) lives per-session and is injected into tools at request time via a factory:
+```mermaid
+flowchart LR
+    Msg(["User message"]) --> Agent
 
-```python
-# data.py
-class CardState:
-    def __init__(self):
-        self._frozen: set[str] = set()
+    subgraph Agent["Strands Agent"]
+        direction TB
+        Prompt["System prompt\n(user_tier · date · account_id)"]
+        KB["Knowledge base\ninlined in context"]
+        Mem["Session memory\n(FileSessionManager)"]
+    end
 
-    def freeze(self, account_id: str) -> None:
-        self._frozen.add(account_id)
+    Agent -->|"tool calls"| Tools["freeze / unfreeze / is_frozen\nget_transactions\nopen / check / list disputes"]
+    Tools --> State["In-memory state\n(CardState · DisputeStore\n· Mock Transactions)"]
 
-class DisputeStore:
-    def __init__(self, transactions: dict[str, list[Transaction]]):
-        self._disputes: dict[str, Dispute] = {}
+    Agent --> Resp(["Structured response\n(answer + suggested_actions)"])
 ```
 
-```python
-# tools.py
-def create_tools(card_state, dispute_store, transactions, reference_date):
-
-    @tool
-    def freeze_card(account_id: str, reason: str) -> str:
-        """Freeze the card associated with an account."""
-        card_state.freeze(account_id)
-        return json.dumps({"account_id": account_id, "status": "frozen", "reason": reason})
-
-    # ... 6 more tools
-    return [freeze_card, unfreeze_card, is_card_frozen,
-            get_transactions, open_dispute, get_dispute_status, list_disputes]
-```
-
-The agent factory creates a `strands.Agent` with a compiled system prompt, tools, and an optional session manager:
-
-```python
-# agent.py
-def create_agent(langfuse, model, tools, user_tier, account_id, reference_date, session_manager=None) -> tuple:
-    system_prompt, prompt_obj = _create_system_prompt(user_tier, account_id, reference_date), None
-    return Agent(model=model, tools=tools, system_prompt=system_prompt,
-                 session_manager=session_manager, callback_handler=lambda **_: None), prompt_obj
-
-def chat(agent: Agent, message: str) -> ChatResponse:
-    result = agent(message, structured_output_model=ChatResponse)
-    return result.structured_output
-```
-
-`FileSessionManager` persists conversation history to `sessions/` so the agent remembers prior turns within a session.
+The implementation is intentionally straightforward — no RAG (the knowledge base is short enough to inline directly in the system prompt), no MCP, no external service calls. The goal is to keep the agent logic simple so the focus stays on observability and evaluations. For implementation details, follow the [Strands Agents tutorial](https://strandsagents.com/latest/documentation/docs/get-started/quick-start/).
 
 Run the agent:
 
