@@ -243,7 +243,8 @@ You need experiments because Step 3 (Strands Evals) only gives you a local pass/
 
 - **Comparison across runs** — see how scores change between code versions, prompt changes, or model upgrades side by side in the dashboard
 - **Persistent results** — every run is stored; you can go back and audit any historical experiment
-- **CI quality gate** — the script exits non-zero if scores drop below threshold, blocking the build
+
+Both Step 3 and Step 4 act as a CI quality gate — the script exits non-zero if scores drop below threshold.
 
 Requires Langfuse running.
 
