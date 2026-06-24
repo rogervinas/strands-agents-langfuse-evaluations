@@ -7,11 +7,18 @@
 
 # Strands Agents + Langfuse Evaluations
 
-In this project we will build a Python banking assistant agent using [Strands Agents](https://strandsagents.com) (AWS) and connect it to [Langfuse](https://langfuse.com) for tracing, evaluations, prompt management, and human feedback — step by step.
+In this project we will build a Python banking assistant agent using [Strands Agents](https://strandsagents.com) and connect it to [Langfuse](https://langfuse.com) for tracing, evaluations, prompt management, and human feedback — step by step.
 
-LLM applications are **non-deterministic**: the same input may yield different outputs on each run. Traditional unit tests can verify tool contracts but cannot validate model reasoning or output quality. To operate these systems reliably you need two things: **traces** (a recorded tree of every LLM call, tool call, and sub-agent step — inputs, outputs, duration, cost) and **evaluations** (a repeatable way to measure quality — offline in CI and online against real traffic). Several platforms provide these capabilities — this project uses **Langfuse** because it is open-source and self-hostable with a single `docker compose up`:
+[Strands Agents](https://strandsagents.com) is a lightweight Python SDK for building LLM-powered agents with tool use and session memory, open-sourced by AWS in May 2025. It is Python-native — which pairs well with the Langfuse Python SDK — and new enough to be worth exploring. Any other Python agent framework would work just as well for this PoC.
 
-| Provider | Self-host | Tracing | Evals | Prompt Mgmt | User Feedback | Best for |
+With classic applications, quality is enforced through unit tests, integration tests, and static analysis — every function has a defined contract and a deterministic output you can assert on. In production, metrics (error rates, latency, memory) surface failures reliably.
+
+AI applications break both of these. The same input may yield different outputs on each run — wording changes, tools get called in a different order, edge cases surface unpredictably. And in production, a request can return 200 OK in 300ms with a confident, completely wrong answer — classic metrics won't catch it. You need something more.
+
+That something is **traces** (a recorded tree of every LLM call, tool call, and sub-agent step — inputs, outputs, latency, cost) and **evaluations** (a repeatable way to measure quality — offline in CI and online against real traffic). Several platforms provide these capabilities — this project uses **Langfuse** because it is open-source and self-hostable with a single `docker compose up`:
+
+
+| Provider | Self-host | Tracing | Evaluations | Prompt Management | User Feedback | Best for |
 |---|---|---|---|---|---|---|
 | **[Langfuse](https://langfuse.com/docs)** | ✅ | ✅ | ✅ | ✅ | ✅ | Any stack, no vendor lock-in, self-hosted or cloud |
 | **[Arize Phoenix](https://docs.arize.com/phoenix)** | ✅ | ✅ | ✅ | ✗ | ✅ | Open-source, strong eval focus |
@@ -23,7 +30,8 @@ LLM applications are **non-deterministic**: the same input may yield different o
 | **[Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-approach-gen-ai)** | ✗ | Limited | ✅ | ✗ | ✗ | Azure-native teams |
 | **[Google Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview)** | ✗ | Limited | ✅ | ✗ | ✗ | GCP-native teams |
 
-> **Prompt Mgmt** means versioning prompt templates and pulling them at runtime via SDK — a feature distinct from general observability. **User Feedback** means collecting end-user scores (👍/👎) on live traces via SDK and surfacing them in the platform.
+> **Tracing** means recording a structured tree of every LLM call, tool call, and sub-agent step — inputs, outputs, latency, cost. **Evaluations** means running scored assessments of agent outputs — offline against a fixed dataset and/or online against live traffic. **Prompt Management** means versioning prompt templates and pulling them at runtime via SDK. **User Feedback** means collecting end-user scores (👍/👎) on live traces via SDK and surfacing them in the platform.
+
 
 The **banking sentinel** is a customer support agent for ROGERVINAS bank: 3 mock accounts with 5 transactions each, and tools to freeze/unfreeze cards, look up transactions, and open or track disputes. This project demonstrates:
 
@@ -31,9 +39,13 @@ The **banking sentinel** is a customer support agent for ROGERVINAS bank: 3 mock
 - **Langfuse tracing** — hybrid OTel + Langfuse SDK approach for full span hierarchy
 - **Offline evaluations** — Strands Evals SDK (standalone, CI-friendly) and Langfuse Experiments (with dashboard)
 - **Online LLM-as-judge** — scoring live production traces as they arrive
-- **User feedback** — collecting 👍/👎 scores from end users on live traces
+- **External evaluations** — scoring traces via SDK from your own code (user feedback, guardrails, custom pipelines)
 - **Annotation queues** — routing traces to human reviewers via explicit programmatic calls
 - **Prompt management** — versioned system prompts pulled from Langfuse at runtime
+
+**Offline evaluations** run against a fixed dataset before or after a change — deterministic, reproducible, suitable for CI. They give you confidence that a code or prompt change didn't regress quality. Covered in Steps 3 and 4.
+
+**Online evaluations** run in production against real traffic — async, triggered by live traces. They catch issues that didn't appear in your fixed dataset. Covered in Step 5.
 
 ```mermaid
 flowchart LR
@@ -56,7 +68,7 @@ flowchart LR
   - [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations)
   - [Step 4: Langfuse Experiments](#step-4-langfuse-experiments)
   - [Step 5: Online Evaluations (LLM-as-judge)](#step-5-online-evaluations-llm-as-judge)
-  - [Step 6: User Feedback](#step-6-user-feedback)
+  - [Step 6: External Evaluations](#step-6-external-evaluations)
   - [Step 7: Annotation Queues](#step-7-annotation-queues)
   - [Step 8: Prompt Management](#step-8-prompt-management)
 - [Configuration](#configuration)
@@ -114,6 +126,9 @@ uv run uvicorn banking_sentinel.api:app --reload
 
 Open [http://localhost:8000](http://localhost:8000) to use the chat UI.
 
+> **Note:** This setup is intentionally minimal — a single process, file-based session storage, and no external service integrations. A production agent would replace `FileSessionManager` with `S3SessionManager` or a database-backed store, run behind a load balancer with multiple replicas, and connect to real external services via MCP or direct API calls. The goal here is to keep the agent architecture simple so the focus stays on observability and evaluations.
+
+
 ---
 
 ### Step 2: Langfuse Tracing
@@ -126,7 +141,10 @@ docker compose -f docker-compose-langfuse.yml up -d
 
 Langfuse UI: [http://localhost:3000](http://localhost:3000) — pre-provisioned credentials: `admin@local.dev` / `password`.
 
+OTel instrumentation quality varies across SDKs and observability platforms — some frameworks emit rich spans that map cleanly, others miss fields the platform expects. The [GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) define a standard for LLM-related spans, but most signals are still **experimental** — meaning SDKs and platforms implement them inconsistently. Before relying on auto-instrumentation, always verify your traces in the platform UI: check that `input`, `output`, token counts, and model names land where you expect.
+
 **The challenge:** Strands uses OTel to emit spans internally, but raw OTel spans may not carry all the context Langfuse expects (e.g. trace-level `input`, `output`). The Strands `[otel]` extra generates spans but does not set `input`/`output` on the root span — you get `undefined` in the annotation queue.
+
 
 **Pattern used here:** `langfuse.start_as_current_observation()` wraps the entire `/chat` request. This is a Langfuse-native Python method, independent of Strands, that works with any Python code. It ensures `input`/`output` is set on the root trace span, while Strands OTel spans are captured as children automatically:
 
@@ -154,15 +172,6 @@ banking-sentinel-chat  ← Langfuse-native root span (input/output/user_id)
 Open [http://localhost:3000](http://localhost:3000) → **Traces** to see it.
 
 > **Note:** Token usage and model name are tracked on the inner Strands spans (`invoke_agent`, `chat`), not on the root span — because we don't call the LLM directly. Usage is still visible in the trace, just one level down. Two spans share the `banking-sentinel` tag (root + Strands inner `chat` generation) — keep this in mind when configuring online evaluators in Step 5.
-
----
-
-### Offline vs Online Evaluations
-
-Before the next steps, a quick framing:
-
-- **Offline evaluations** run against a fixed dataset before or after a change — deterministic, reproducible, suitable for CI. They give you confidence that a code or prompt change didn't regress quality. Covered in Steps 3 and 4.
-- **Online evaluations** run in production against real traffic — async, triggered by live traces. They catch issues that didn't appear in your fixed dataset. Covered in Step 5.
 
 ---
 
@@ -210,6 +219,14 @@ claim_evaluator = ClaimEvaluator(
 )
 ```
 
+> **Note:** Strands Evals can evaluate any Python callable — there is no coupling to the Strands agent itself. If you prefer a different evaluation framework, alternatives include [DeepEval](https://deepeval.com), [Ragas](https://ragas.io) (RAG-focused), [Braintrust autoevals](https://www.braintrustdata.com/docs/autoevals/overview), or plain [pytest](https://docs.pytest.org) with custom assertions.
+
+There are two ways to run the task:
+- **Embedded** — the agent is instantiated in-process; external services are mocked, and you can inspect internal state (white-box). Fast, no server needed, ideal for CI.
+- **API** — the task hits a running server with real external services (black-box). Use this to validate against a live deployment or when mocking is not practical.
+
+Use **embedded** when you want fast, isolated, reproducible runs. Use **API** when you need to validate against the real stack.
+
 The task function runs the agent in-process or via HTTP:
 
 ```python
@@ -222,6 +239,7 @@ def embedded_task(case: Case) -> dict:
     response = chat(agent, inp["message"])
     return {"output": {"answer": response.answer, "suggested_actions": [a.value for a in response.suggested_actions]}}
 ```
+
 
 Run:
 
@@ -237,7 +255,10 @@ uv run python -m evals.strands.run_evaluations api --url http://localhost:8000
 
 ### Step 4: Langfuse Experiments
 
-A **dataset** is a versioned collection of test cases stored in Langfuse — each item has an `input`, an `expected_output`, and optional `metadata`. An **experiment** is a named run of a task against that dataset, with evaluator scores recorded for every item. Both live in your Langfuse instance, not in local files.
+
+An **experiment** (called "Experiments" in Langfuse, Datadog, Arize Phoenix, and LangSmith; "Evaluations" in W&B Weave and AWS AgentCore) is the standard pattern for systematic offline quality tracking: run your agent against a curated set of inputs, score each output automatically, and store the results so you can compare across code versions, prompt changes, and model upgrades over time.
+
+In Langfuse, a **dataset** is a versioned collection of test cases — each item has an `input`, an `expected_output`, and optional `metadata`. An **experiment** is a named run of a task against that dataset, with evaluator scores recorded for every item. Both live in your Langfuse instance, not in local files.
 
 You need experiments because Step 3 (Strands Evals) only gives you a local pass/fail report with no history. Langfuse Experiments add:
 
@@ -374,9 +395,16 @@ Results appear as scores on each trace in the Langfuse UI.
 
 ---
 
-### Step 6: User Feedback
+### Step 6: External Evaluations
 
-LLM applications are non-deterministic — automated evaluators catch a lot, but human judgment is still essential. Collecting 👍/👎 feedback from real users gives you a ground-truth signal that no automated evaluator can fully replace.
+Langfuse lets you attach scores to any trace programmatically from your own code using `langfuse.create_score()`. This is the equivalent of Datadog's [external evaluations](https://docs.datadoghq.com/llm_observability/evaluations/external_evaluations) — though other providers may use different names (to investigate). Common use cases include:
+
+- **User feedback** — 👍/👎 ratings from end users
+- **Guardrail results** — PII checks, content policy, format validation
+- **Agent self-scoring** — quality signal computed inline and submitted back
+- **Custom pipelines** — any score your application logic can produce
+
+In this PoC we implement **user feedback** as our example. Automated evaluators catch a lot, but human judgment is still essential — collecting 👍/👎 feedback from real users gives you a ground-truth signal that no automated evaluator can fully replace.
 See: [Langfuse user feedback docs](https://langfuse.com/docs/scores/user-feedback)
 
 **How it works:**
@@ -589,7 +617,11 @@ Three sequential jobs gate on each other — each stage must pass before the nex
 
 This means a code or prompt change that degrades agent quality will fail CI before it can reach production.
 
+In a real scenario, Langfuse would already be running as a shared instance (cloud or self-hosted) rather than spun up per CI run — meaning experiment history accumulates across every PR and deploy. A typical pipeline would add a deployment job that only runs after all eval jobs pass, and score thresholds would be tuned per metric over time as you build up baseline data.
+
 ---
+
+
 
 ## Documentation
 
