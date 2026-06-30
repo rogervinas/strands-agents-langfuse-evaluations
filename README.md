@@ -31,7 +31,9 @@ That something is **traces** (a recorded tree of every LLM call, tool call, and 
 | **[Google Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview)** | ✗ | Limited | ✅ | ✗ | ✗ | GCP-native teams |
 
 - **Tracing** — recording a structured tree of every LLM call, tool call, and sub-agent step: inputs, outputs, latency, cost.
-- **Evaluations** — running scored assessments of agent outputs, offline against a fixed dataset and/or online against live traffic.
+- **Evaluations** — running scored assessments of agent outputs:
+  - **Offline** — deterministic, reproducible, suitable for CI; run against a fixed dataset before or after a change. Covered in Steps 3 and 4.
+  - **Online** — async, triggered by live traces; catch issues that didn't appear in your fixed dataset. Covered in Step 5.
 - **Prompt Management** — versioning prompt templates and pulling them at runtime via SDK.
 - **External Evaluations** — attaching scores to live traces programmatically from your own code.
 
@@ -40,14 +42,10 @@ The **banking sentinel** is a customer support agent for ROGERVINAS bank: 3 mock
 - **[Strands Agents](https://strandsagents.com)** — AWS-native agent SDK with tool use and session memory
 - **Langfuse tracing** — hybrid OTel + Langfuse SDK approach for full span hierarchy
 - **Offline evaluations** — Strands Evals SDK (standalone, CI-friendly) and Langfuse Experiments (with dashboard)
-- **Online LLM-as-judge** — scoring live production traces as they arrive
-- **External evaluations** — scoring traces via SDK from your own code (user feedback, guardrails, custom pipelines)
+- **Online evaluations** — scoring live production traces as they arrive, using LLM-as-judge
+- **External evaluations** — scoring traces via SDK from your own code
 - **Annotation queues** — routing traces to human reviewers via explicit programmatic calls
 - **Prompt management** — versioned system prompts pulled from Langfuse at runtime
-
-**Offline evaluations** run against a fixed dataset before or after a change — deterministic, reproducible, suitable for CI. They give you confidence that a code or prompt change didn't regress quality. Covered in Steps 3 and 4.
-
-**Online evaluations** run in production against real traffic — async, triggered by live traces. They catch issues that didn't appear in your fixed dataset. Covered in Step 5.
 
 ```mermaid
 flowchart LR
