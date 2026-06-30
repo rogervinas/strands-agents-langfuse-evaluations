@@ -14,7 +14,7 @@ img:not(.emoji) { display: block; margin: 0 auto; }
 
 ---
 
-### Try it yourself
+### 🚀 Try it yourself
 
 - A hands-on demo about **evaluations** using [Langfuse](https://langfuse.com)
 - Clone it, run it, explore it step by step at your own pace
@@ -22,7 +22,7 @@ img:not(.emoji) { display: block; margin: 0 auto; }
 
 ---
 
-### Why Langfuse?
+### 🤔 Why Langfuse?
 
 There are many platforms with similar features: LangSmith, Arize Phoenix, MLflow, W&B Weave, Datadog, AWS AgentCore ...
 
@@ -35,7 +35,7 @@ There are many platforms with similar features: LangSmith, Arize Phoenix, MLflow
 
 ---
 
-### Testing classic apps vs AI apps
+### ⚖️ Testing classic apps vs AI apps
 
 **Classic apps:**
 - Deterministic outputs — same input, same result
@@ -50,7 +50,7 @@ There are many platforms with similar features: LangSmith, Arize Phoenix, MLflow
 
 ---
 
-### The solution: traces + evaluations
+### 💡 The solution: traces + evaluations
 
 **Traces** — a recorded tree of every LLM call, tool call, and sub-agent step:
 - inputs, outputs, latency, cost
@@ -63,7 +63,7 @@ There are many platforms with similar features: LangSmith, Arize Phoenix, MLflow
 
 ---
 
-### What this PoC covers
+### 🗺️ What this PoC covers
 
 - **The Banking Agent** — implementation
 - **Langfuse tracing**
@@ -76,7 +76,7 @@ There are many platforms with similar features: LangSmith, Arize Phoenix, MLflow
 
 ---
 
-### The PoC: Banking Sentinel
+### 🏦 The PoC: Banking Sentinel
 
 A customer support agent for **ROGERVINAS bank** built with [Strands Agents](https://strandsagents.com).
 
@@ -93,7 +93,7 @@ The agent is intentionally simple — no RAG, no external service calls. The goa
 
 ---
 
-### Langfuse Tracing
+### 🔍 Langfuse Tracing
 
 Every chat request produces a trace in Langfuse — a full tree of what the agent did:
 
@@ -106,7 +106,7 @@ Every chat request produces a trace in Langfuse — a full tree of what the agen
 
 ---
 
-### Offline Evaluations — Strands Evals
+### 🧪 Offline Evaluations — Strands Evals
 
 Uses [Strands Evals SDK](https://strandsagents.com/latest/documentation/docs/deploy/evaluation/) — evaluates any Python callable.
 
@@ -124,7 +124,7 @@ Uses [Strands Evals SDK](https://strandsagents.com/latest/documentation/docs/dep
 
 ---
 
-### Offline Evaluations — Langfuse Experiments
+### 📊 Offline Evaluations — Langfuse Experiments
 
 A Langfuse experiment:
 - Dataset defined in Langfuse — versioned
@@ -138,7 +138,7 @@ Execution:
 
 ---
 
-### Online Evaluations — LLM-as-judge
+### ⚡ Online Evaluations — LLM-as-judge
 
 Langfuse automatically scores live traces as they arrive — no code changes needed.
 
@@ -152,7 +152,7 @@ Many managed evaluators available (Hallucination, Helpfulness, Correctness ...) 
 
 ---
 
-### External Evaluations
+### 🔗 External Evaluations
 
 Attach scores to any trace programmatically from your own code.
 
@@ -163,7 +163,7 @@ Attach scores to any trace programmatically from your own code.
 
 ---
 
-### Annotation Queues
+### 👥 Annotation Queues
 
 Route traces to human reviewers for manual scoring.
 
@@ -176,7 +176,7 @@ Route traces to human reviewers for manual scoring.
 
 ---
 
-### Prompt Management
+### ✏️ Prompt Management
 
 Store and version system prompts in Langfuse — iterate without redeploying.
 
@@ -188,7 +188,7 @@ Store and version system prompts in Langfuse — iterate without redeploying.
 
 ---
 
-### CI/CD
+### ⚙️ CI/CD
 
 **In this PoC**: three sequential jobs, each gates the next:
 
@@ -216,5 +216,3 @@ Building the agent is easy. Knowing whether it works — that's the hard part.
 - Annotation queues let humans score what automation can't
 
 ![w:200px](meme2.png)
-
----
