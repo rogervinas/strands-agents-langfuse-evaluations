@@ -206,7 +206,7 @@ Fails if any score drops below a configured threshold.
 
 ---
 
-### AI didn't take the job. It created a new one.
+### AI didn't take my job. It gave me a new one.
  
 Building the agent is easy. Knowing whether it works — that's the hard part.
 
