@@ -1,11 +1,14 @@
 [![CI](https://github.com/rogervinas/strands-agents-langfuse-evaluations/actions/workflows/ci.yml/badge.svg)](https://github.com/rogervinas/strands-agents-langfuse-evaluations/actions/workflows/ci.yml)
 ![StrandsAgents](https://img.shields.io/badge/StrandsAgents-1.42.0-blue?labelColor=black)
+[![Slides](https://img.shields.io/badge/Slides-▶-orange?labelColor=black)](https://rogervinas.github.io/strands-agents-langfuse-evaluations/)
 
 ![Gemini](https://img.shields.io/badge/Gemini-✓-4285F4?labelColor=black)
 ![Bedrock](https://img.shields.io/badge/Bedrock-✓-FF9900?labelColor=black)
 ![Ollama](https://img.shields.io/badge/Ollama-✓-FFFFFF?labelColor=black)
 
 # Strands Agents + Langfuse Evaluations
+
+> Before diving in, check out **[AI was supposed to take my job — instead it gave me a new one: Evaluations](https://rogervinas.github.io/strands-agents-langfuse-evaluations/)**, a presentation that walks through this PoC.
 
 In this project we will build a Python banking assistant agent using [Strands Agents](https://strandsagents.com) and make it observable and continuously evaluated using [Langfuse](https://langfuse.com) — step by step.
 
