@@ -7,7 +7,9 @@
 
 # Strands Agents + Langfuse Evaluations
 
-In this project we will build a Python banking assistant agent using [Strands Agents](https://strandsagents.com) and connect it to [Langfuse](https://langfuse.com) for tracing, evaluations, prompt management, and human feedback — step by step.
+In this project we will build a Python banking assistant agent using [Strands Agents](https://strandsagents.com) and make it observable and continuously evaluated using [Langfuse](https://langfuse.com) — step by step.
+
+![](.doc/evals-flow.png)
 
 [Strands Agents](https://strandsagents.com) is a lightweight Python SDK for building LLM-powered agents with tool use and session memory, open-sourced by AWS in May 2025. It is Python-native — which pairs well with the Langfuse Python SDK — and new enough to be worth exploring. Any other Python agent framework would work just as well for this PoC.
 
@@ -18,7 +20,7 @@ AI applications break both of these. The same input may yield different outputs 
 That something is **traces** (a recorded tree of every LLM call, tool call, and sub-agent step — inputs, outputs, latency, cost) and **evaluations** (a repeatable way to measure quality — offline in CI and online against real traffic). Several platforms provide these capabilities — this project uses **Langfuse** because it is open-source and self-hostable with a single `docker compose up`:
 
 
-| Provider | Self-host | Tracing | Evaluations | Prompt Management | User Feedback | Best for |
+| Provider | Self-host | Tracing | Evaluations | Prompt Management | External Evaluations | Best for |
 |---|---|---|---|---|---|---|
 | **[Langfuse](https://langfuse.com/docs)** | ✅ | ✅ | ✅ | ✅ | ✅ | Any stack, no vendor lock-in, self-hosted or cloud |
 | **[Arize Phoenix](https://docs.arize.com/phoenix)** | ✅ | ✅ | ✅ | ✗ | ✅ | Open-source, strong eval focus |
@@ -30,8 +32,10 @@ That something is **traces** (a recorded tree of every LLM call, tool call, and 
 | **[Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-approach-gen-ai)** | ✗ | Limited | ✅ | ✗ | ✗ | Azure-native teams |
 | **[Google Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview)** | ✗ | Limited | ✅ | ✗ | ✗ | GCP-native teams |
 
-> **Tracing** means recording a structured tree of every LLM call, tool call, and sub-agent step — inputs, outputs, latency, cost. **Evaluations** means running scored assessments of agent outputs — offline against a fixed dataset and/or online against live traffic. **Prompt Management** means versioning prompt templates and pulling them at runtime via SDK. **User Feedback** means collecting end-user scores (👍/👎) on live traces via SDK and surfacing them in the platform.
-
+- **Tracing** — recording a structured tree of every LLM call, tool call, and sub-agent step: inputs, outputs, latency, cost.
+- **Evaluations** — running scored assessments of agent outputs, offline against a fixed dataset and/or online against live traffic.
+- **Prompt Management** — versioning prompt templates and pulling them at runtime via SDK.
+- **External Evaluations** — attaching scores to live traces programmatically from your own code.
 
 The **banking sentinel** is a customer support agent for ROGERVINAS bank: 3 mock accounts with 5 transactions each, and tools to freeze/unfreeze cards, look up transactions, and open or track disputes. This project demonstrates:
 
@@ -144,7 +148,6 @@ Langfuse UI: [http://localhost:3000](http://localhost:3000) — pre-provisioned 
 OTel instrumentation quality varies across SDKs and observability platforms — some frameworks emit rich spans that map cleanly, others miss fields the platform expects. The [GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) define a standard for LLM-related spans, but most signals are still **experimental** — meaning SDKs and platforms implement them inconsistently. Before relying on auto-instrumentation, always verify your traces in the platform UI: check that `input`, `output`, token counts, and model names land where you expect.
 
 **The challenge:** Strands uses OTel to emit spans internally, but raw OTel spans may not carry all the context Langfuse expects (e.g. trace-level `input`, `output`). The Strands `[otel]` extra generates spans but does not set `input`/`output` on the root span — you get `undefined` in the annotation queue.
-
 
 **Pattern used here:** `langfuse.start_as_current_observation()` wraps the entire `/chat` request. This is a Langfuse-native Python method, independent of Strands, that works with any Python code. It ensures `input`/`output` is set on the root trace span, while Strands OTel spans are captured as children automatically:
 

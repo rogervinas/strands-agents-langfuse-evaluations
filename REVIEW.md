@@ -1,54 +1,41 @@
 # README Review Notes
 
-All `--review:` comments extracted from `README.md`. Line numbers reference the original file before extraction.
+---
+
+**Intro** — Opening description
+
+- Consider adding the Langfuse diagram here (the mermaid flowchart is further down — move or duplicate it?)
+- The intro currently lists features by enumeration ("tracing, evaluations, prompt management, human feedback") — rewrite as a higher-level value statement instead.
 
 ---
 
-~~**L12–13** — Introduction: Strands Agents background~~ ✓
+**Comparison table footer** — `> Tracing means…` glossary row
+
+- Replace "User Feedback" with "External Evaluations" in the glossary and table header — as decided when implementing Step 6.
 
 ---
 
-~~**L17** — Introduction: AI vs deterministic quality assurance~~ ✓
+**Step 2: Langfuse Tracing** — `The challenge:` paragraph
+
+- The paragraph ends with "you get `undefined` in the annotation queue" — annotation queues haven't been introduced at this point in the doc. Rephrase the consequence without referencing annotation queues.
 
 ---
 
-~~**L33–34** — Comparison table: Feature descriptions and annotation queues~~ ✓
+**Step 3: Strands Native Evaluations** — `Use embedded when…` paragraph
+
+- Does the final "Use embedded / Use API" paragraph add value, or should those recommendations be folded into the two bullet points above it (Embedded / API)?
 
 ---
 
-~~**L46** — Feature list: Concept structure~~ ✓
+**Step 4: Langfuse Experiments** — `An experiment (called…)` sentence
+
+- The opening sentence lists how other providers name this concept — move that context to the comparison table (add a column or footnote) and keep this section focused on Langfuse.
 
 ---
 
-~~**L127** — Step 1: Real application guidance~~ ✓
+**Step 6: External Evaluations** — Opening paragraph
 
----
-
-~~**L143–144** — Step 2: OpenTelemetry background~~ ✓
-
----
-
-~~**L182** — Offline vs Online: Section placement~~ ✓
-
----
-
-~~**L230–231** — Step 3: Strands Evals context~~ ✓
-
----
-
-~~**L246** — Step 3: Embedded vs API mode explanation~~ ✓
-
----
-
-~~**L262** — Step 4: Experiment concept definition~~ ✓
-
----
-
-~~**L618** — CI/CD: External evaluations / Langfuse equivalent~~ ✓ (Step 6 renamed + restructured around this concept)
-
----
-
-~~**L620** — CI/CD: Real-world CI/CD scenario~~ ✓
+- "This is the equivalent of Datadog's external evaluations — though other providers may use different names (to investigate)" — resolve the "(to investigate)" and move the cross-provider naming context to the comparison table with links to each provider's docs. Keep this section focused on Langfuse.
 
 ---
 
