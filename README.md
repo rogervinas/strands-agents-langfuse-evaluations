@@ -257,8 +257,6 @@ A Langfuse **experiment** is an offline evaluation run: your agent is executed a
 
 A **dataset** is a versioned collection of test cases — each item has an `input`, an `expected_output`, and optional `metadata`. Each experiment run is named and stored against that dataset, with evaluator scores recorded per item. Both live in your Langfuse instance, not in local files.
 
-> **Note:** Different providers use different names for this concept — Langfuse, Datadog, Arize Phoenix, and LangSmith call it "Experiments"; W&B Weave and AWS AgentCore call it "Evaluations".
-
 You need experiments because Step 3 (Strands Evals) only gives you a local pass/fail report with no history. Langfuse Experiments add:
 
 - **Comparison across runs** — see how scores change between code versions, prompt changes, or model upgrades side by side in the dashboard
