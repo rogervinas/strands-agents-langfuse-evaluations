@@ -2,18 +2,27 @@
 marp: true
 ---
 
-# AI was supposed to take my job. Instead it gave me a new one: Evaluations
+<style>
+h1, h2 { text-align: center; }
+img:not(.emoji) { display: block; margin: 0 auto; }
+</style>
+
+# AI was supposed to take my job ...
+## Instead it gave me a new one: Evaluations
+
+![w:280px](meme1.png)
 
 ---
 
-## github.com/rogervinas/strands-agents-langfuse-evaluations
+### Try it yourself
 
 - A hands-on demo about **evaluations** using [Langfuse](https://langfuse.com)
 - Clone it, run it, explore it step by step at your own pace
+- [github.com/rogervinas/strands-agents-langfuse-evaluations](https://github.com/rogervinas/strands-agents-langfuse-evaluations)
 
 ---
 
-## Why Langfuse?
+### Why Langfuse?
 
 There are many platforms with similar features: LangSmith, Arize Phoenix, MLflow, W&B Weave, Datadog, AWS AgentCore ...
 
@@ -26,12 +35,11 @@ There are many platforms with similar features: LangSmith, Arize Phoenix, MLflow
 
 ---
 
-## Testing classic apps vs AI apps
+### Testing classic apps vs AI apps
 
 **Classic apps:**
 - Deterministic outputs — same input, same result
 - Defined contracts — easy to assert
-- Unit tests, integration tests, static analysis
 - Classic observability works — production failures show up as errors, exceptions, latency spikes
 
 **AI apps:**
@@ -42,7 +50,7 @@ There are many platforms with similar features: LangSmith, Arize Phoenix, MLflow
 
 ---
 
-## The solution: traces + evaluations
+### The solution: traces + evaluations
 
 **Traces** — a recorded tree of every LLM call, tool call, and sub-agent step:
 - inputs, outputs, latency, cost
@@ -55,11 +63,11 @@ There are many platforms with similar features: LangSmith, Arize Phoenix, MLflow
 
 ---
 
-## What this PoC covers
+### What this PoC covers
 
 - **The Banking Agent** — implementation
 - **Langfuse tracing**
-- **Offline evaluations — Strands**
+- **Offline evaluations — Strands Evals**
 - **Offline evaluations — Langfuse Experiments**
 - **Online evaluations**
 - **External evaluations**
@@ -68,7 +76,7 @@ There are many platforms with similar features: LangSmith, Arize Phoenix, MLflow
 
 ---
 
-## The PoC: Banking Sentinel
+### The PoC: Banking Sentinel
 
 A customer support agent for **ROGERVINAS bank** built with [Strands Agents](https://strandsagents.com).
 
@@ -77,6 +85,7 @@ A customer support agent for **ROGERVINAS bank** built with [Strands Agents](htt
 - Chat UI served by FastAPI
 - Structured response: `answer` + `suggested_actions`
 - Session memory with `FileSessionManager`
+- Configurable model: Gemini, Bedrock, Ollama
 
 The agent is intentionally simple — no RAG, no external service calls. The goal is to keep the agent logic minimal so the focus stays on **observability and evaluations**.
 
@@ -84,28 +93,30 @@ The agent is intentionally simple — no RAG, no external service calls. The goa
 
 ---
 
-## Langfuse Tracing
+### Langfuse Tracing
 
 Every chat request produces a trace in Langfuse — a full tree of what the agent did:
 
 - Root span with `input` (user message) and `output` (agent answer)
 - Strands OTel spans as children: LLM calls, tool calls, each with inputs, outputs, latency, token usage
 
+> ⚠️ **Traces are not standardised** — what you get depends entirely on the framework and instrumentation. The GenAI OTel semantic conventions are still experimental; SDKs and platforms implement them inconsistently. Always verify your traces in the UI before relying on them.
+
 <!-- screenshot: Langfuse trace view showing the span tree -->
 
 ---
 
-## Offline Evaluations — Strands Evals
+### Offline Evaluations — Strands Evals
 
 Uses [Strands Evals SDK](https://strandsagents.com/latest/documentation/docs/deploy/evaluation/) — evaluates any Python callable.
 
 - No Langfuse required — fully offline, CI-friendly
 - Exits non-zero if scores drop below threshold
-- Two evaluators per case:
-  - **Deterministic** — checks if all expected `suggested_actions` are present in the output
+- In this PoC, two evaluators per case:
+  - **Deterministic** — checks if all `suggested_actions` are present in the output
   - **LLM-as-judge** — checks if the answer matches a natural-language claim
 - Two run modes:
-  - **Embedded** — in-process, external services mocked, no server needed
+  - **Embedded** — in-process, white-box, external services mocked, no server needed
   - **API** — against a running server, black-box
 - Bring your own eval framework: DeepEval, Ragas, pytest ...
 
@@ -113,7 +124,7 @@ Uses [Strands Evals SDK](https://strandsagents.com/latest/documentation/docs/dep
 
 ---
 
-## Offline Evaluations — Langfuse Experiments
+### Offline Evaluations — Langfuse Experiments
 
 A Langfuse experiment:
 - Dataset defined in Langfuse — versioned
@@ -127,7 +138,7 @@ Execution:
 
 ---
 
-## Online Evaluations — LLM-as-judge
+### Online Evaluations — LLM-as-judge
 
 Langfuse automatically scores live traces as they arrive — no code changes needed.
 
@@ -135,11 +146,13 @@ Langfuse automatically scores live traces as they arrive — no code changes nee
 - Langfuse runs an LLM judge on each matching trace and attaches a score
 - Catches issues that don't appear in your fixed test dataset
 
+Many managed evaluators available (Hallucination, Helpfulness, Correctness ...) — and you can define custom ones
+
 <!-- screenshot: Langfuse trace with an online evaluation score -->
 
 ---
 
-## External Evaluations
+### External Evaluations
 
 Attach scores to any trace programmatically from your own code.
 
@@ -150,7 +163,7 @@ Attach scores to any trace programmatically from your own code.
 
 ---
 
-## Annotation Queues
+### Annotation Queues
 
 Route traces to human reviewers for manual scoring.
 
@@ -163,7 +176,7 @@ Route traces to human reviewers for manual scoring.
 
 ---
 
-## Prompt Management
+### Prompt Management
 
 Store and version system prompts in Langfuse — iterate without redeploying.
 
@@ -175,34 +188,33 @@ Store and version system prompts in Langfuse — iterate without redeploying.
 
 ---
 
-## CI/CD
+### CI/CD
 
-**This PoC:** three sequential jobs, each gates the next:
+**In this PoC**: three sequential jobs, each gates the next:
 
 1. **Build** — install dependencies, run unit tests
 2. **Standalone Evals** — Strands evaluations in embedded mode, no Langfuse needed
 3. **Langfuse Evals** — spin up Langfuse via Docker, run experiments, report to dashboard
 
-Fails if any score drops below a configured threshold. A change that degrades quality never reaches production.
+Fails if any score drops below a configured threshold.
 
 **A realistic scenario:**
-- Langfuse runs as a shared instance — experiment history accumulates across every PR and deploy
-- A deployment job only runs after all eval jobs pass
-- Thresholds are tuned per metric as baseline data builds up
-- Live traces surface regressions → failing traces feed new dataset items → CI catches them next time
+- Shared Langfuse instance — history accumulates across every PR and deploy
+- Deploy only after all eval jobs pass
+- Tune thresholds as baseline data grows
+- Live regressions → new dataset items → CI catches them next time
 
 ---
 
-## The new job
+### AI didn't take the job. It created a new one.
+ 
+Building the agent is easy. Knowing whether it works — that's the hard part.
 
-AI didn't take the job. It created a new one.
+- Offline evals catch regressions before deploy
+- Online evals catch what your test set misses
+- External evals attach any score from your own code
+- Annotation queues let humans score what automation can't
 
-Building the agent is the easy part. Knowing whether it works — in CI, in production, at scale — that's the hard part. That's the new job.
-
-- Offline evaluations catch regressions before deploy
-- Online evaluations catch what your test set misses
-- Traces, scores, and queues turn Langfuse from a passive log into an active quality gate
-
-**github.com/rogervinas/strands-agents-langfuse-evaluations**
+![w:200px](meme2.png)
 
 ---
