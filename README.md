@@ -7,6 +7,8 @@
 
 # Strands Agents + Langfuse Evaluations
 
+> Before diving in, check out **[AI was supposed to take my job — instead it gave me a new one: Evaluations](https://rogervinas.github.io/strands-agents-langfuse-evaluations/)**, a presentation that walks through this PoC.
+
 In this project we will build a Python banking assistant agent using [Strands Agents](https://strandsagents.com) and make it observable and continuously evaluated using [Langfuse](https://langfuse.com) — step by step.
 
 [Strands Agents](https://strandsagents.com) is a lightweight Python SDK for building LLM-powered agents with tool use and session memory, open-sourced by AWS in May 2025. It is Python-native — which pairs well with the Langfuse Python SDK — and new enough to be worth exploring. Any other Python agent framework would work just as well for this PoC.

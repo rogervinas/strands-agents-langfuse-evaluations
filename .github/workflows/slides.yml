@@ -6,11 +6,16 @@ on:
     paths: [.doc/SLIDES.md, .github/workflows/slides.yml]
   workflow_dispatch:
 
+# To preview slides: npx @marp-team/marp-cli .doc/SLIDES.md --watch
+
 jobs:
   deploy:
+    name: Deploy
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
+
     steps:
       - uses: actions/checkout@v4
 
