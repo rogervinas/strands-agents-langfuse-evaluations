@@ -3,7 +3,7 @@ name: Slides
 on:
   push:
     branches: [main]
-    paths: [.doc/SLIDES.md, .github/workflows/slides.yml]
+    paths: [.doc/SLIDES.md, .doc/*.png, .github/workflows/slides.yml]
   workflow_dispatch:
 
 # To preview slides: npx @marp-team/marp-cli .doc/SLIDES.md --watch
@@ -20,7 +20,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build slides
-        run: npx --yes @marp-team/marp-cli .doc/SLIDES.md -o public/index.html --html
+        run: |
+          npx --yes @marp-team/marp-cli .doc/SLIDES.md -o public/index.html --html
+          cp .doc/*.png public/
 
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
