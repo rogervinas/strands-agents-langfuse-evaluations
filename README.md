@@ -7,7 +7,7 @@
 
 # Strands Agents + Langfuse Evaluations
 
-> Before diving in, check out **[AI was supposed to take my job — instead it gave me a new one: Evaluations](https://rogervinas.github.io/strands-agents-langfuse-evaluations/)**, a presentation that walks through this PoC.
+> 💡 Before diving in, check out **[AI was supposed to take my job — instead it gave me a new one: Evaluations](https://rogervinas.github.io/strands-agents-langfuse-evaluations/)**, a presentation that walks through this PoC.
 
 In this project we will build a Python banking assistant agent using [Strands Agents](https://strandsagents.com) and make it observable and continuously evaluated using [Langfuse](https://langfuse.com) — step by step.
 
