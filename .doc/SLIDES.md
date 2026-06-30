@@ -106,7 +106,7 @@ Every chat request produces a trace in Langfuse — a full tree of what the agen
 
 ---
 
-### 🧪 Offline Evaluations — Strands Evals
+### 📋 Offline Evaluations — Strands Evals
 
 Uses [Strands Evals SDK](https://strandsagents.com/latest/documentation/docs/deploy/evaluation/) — evaluates any Python callable.
 
@@ -124,7 +124,7 @@ Uses [Strands Evals SDK](https://strandsagents.com/latest/documentation/docs/dep
 
 ---
 
-### 📊 Offline Evaluations — Langfuse Experiments
+### 📋 Offline Evaluations — Langfuse Experiments
 
 A Langfuse experiment:
 - Dataset defined in Langfuse — versioned
