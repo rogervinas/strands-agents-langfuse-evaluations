@@ -3,7 +3,7 @@ name: Slides
 on:
   push:
     branches: [main]
-    paths: [.doc/SLIDES.md]
+    paths: [.doc/SLIDES.md, .github/workflows/slides.yml]
   workflow_dispatch:
 
 jobs:
