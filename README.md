@@ -9,8 +9,6 @@
 
 In this project we will build a Python banking assistant agent using [Strands Agents](https://strandsagents.com) and make it observable and continuously evaluated using [Langfuse](https://langfuse.com) — step by step.
 
-![](.doc/evals-flow.png)
-
 [Strands Agents](https://strandsagents.com) is a lightweight Python SDK for building LLM-powered agents with tool use and session memory, open-sourced by AWS in May 2025. It is Python-native — which pairs well with the Langfuse Python SDK — and new enough to be worth exploring. Any other Python agent framework would work just as well for this PoC.
 
 With classic applications, quality is enforced through unit tests, integration tests, and static analysis — every function has a defined contract and a deterministic output you can assert on. In production, metrics (error rates, latency, memory) surface failures reliably.
@@ -147,7 +145,7 @@ Langfuse UI: [http://localhost:3000](http://localhost:3000) — pre-provisioned 
 
 OTel instrumentation quality varies across SDKs and observability platforms — some frameworks emit rich spans that map cleanly, others miss fields the platform expects. The [GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) define a standard for LLM-related spans, but most signals are still **experimental** — meaning SDKs and platforms implement them inconsistently. Before relying on auto-instrumentation, always verify your traces in the platform UI: check that `input`, `output`, token counts, and model names land where you expect.
 
-**The challenge:** Strands uses OTel to emit spans internally, but raw OTel spans may not carry all the context Langfuse expects (e.g. trace-level `input`, `output`). The Strands `[otel]` extra generates spans but does not set `input`/`output` on the root span — you get `undefined` in the annotation queue.
+**The challenge:** Strands uses OTel to emit spans internally, but raw OTel spans may not carry all the context Langfuse expects (e.g. trace-level `input`, `output`). The Strands `[otel]` extra generates spans but does not set `input`/`output` on the root span — and we will need those fields in later steps.
 
 **Pattern used here:** `langfuse.start_as_current_observation()` wraps the entire `/chat` request. This is a Langfuse-native Python method, independent of Strands, that works with any Python code. It ensures `input`/`output` is set on the root trace span, while Strands OTel spans are captured as children automatically:
 
@@ -225,10 +223,8 @@ claim_evaluator = ClaimEvaluator(
 > **Note:** Strands Evals can evaluate any Python callable — there is no coupling to the Strands agent itself. If you prefer a different evaluation framework, alternatives include [DeepEval](https://deepeval.com), [Ragas](https://ragas.io) (RAG-focused), [Braintrust autoevals](https://www.braintrustdata.com/docs/autoevals/overview), or plain [pytest](https://docs.pytest.org) with custom assertions.
 
 There are two ways to run the task:
-- **Embedded** — the agent is instantiated in-process; external services are mocked, and you can inspect internal state (white-box). Fast, no server needed, ideal for CI.
+- **Embedded** — the agent is instantiated in-process; external services are mocked, and you can inspect internal state (white-box). Fast, no server needed, ideal for CI. Use this when you want fast, isolated, reproducible runs.
 - **API** — the task hits a running server with real external services (black-box). Use this to validate against a live deployment or when mocking is not practical.
-
-Use **embedded** when you want fast, isolated, reproducible runs. Use **API** when you need to validate against the real stack.
 
 The task function runs the agent in-process or via HTTP:
 
@@ -259,9 +255,11 @@ uv run python -m evals.strands.run_evaluations api --url http://localhost:8000
 ### Step 4: Langfuse Experiments
 
 
-An **experiment** (called "Experiments" in Langfuse, Datadog, Arize Phoenix, and LangSmith; "Evaluations" in W&B Weave and AWS AgentCore) is the standard pattern for systematic offline quality tracking: run your agent against a curated set of inputs, score each output automatically, and store the results so you can compare across code versions, prompt changes, and model upgrades over time.
+A Langfuse **experiment** is an offline evaluation run: your agent is executed against a curated dataset, each output is scored automatically, and the results are stored so you can compare across code versions, prompt changes, and model upgrades over time.
 
-In Langfuse, a **dataset** is a versioned collection of test cases — each item has an `input`, an `expected_output`, and optional `metadata`. An **experiment** is a named run of a task against that dataset, with evaluator scores recorded for every item. Both live in your Langfuse instance, not in local files.
+A **dataset** is a versioned collection of test cases — each item has an `input`, an `expected_output`, and optional `metadata`. Each experiment run is named and stored against that dataset, with evaluator scores recorded per item. Both live in your Langfuse instance, not in local files.
+
+> **Note:** Different providers use different names for this concept — Langfuse, Datadog, Arize Phoenix, and LangSmith call it "Experiments"; W&B Weave and AWS AgentCore call it "Evaluations".
 
 You need experiments because Step 3 (Strands Evals) only gives you a local pass/fail report with no history. Langfuse Experiments add:
 
@@ -400,7 +398,7 @@ Results appear as scores on each trace in the Langfuse UI.
 
 ### Step 6: External Evaluations
 
-Langfuse lets you attach scores to any trace programmatically from your own code using `langfuse.create_score()`. This is the equivalent of Datadog's [external evaluations](https://docs.datadoghq.com/llm_observability/evaluations/external_evaluations) — though other providers may use different names (to investigate). Common use cases include:
+Langfuse lets you attach scores to any trace programmatically from your own code using `langfuse.create_score()`. Common use cases include:
 
 - **User feedback** — 👍/👎 ratings from end users
 - **Guardrail results** — PII checks, content policy, format validation
@@ -621,6 +619,15 @@ Three sequential jobs gate on each other — each stage must pass before the nex
 This means a code or prompt change that degrades agent quality will fail CI before it can reach production.
 
 In a real scenario, Langfuse would already be running as a shared instance (cloud or self-hosted) rather than spun up per CI run — meaning experiment history accumulates across every PR and deploy. A typical pipeline would add a deployment job that only runs after all eval jobs pass, and score thresholds would be tuned per metric over time as you build up baseline data.
+
+![](.doc/evals-flow.png)
+
+Once Langfuse is running as a shared instance, scores accumulate across every PR and deploy. A practical cadence:
+
+- **Daily** — review dashboards, triage the worst traces, route failures to annotation queues
+- **Weekly** — convert recurring failure patterns into new dataset items, re-run experiments comparing current vs candidate prompt/model, ship only when scores improve or hold
+
+This turns Langfuse from a passive log into an active quality gate: production traces surface regressions, datasets grow from real failures, and CI blocks deploys that would degrade quality.
 
 ---
 
