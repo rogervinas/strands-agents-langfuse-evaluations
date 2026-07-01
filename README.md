@@ -30,20 +30,7 @@ This PoC uses **Langfuse** because it is open-source and is self-hostable with a
 
 The app under evaluation is the **banking sentinel** — a customer support agent for ROGERVINAS bank built with [Strands Agents](https://strandsagents.com): 3 mock accounts with 5 transactions each, and tools to freeze/unfreeze cards, look up transactions, and open or track disputes.
 
-```mermaid
-flowchart LR
-    User([User]) --> UI["Chat UI"]
-    UI -->|"POST /chat"| API["FastAPI"]
-    API --> Agent["Strands Agent\n+ Tools"]
-
-    API -->|"traces + scores"| LF[("Langfuse")]
-    Agent -->|"OTel spans"| LF
-    LF -->|"prompt at runtime"| Agent
-
-    Evals["Offline Evals\n(CI + local)"] -->|"embedded"| Agent
-    Evals -->|"experiment results"| LF
-    LF -->|"LLM-as-judge"| LF
-```
+![](.doc/diagram1.png)
 
 - [Implementation](#implementation)
   - [Step 1: The Banking Agent](#step-1-the-banking-agent)
