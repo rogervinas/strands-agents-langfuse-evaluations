@@ -267,48 +267,33 @@ Overall score: 1.00
 
 A Langfuse **experiment** is an offline evaluation run: your agent is executed against a curated dataset, each output is scored automatically, and the results are stored so you can compare across code versions, prompt changes, and model upgrades over time.
 
-A **dataset** is a versioned collection of test cases — each item has an `input`, an `expected_output`, and optional `metadata`. Each experiment run is named and stored against that dataset, with evaluator scores recorded per item. Both live in your Langfuse instance, not in local files.
+A **dataset** is a versioned collection of test cases — each item has an `input`, an `expected_output`, and optional `metadata`. Each experiment execution is named and stored against that dataset, with evaluator scores recorded per item.
 
-You need experiments because [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations) only gives you a local pass/fail report with no history. Langfuse Experiments add:
+Where [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations) produces a local pass/fail report with no history, Langfuse Experiments add:
 
 - **Comparison across runs** — see how scores change between code versions, prompt changes, or model upgrades side by side in the dashboard
 - **Persistent results** — every run is stored; you can go back and audit any historical experiment
 
 Both [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations) and [Step 4: Langfuse Experiments](#step-4-langfuse-experiments) act as a CI quality gate — the script exits non-zero if scores drop below threshold.
 
-Requires Langfuse running.
+This step has three parts:
 
-**Create the dataset**
+1. [Create the dataset](#create-the-dataset)
+2. [Implement the experiment](#implement-the-experiment)
+3. [Run the experiment](#run-the-experiment)
 
-Datasets can be created in two ways:
+#### Create the dataset
+
+Each item has an `input`, an `expected_output`, and optional `metadata`. Datasets can be created in two ways:
 
 - **Via UI**: go to [http://localhost:3000](http://localhost:3000) → project `banking-sentinel` → **Datasets** → `+ New dataset`, then add items manually
-- **Programmatically** (idempotent — safe to run repeatedly):
+- **Programmatically** (idempotent — safe to run repeatedly), see [`evals/langfuse/create_dataset.py`](evals/langfuse/create_dataset.py):
 
 ```bash
 uv run python -m evals.langfuse.create_dataset
 ```
 
-Each item has an `input`, an `expected_output`, and optional `metadata`:
-
-```python
-# evals/langfuse/create_dataset.py
-ITEMS = [
-    {
-        "id": "banking-sentinel-evals-unauthorized-netflix-charge",
-        "input": {
-            "accountId": "ACC-1001", "accountTier": "Standard",
-            "message": "I don't have Netflix but I see a charge on my account",
-        },
-        "expected_output": {
-            "suggestedActions": ["FREEZE_CARD"],
-            "claim": "The AI agent found a Netflix charge of 9.99 and offered the user to open a dispute",
-        },
-        "metadata": {"scenario": "unauthorized-netflix-charge"},
-    },
-    # ...
-]
-```
+#### Implement the experiment
 
 **Evaluators** are plain Python callables — there are no built-in evaluators in the SDK and no base class to inherit from. Any function that matches this signature works:
 
@@ -360,7 +345,7 @@ result = langfuse.run_experiment(
 )
 ```
 
-Run:
+#### Run the experiment
 
 ```bash
 uv run python -m evals.langfuse.run_experiment embedded
