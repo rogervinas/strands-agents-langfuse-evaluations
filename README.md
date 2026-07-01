@@ -13,9 +13,9 @@ In this project we will build a Python banking assistant agent using [Strands Ag
 
 [Strands Agents](https://strandsagents.com) is a lightweight Python SDK for building LLM-powered agents with tool use and session memory, open-sourced by AWS in May 2025. It is Python-native — which pairs well with the Langfuse Python SDK — and new enough to be worth exploring. Any other Python agent framework would work just as well for this PoC.
 
-With classic applications, quality is enforced through unit tests, integration tests, and static analysis — every function has a defined contract and a deterministic output you can assert on. In production, metrics (error rates, latency, memory) surface failures reliably.
+With **classic applications**, quality is enforced through unit tests, integration tests, and static analysis — every function has a defined contract and a deterministic output you can assert on. In production, metrics (error rates, latency, memory) surface failures reliably.
 
-AI applications break both of these. The same input may yield different outputs on each run — wording changes, tools get called in a different order, edge cases surface unpredictably. And in production, a request can return 200 OK in 300ms with a confident, completely wrong answer — classic metrics won't catch it. You need something more.
+**AI applications** break both of these. The same input may yield different outputs on each run — wording changes, tools get called in a different order, edge cases surface unpredictably. And in production, a request can return 200 OK in 300ms with a confident, completely wrong answer — classic metrics won't catch it. You need something more.
 
 That something is **traces** (a recorded tree of every LLM call, tool call, and sub-agent step — inputs, outputs, latency, cost) and **evaluations** (a repeatable way to measure quality — offline in CI and online against real traffic). Several platforms provide these capabilities — this project uses **Langfuse** because it is open-source and self-hostable with a single `docker compose up`:
 
