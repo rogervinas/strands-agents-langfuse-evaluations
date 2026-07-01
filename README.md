@@ -477,7 +477,9 @@ Common triggers you can implement:
 uv run python -m evals.langfuse.create_annotation_queue
 ```
 
-This creates the `banking-sentinel-review` queue. Set `ANNOTATION_QUEUE_ID` in `.env` to the returned queue ID.
+This creates a `quality` score config (numeric, 0–1) and the `banking-sentinel-review` queue that uses it, so reviewers score each trace on `quality` — you could attach more score configs for other dimensions (see [`evals/langfuse/create_annotation_queue.py`](evals/langfuse/create_annotation_queue.py)).
+
+Set `ANNOTATION_QUEUE_ID` in `.env` to the returned queue ID.
 
 **2 — Enqueue traces (example: on 👎):**
 In this PoC, the `/feedback` endpoint in [`api.py`](src/banking_sentinel/api.py) adds the trace to the queue whenever the user gives a thumbs down:
@@ -494,8 +496,16 @@ if request.value == 0.0 and _annotation_queue_id:
 **3 — Review the queue:**
 1. Go to [http://localhost:3000](http://localhost:3000) → **Annotation Queues**
 2. Open `banking-sentinel-review`
-3. For each trace: review the conversation, assign a score, click **Complete + next**
+3. For each trace: review the conversation, assign a `quality` score (and optionally add a comment), click **Mark Completed**
 4. Scores appear on the trace and contribute to your evaluation dashboard
+
+Annotating an item — assign the `quality` score and an optional comment:
+
+![](.doc/screenshot-annotation-queue-1.png)
+
+The `quality` score then shows as a small badge on the root `banking-sentinel-chat` span:
+
+![](.doc/screenshot-annotation-queue-2.png)
 
 ---
 
