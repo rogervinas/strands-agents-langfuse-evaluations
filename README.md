@@ -366,7 +366,7 @@ Open [http://localhost:3000](http://localhost:3000) → **Datasets** to see resu
 
 ### Step 5: Online Evaluations (LLM-as-judge)
 
-Langfuse can automatically score live traces as they arrive — no code changes needed. In this PoC all chat traces are tagged `banking-sentinel` and named `banking-sentinel-chat`, making them easy to target.
+Langfuse can automatically score live traces as they arrive — no code changes needed. In this PoC all chat traces are tagged `banking-sentinel`, and the root span of each is named `banking-sentinel-chat`, making them easy to target.
 
 **Setup:**
 
@@ -409,7 +409,7 @@ Assistant reply:
 1. Set target to `Observations`, filter by `Type = GENERATION`
 2. Ensure **Run on live incoming observations** is checked (it is the default)
 3. Add filter: `Tags` → `any of` → `banking-sentinel`
-4. Add filter: `Name` → `=` → `banking-sentinel-chat` — targets only the root span; avoids double-scoring the inner Strands generation (both carry the tag but have different names)
+4. Add filter: `Name` → `any of` → `banking-sentinel-chat` — targets only the root span; avoids double-scoring the inner Strands generation (both carry the tag but have different names)
 5. Set **Sampling** (100% is fine for PoC — reduce in production to control costs)
 6. Map the evaluator's prompt variables to the trace fields accordingly
 7. Click `Execute` — scores existing matching observations immediately and new ones going forward
