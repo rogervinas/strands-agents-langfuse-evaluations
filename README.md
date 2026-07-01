@@ -32,6 +32,8 @@ The app under evaluation is the **banking sentinel** — a customer support agen
 
 ![](.doc/diagram1.png)
 
+- [Configuration](#configuration)
+- [Run](#run)
 - [Implementation](#implementation)
   - [Step 1: The Banking Agent](#step-1-the-banking-agent)
   - [Step 2: Langfuse Tracing](#step-2-langfuse-tracing)
@@ -41,17 +43,92 @@ The app under evaluation is the **banking sentinel** — a customer support agen
   - [Step 6: External Evaluations](#step-6-external-evaluations)
   - [Step 7: Annotation Queues](#step-7-annotation-queues)
   - [Step 8: Prompt Management](#step-8-prompt-management)
-- [Configuration](#configuration)
-- [Run](#run)
 - [Testing](#testing)
 - [CI/CD](#cicd)
 - [Documentation](#documentation)
+
+> **Start here:** first get the agent and Langfuse running ([Configuration](#configuration) → [Run](#run)), open the chat UI and play with it, then walk through the [Implementation](#implementation) steps to see how each piece works.
+
+---
+
+## Configuration
+
+### Prerequisites
+
+- Python 3.13 (pinned in `.python-version`)
+- [uv](https://docs.astral.sh/uv/)
+- Docker + Docker Compose
+- A model provider (see below)
+
+### Install dependencies
+
+```bash
+uv sync --extra dev --extra evals
+```
+
+- `dev` — `pytest`, `pytest-asyncio` (unit tests)
+- `evals` — `strands-agents-evals`, `httpx` (evaluations)
+
+### Environment
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` to set your model provider and Langfuse credentials.
+
+### Model providers
+
+Set `MODEL_PROVIDER` in `.env`:
+
+| Provider | `MODEL_PROVIDER` | Requirements |
+|---|---|---|
+| Ollama (default) | `ollama` | `ollama serve` + `ollama pull llama3.1:8b` |
+| AWS Bedrock | `bedrock` | AWS credentials configured |
+| Google Gemini | `gemini` | `GOOGLE_API_KEY` in `.env` |
+
+### Langfuse
+
+```bash
+docker compose -f docker-compose-langfuse.yml up -d
+```
+
+Pre-provisioned credentials:
+
+```
+Email:      admin@local.dev
+Password:   password
+Public key: publickey-local
+Secret key: secretkey-local
+```
+
+Wait for all services to be healthy:
+
+```bash
+docker compose -f docker-compose-langfuse.yml ps
+```
+
+To stop: `docker compose -f docker-compose-langfuse.yml down`
+
+To stop and delete all data: `docker compose -f docker-compose-langfuse.yml down -v`
+
+---
+
+## Run
+
+```bash
+uv run uvicorn banking_sentinel.api:app --reload
+```
+
+Open [http://localhost:8000](http://localhost:8000). The chat UI includes 👍 / 👎 buttons on every assistant message — clicking one sends a score to Langfuse immediately (Step 6) and, on 👎, enqueues the trace for human review (Step 7).
+
+Agent traces are sent to Langfuse automatically via OpenTelemetry when `LANGFUSE_*` and `OTEL_*` env vars are set.
 
 ---
 
 ## Implementation
 
-Let's implement this step by step.
+With the agent and Langfuse running, let's walk through how each piece works, step by step.
 
 ### Step 1: The Banking Agent
 
@@ -69,19 +146,9 @@ The implementation is intentionally minimal — a single process, file-based ses
 
 `FileSessionManager` persists conversation history to local disk — fine for development, but in production you would replace it with `S3SessionManager` (built into Strands) or a custom `RepositorySessionManager` backed by your own store. See: [Strands session management docs](https://strandsagents.com/latest/documentation/docs/user-guide/concepts/sessions/).
 
-See [Configuration](#configuration) and [Run](#run) to set up and start the agent.
-
 ---
 
 ### Step 2: Langfuse Tracing
-
-Start Langfuse (required for Steps 2–7):
-
-```bash
-docker compose -f docker-compose-langfuse.yml up -d
-```
-
-Langfuse UI: [http://localhost:3000](http://localhost:3000) — pre-provisioned credentials: `admin@local.dev` / `password`.
 
 OTel instrumentation quality varies across SDKs and observability platforms — some frameworks emit rich spans that map cleanly, others miss fields the platform expects. The [GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) define a standard for LLM-related spans, but most signals are still **experimental** — meaning SDKs and platforms implement them inconsistently. Before relying on auto-instrumentation, always verify your traces in the platform UI: check that `input`, `output`, token counts, and model names land where you expect.
 
@@ -458,81 +525,6 @@ USE_LANGFUSE_PROMPT=true
 Benefits: version history, compare prompt versions across experiments, iterate without redeploying, A/B test prompts.
 
 > **Note:** `span.update(prompt=prompt_obj)` only works on `generation` type spans. The prompt links to our root `banking-sentinel-chat` generation span, not to the inner Strands LLM generation span (which we don't control directly). This is a general limitation of OTel-auto-instrumented frameworks — see [Langfuse Strands Agents integration](https://langfuse.com/integrations/frameworks/strands-agents). To rollback, reassign the `production` label to any previous version in the UI: **Prompts** → select version → set label.
-
----
-
-## Configuration
-
-### Prerequisites
-
-- Python 3.13 (pinned in `.python-version`)
-- [uv](https://docs.astral.sh/uv/)
-- Docker + Docker Compose
-- A model provider (see below)
-
-### Install dependencies
-
-```bash
-uv sync --extra dev --extra evals
-```
-
-- `dev` — `pytest`, `pytest-asyncio` (unit tests)
-- `evals` — `strands-agents-evals`, `httpx` (evaluations)
-
-### Environment
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` to set your model provider and Langfuse credentials.
-
-### Model providers
-
-Set `MODEL_PROVIDER` in `.env`:
-
-| Provider | `MODEL_PROVIDER` | Requirements |
-|---|---|---|
-| Ollama (default) | `ollama` | `ollama serve` + `ollama pull llama3.1:8b` |
-| AWS Bedrock | `bedrock` | AWS credentials configured |
-| Google Gemini | `gemini` | `GOOGLE_API_KEY` in `.env` |
-
-### Langfuse
-
-```bash
-docker compose -f docker-compose-langfuse.yml up -d
-```
-
-Pre-provisioned credentials:
-
-```
-Email:      admin@local.dev
-Password:   password
-Public key: publickey-local
-Secret key: secretkey-local
-```
-
-Wait for all services to be healthy:
-
-```bash
-docker compose -f docker-compose-langfuse.yml ps
-```
-
-To stop: `docker compose -f docker-compose-langfuse.yml down`
-
-To stop and delete all data: `docker compose -f docker-compose-langfuse.yml down -v`
-
----
-
-## Run
-
-```bash
-uv run uvicorn banking_sentinel.api:app --reload
-```
-
-Open [http://localhost:8000](http://localhost:8000). The chat UI includes 👍 / 👎 buttons on every assistant message — clicking one sends a score to Langfuse immediately (Step 6) and, on 👎, enqueues the trace for human review (Step 7).
-
-Agent traces are sent to Langfuse automatically via OpenTelemetry when `LANGFUSE_*` and `OTEL_*` env vars are set.
 
 ---
 
