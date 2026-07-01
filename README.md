@@ -586,7 +586,6 @@ This is the continuous [AI Engineering Loop](https://langfuse.com/academy/ai-eng
 - [Strands Agents docs](https://strandsagents.com/latest/documentation/)
 - [Langfuse docs](https://langfuse.com/docs)
 - [Langfuse × Strands Agents integration](https://langfuse.com/integrations/frameworks/strands-agents)
-- [Martin Fowler — Patterns of Distributed Systems](https://martinfowler.com/articles/patterns-of-distributed-systems/)
 - [Strands Agents quick start](https://strandsagents.com/latest/documentation/docs/get-started/quick-start/)
 - [Langfuse tracing](https://langfuse.com/docs/tracing)
 - [Strands Evals SDK](https://strandsagents.com/latest/documentation/docs/deploy/evaluation/)
