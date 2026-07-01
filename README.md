@@ -158,10 +158,9 @@ In production, the agent would run behind a load balancer with multiple replicas
 
 **Traces are not standardised** — what you get depends entirely on the framework and instrumentation. The GenAI OTel semantic conventions are still experimental, so SDKs and platforms implement them inconsistently — always verify your traces in the UI before relying on them.
 
-In this PoC, for example, the Strands `[otel]` extra emits spans but does not set trace-level `input`/`output` on the root span — and we need those in later steps. So `api.py` wraps the entire `/chat` request in `langfuse.start_as_current_observation()`, which sets `input`/`output` on the root span while capturing the Strands OTel spans as children:
+In this PoC, for example, the Strands `[otel]` extra emits spans but does not set trace-level `input`/`output` on the root span — and we need those in later steps. So [`api.py`](src/banking_sentinel/api.py) wraps the entire `/chat` request in `langfuse.start_as_current_observation()`, which sets `input`/`output` on the root span while capturing the Strands OTel spans as children:
 
 ```python
-# api.py
 with langfuse.start_as_current_observation(name="banking-sentinel-chat", as_type="generation") as span:
     # ... run the agent ...
     span.update(input=request.message, output=response.answer, prompt=prompt_obj)
@@ -318,7 +317,6 @@ def my_evaluator(
 We implement the same two evaluators as in [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations) — one deterministic (**correctness**), one LLM-as-judge (**claim**). The LLM-as-judge runs **locally** using whatever `MODEL_PROVIDER` you have configured (Ollama, Bedrock, Gemini) — it is not Langfuse's evaluation infrastructure, just your own model called from Python (see [`evals/langfuse/run_experiment.py`](evals/langfuse/run_experiment.py)):
 
 ```python
-# evals/langfuse/run_experiment.py
 def correctness_evaluator(*, output, expected_output, **kwargs) -> Evaluation:
     """Deterministic: checks if all expected suggested actions are present."""
     expected = set(expected_output.get("suggestedActions", []))
@@ -440,10 +438,9 @@ In this PoC we implement **user feedback** as our example. Automated evaluators 
 1. The `/chat` endpoint returns a `trace_id` in every response (read from `span.trace_id`)
 2. The chat UI attaches 👍/👎 buttons to each assistant message, keyed to that `trace_id`
 3. On click, the UI posts to `/feedback` with `value: 1.0` (👍) or `value: 0.0` (👎)
-4. The backend calls `langfuse.create_score()` — the score appears on the trace immediately
+4. The backend ([`api.py`](src/banking_sentinel/api.py)) calls `langfuse.create_score()` — the score appears on the trace immediately
 
 ```python
-# api.py
 @app.post("/feedback")
 def feedback_endpoint(request: FeedbackRequest):
     langfuse.create_score(
@@ -463,7 +460,6 @@ In the chat UI, send a message and click 👍 or 👎 on the reply. Then open [h
 ### Step 7: Annotation Queues
 
 Annotation queues are a human review workflow — domain experts manually score traces to build ground truth, validate LLM-as-judge results, or investigate failures.
-See: [Langfuse annotation queues docs](https://langfuse.com/docs/evaluation/evaluation-methods/annotation-queues)
 
 **Key concept:** Langfuse provides the queue infrastructure and a programmatic API to add items — but there are no automatic routing rules or triggers built in. Items only enter a queue through an explicit call, either from the UI (ad-hoc) or from your code. **Your code owns the routing logic.**
 
@@ -475,7 +471,7 @@ Common triggers you can implement:
 - Specific intent detected — route traces matching certain patterns (complaints, edge cases)
 - Random sampling — periodically enqueue a % of production traces for ongoing quality checks
 
-**Setup (once, idempotent):**
+**1 — Create the queue (once, idempotent):**
 
 ```bash
 uv run python -m evals.langfuse.create_annotation_queue
@@ -483,12 +479,10 @@ uv run python -m evals.langfuse.create_annotation_queue
 
 This creates the `banking-sentinel-review` queue. Set `ANNOTATION_QUEUE_ID` in `.env` to the returned queue ID.
 
-**Example: enqueue on 👎**
-
-In this PoC, the `/feedback` endpoint adds the trace to the queue whenever the user gives a thumbs down:
+**2 — Enqueue traces (example: on 👎):**
+In this PoC, the `/feedback` endpoint in [`api.py`](src/banking_sentinel/api.py) adds the trace to the queue whenever the user gives a thumbs down:
 
 ```python
-# api.py
 if request.value == 0.0 and _annotation_queue_id:
     langfuse.api.annotation_queues.create_queue_item(
         _annotation_queue_id,
@@ -497,7 +491,7 @@ if request.value == 0.0 and _annotation_queue_id:
     )
 ```
 
-**Human review workflow:**
+**3 — Review the queue:**
 1. Go to [http://localhost:3000](http://localhost:3000) → **Annotation Queues**
 2. Open `banking-sentinel-review`
 3. For each trace: review the conversation, assign a score, click **Complete + next**
@@ -509,10 +503,9 @@ if request.value == 0.0 and _annotation_queue_id:
 
 Langfuse can store and version system prompts independently of your code — iterate on the prompt without redeploying the app.
 
-`create_agent()` returns `(agent, prompt_obj)`. When `USE_LANGFUSE_PROMPT=true`, it fetches the prompt from Langfuse; otherwise it uses the hardcoded template:
+`create_agent()` in [`agent.py`](src/banking_sentinel/agent.py) returns `(agent, prompt_obj)`. When `USE_LANGFUSE_PROMPT=true`, it fetches the prompt from Langfuse; otherwise it uses the hardcoded template:
 
 ```python
-# agent.py
 def create_agent(langfuse, model, tools, user_tier, account_id, reference_date, session_manager=None) -> tuple:
     if langfuse is not None and os.getenv("USE_LANGFUSE_PROMPT", "false").lower() == "true":
         system_prompt, prompt_obj = _get_system_prompt_from_langfuse(langfuse, user_tier, account_id, reference_date)
