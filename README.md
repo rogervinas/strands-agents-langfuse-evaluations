@@ -586,7 +586,7 @@ This means a code or prompt change that degrades agent quality will fail CI befo
 
 In a real scenario, Langfuse would already be running as a shared instance (cloud or self-hosted) rather than spun up per CI run — meaning experiment history accumulates across every PR and deploy. A typical pipeline would add a deployment job that only runs after all eval jobs pass, and score thresholds would be tuned per metric over time as you build up baseline data.
 
-![](.doc/evals-flow.png)
+![](.doc/ai-engineering-loop.png)
 
 Once Langfuse is running as a shared instance, scores accumulate across every PR and deploy. A practical cadence:
 
@@ -603,6 +603,7 @@ This turns Langfuse from a passive log into an active quality gate: production t
 
 - [Strands Agents docs](https://strandsagents.com/latest/documentation/)
 - [Langfuse docs](https://langfuse.com/docs)
+- [Langfuse AI Engineering Loop](https://langfuse.com/academy/ai-engineering-loop)
 - [Langfuse × Strands Agents integration](https://langfuse.com/integrations/frameworks/strands-agents)
 - [Langfuse prompt management](https://langfuse.com/docs/prompt-management/get-started)
 - [Langfuse annotation queues](https://langfuse.com/docs/evaluation/evaluation-methods/annotation-queues)
