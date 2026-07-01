@@ -230,13 +230,15 @@ There are two ways to run the task:
 - **Embedded** — the agent is instantiated in-process; external services are mocked, and you can inspect internal state (white-box). Fast, no server needed, ideal for CI. Use this when you want fast, isolated, reproducible runs.
 - **API** — the task hits a running server with real external services (black-box). Use this to validate against a live deployment or when mocking is not practical.
 
-Run:
+Run embedded — no server needed:
 
 ```bash
-# embedded — no server needed
 uv run python -m evals.strands.run_evaluations embedded
+```
 
-# against a running server
+Run against a running server:
+
+```bash
 uv run python -m evals.strands.run_evaluations api --url http://localhost:8000
 ```
 
