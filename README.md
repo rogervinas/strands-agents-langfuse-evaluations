@@ -174,7 +174,7 @@ banking-sentinel-chat  ← Langfuse-native root span (input/output/user_id)
   └── Strands OTel spans  ← captured automatically
 ```
 
-Open [http://localhost:3000](http://localhost:3000) → **Traces** to see it.
+Open [http://localhost:3000](http://localhost:3000) → **Traces** to see it:
 
 ![](.doc/screenshot-traces.png)
 
