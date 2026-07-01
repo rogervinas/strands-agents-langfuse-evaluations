@@ -17,20 +17,7 @@ With **classic applications**, quality is enforced through unit tests, integrati
 
 **AI applications** break both of these. The same input may yield different outputs on each run — wording changes, tools get called in a different order, edge cases surface unpredictably. And in production, a request can return 200 OK in 300ms with a confident, completely wrong answer — classic metrics won't catch it. You need something more.
 
-That something is **traces** (a recorded tree of every LLM call, tool call, and sub-agent step — inputs, outputs, latency, cost) and **evaluations** (a repeatable way to measure quality — offline in CI and online against real traffic). Several platforms provide these capabilities — this project uses **Langfuse** because it is open-source and self-hostable with a single `docker compose up`:
-
-
-| Provider | Self-host | Tracing | Evaluations | Prompt Management | External Evaluations | Best for |
-|---|---|---|---|---|---|---|
-| **[Langfuse](https://langfuse.com/docs)** | ✅ | ✅ | ✅ | ✅ | ✅ | Any stack, no vendor lock-in, self-hosted or cloud |
-| **[Arize Phoenix](https://docs.arize.com/phoenix)** | ✅ | ✅ | ✅ | ✗ | ✅ | Open-source, strong eval focus |
-| **[MLflow](https://mlflow.org/docs/latest/llms/tracing/index.html)** | ✅ | ✅ | Limited | ✅ | Limited | Teams already using MLflow |
-| **[LangSmith](https://docs.smith.langchain.com/)** | ✗ | ✅ | ✅ | ✅ | ✅ | Teams already on LangChain |
-| **[W&B Weave](https://weave-docs.wandb.ai/)** | ✗ | ✅ | ✅ | ✗ | ❓ | Teams already using W&B |
-| **[Datadog](https://docs.datadoghq.com/llm_observability/evaluations/)** | ✗ | ✅ | ✅ | ✗ | ✗ | Observability-first teams |
-| **[AWS AgentCore](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/evaluations.html)** | ✗ | Limited | ✅ | ✗ | ✗ | AWS-native teams |
-| **[Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-approach-gen-ai)** | ✗ | Limited | ✅ | ✗ | ✗ | Azure-native teams |
-| **[Google Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview)** | ✗ | Limited | ✅ | ✗ | ✗ | GCP-native teams |
+That something is **traces** and **evaluations**. Several platforms provide these capabilities — [Langfuse](https://langfuse.com/docs), [Arize Phoenix](https://docs.arize.com/phoenix), [MLflow](https://mlflow.org/docs/latest/llms/tracing/index.html), [LangSmith](https://docs.smith.langchain.com/), [W&B Weave](https://weave-docs.wandb.ai/), [Datadog](https://docs.datadoghq.com/llm_observability/evaluations/), [AWS AgentCore](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/evaluations.html), [Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-approach-gen-ai), [Google Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview) — some cover all of them, others only a subset, and some are cloud-only while others can be self-hosted. This PoC uses **Langfuse** because it is open-source, covers all these features, and is self-hostable with a single `docker compose up`:
 
 - **Tracing** — recording a structured tree of every LLM call, tool call, and sub-agent step: inputs, outputs, latency, cost.
 - **Evaluations** — running scored assessments of agent outputs:
