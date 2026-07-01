@@ -17,7 +17,7 @@ With **classic applications**, **quality is enforced through unit tests, integra
 
 **AI applications break both of these**. The same input may yield different outputs on each run — wording changes, tools get called in a different order, edge cases surface unpredictably. And in production, a request can return 200 OK in 300ms with a confident, completely wrong answer — classic metrics won't catch it. **You need something more!**
 
-That something is **traces** and **evaluations** — supported by a growing number of platforms: [Langfuse](https://langfuse.com/docs), [Arize Phoenix](https://docs.arize.com/phoenix), [MLflow](https://mlflow.org/docs/latest/llms/tracing/index.html), [LangSmith](https://docs.smith.langchain.com/), [W&B Weave](https://weave-docs.wandb.ai/), [Datadog](https://docs.datadoghq.com/llm_observability/evaluations/), [AWS AgentCore](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/evaluations.html), [Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-approach-gen-ai), [Google Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview)
+That's where **traces** and **evaluations** come in — supported by a growing number of platforms: [Langfuse](https://langfuse.com/docs), [Arize Phoenix](https://docs.arize.com/phoenix), [MLflow](https://mlflow.org/docs/latest/llms/tracing/index.html), [LangSmith](https://docs.smith.langchain.com/), [W&B Weave](https://weave-docs.wandb.ai/), [Datadog](https://docs.datadoghq.com/llm_observability/evaluations/), [AWS AgentCore](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/evaluations.html), [Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-approach-gen-ai), [Google Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview)
 
 This PoC uses **Langfuse** because it is open-source and is self-hostable with a single `docker compose up`, providing these features:
 - **Tracing** — recording a structured tree of every LLM call, tool call, and sub-agent step: inputs, outputs, latency, cost.
@@ -187,7 +187,6 @@ The [Strands Evals SDK](https://strandsagents.com/latest/documentation/docs/depl
 Each `Case` bundles an input and expected output:
 
 ```python
-# evals/strands/run_evaluations.py
 CASES = [
     Case(
         name="unauthorized-netflix-charge",
