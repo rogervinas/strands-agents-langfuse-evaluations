@@ -414,7 +414,7 @@ Assistant reply:
 6. Map the evaluator's prompt variables to the trace fields accordingly
 7. Click `Execute` — scores existing matching observations immediately and new ones going forward
 
-Results appear as scores on each trace in the Langfuse UI: the `banking-sentinel-helpfulness` score shows as a small 💬 badge on the root `banking-sentinel-chat` span, with the full detail in the **Scores** tab:
+Open [http://localhost:3000](http://localhost:3000) → **Traces** and click a `banking-sentinel-chat` trace. The `banking-sentinel-helpfulness` score shows as a small badge on the root span, with the full detail in the **Scores** tab:
 
 ![](.doc/screenshot-online-evaluation.png)
 
@@ -454,7 +454,9 @@ def feedback_endpoint(request: FeedbackRequest):
     )
 ```
 
-View feedback scores at [http://localhost:3000](http://localhost:3000) → **Traces** → click any trace → **Scores** tab.
+In the chat UI, send a message and click 👍 or 👎 on the reply. Then open [http://localhost:3000](http://localhost:3000) → **Traces** and click that trace. The `user-feedback` score shows as a small badge on the root span, with the full detail in the **Scores** tab:
+
+![](.doc/screenshot-user-feedback.png)
 
 ---
 
