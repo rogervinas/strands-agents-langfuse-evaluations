@@ -22,8 +22,8 @@ That's where **traces** and **evaluations** come in — supported by a growing n
 This PoC uses **Langfuse** because it is open-source and is self-hostable with a single `docker compose up`, providing these features:
 - **Tracing** — recording a structured tree of every LLM call, tool call, and sub-agent step: inputs, outputs, latency, cost.
 - **Evaluations** — running scored assessments of agent outputs:
-  - **Offline** — deterministic, reproducible, suitable for CI; run against a fixed dataset before or after a change. Covered in [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations) and [Step 4: Langfuse Experiments](#step-4-langfuse-experiments).
-  - **Online** — async, triggered by live traces; catch issues that didn't appear in your fixed dataset. Covered in [Step 5: Online Evaluations (LLM-as-judge)](#step-5-online-evaluations-llm-as-judge).
+  - **Offline** — run against a fixed, curated dataset before or after a change; re-runnable as a CI quality gate.
+  - **Online** — async, triggered by live traces; catch issues that didn't appear in your fixed dataset.
 - **External Evaluations** — attaching scores to live traces programmatically from your own code.
 - **Annotation Queues** — routing traces to human reviewers via explicit programmatic calls.
 - **Prompt Management** — versioning prompt templates and pulling them at runtime via SDK.
@@ -38,9 +38,9 @@ The app under evaluation is the **banking sentinel** — a customer support agen
 - [Run](#run)
 - [Implementation](#implementation)
   - [Step 1: The Banking Agent](#step-1-the-banking-agent)
-  - [Step 2: Langfuse Tracing](#step-2-langfuse-tracing)
+  - [Step 2: Tracing](#step-2-tracing)
   - [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations)
-  - [Step 4: Langfuse Experiments](#step-4-langfuse-experiments)
+  - [Step 4: Experiments](#step-4-experiments)
   - [Step 5: Online Evaluations (LLM-as-judge)](#step-5-online-evaluations-llm-as-judge)
   - [Step 6: External Evaluations](#step-6-external-evaluations)
   - [Step 7: Annotation Queues](#step-7-annotation-queues)
@@ -153,7 +153,7 @@ In production, the agent would run behind a load balancer with multiple replicas
 
 ---
 
-### Step 2: Langfuse Tracing
+### Step 2: Tracing
 
 **Traces are not standardised** — what you get depends entirely on the framework and instrumentation. The GenAI OTel semantic conventions are still experimental, so SDKs and platforms implement them inconsistently — always verify your traces in the UI before relying on them.
 
@@ -259,7 +259,7 @@ Overall score: 1.00
 
 ---
 
-### Step 4: Langfuse Experiments
+### Step 4: Experiments
 
 
 A Langfuse **experiment** is an offline evaluation run: your agent is executed against a curated dataset, each output is scored automatically, and the results are stored so you can compare across code versions, prompt changes, and model upgrades over time.
@@ -271,7 +271,7 @@ Where [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations) p
 - **Comparison across runs** — see how scores change between code versions, prompt changes, or model upgrades side by side in the dashboard
 - **Persistent results** — every run is stored; you can go back and audit any historical experiment
 
-Both [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations) and [Step 4: Langfuse Experiments](#step-4-langfuse-experiments) act as a CI quality gate — the script exits non-zero if scores drop below threshold.
+Both [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations) and [Step 4: Experiments](#step-4-experiments) act as a CI quality gate — the script exits non-zero if scores drop below threshold.
 
 This step has three parts:
 

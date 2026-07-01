@@ -62,7 +62,7 @@ There are many platforms with similar features: LangSmith, Arize Phoenix, MLflow
 - essential for scoring live traces, attaching external scores, and routing to annotation queues
 
 **Evaluations** — repeatable scored assessments of agent outputs:
-- **Offline** — run against a fixed dataset, deterministic, suitable for CI
+- **Offline** — run against a fixed, curated dataset; re-runnable as a CI quality gate
 - **Online** — triggered by live traces, catch issues that didn't appear in your fixed dataset
 
 ---
