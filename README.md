@@ -55,7 +55,7 @@ The app under evaluation is the **banking sentinel** — a customer support agen
 
 ### Prerequisites
 
-- Python 3.13 (pinned in `.python-version`)
+- Python (version pinned in [`.python-version`](.python-version))
 - [uv](https://docs.astral.sh/uv/)
 - Docker + Docker Compose
 - A model provider (see below)
@@ -66,8 +66,8 @@ The app under evaluation is the **banking sentinel** — a customer support agen
 uv sync --extra dev --extra evals
 ```
 
-- `dev` — `pytest`, `pytest-asyncio` (unit tests)
-- `evals` — `strands-agents-evals`, `httpx` (evaluations)
+- `dev` — dependencies for unit tests
+- `evals` — dependencies for evaluations
 
 ### Environment
 
