@@ -562,15 +562,15 @@ Benefits: version history, compare prompt versions across experiments, iterate w
 
 ## CI/CD
 
-Three sequential jobs gate on each other — each stage must pass before the next starts:
+For this PoC, CI runs three sequential jobs that gate on each other — each stage must pass before the next starts:
 
 1. **Build** — installs dependencies, builds the package, runs unit tests
 2. **Standalone Evals** — runs Strands native evaluations in embedded mode (no Langfuse). Fails if any score drops below 0.8.
-3. **Langfuse Evals** — spins up Langfuse via Docker, runs Langfuse experiments, reports results to the dashboard. Fails if any score drops below 0.8.
+3. **Langfuse Evals** — runs Langfuse experiments and reports results to the dashboard. Fails if any score drops below 0.8. For this PoC we start Langfuse with Docker just for the CI run, but a real setup would point at a shared, always-on instance.
 
 This means a code or prompt change that degrades agent quality will fail CI before it can reach production.
 
-In a real scenario, Langfuse becomes an active quality gate rather than a passive log:
+Langfuse acts as an active quality gate:
 
 - Traces, scores, and experiment history accumulate across every PR and deploy — production traces surface regressions and datasets grow from real failures.
 - A deployment job runs only after all eval jobs pass, so CI blocks deploys that would degrade quality — with score thresholds tuned per metric as you build up baseline data.
@@ -580,8 +580,6 @@ This is the continuous [AI Engineering Loop](https://langfuse.com/academy/ai-eng
 [![](.doc/ai-engineering-loop.png)](https://langfuse.com/academy/ai-engineering-loop)
 
 ---
-
-
 
 ## Documentation
 
