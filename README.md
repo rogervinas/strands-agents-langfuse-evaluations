@@ -57,32 +57,13 @@ Let's implement this step by step.
 
 The domain: a banking customer support agent — the **Sentinel** — for ROGERVINAS bank. Three mock accounts (`ACC-1001`, `ACC-1002`, `ACC-1003`), five transactions each, and seven tools:
 
-| Tool | Description |
-|---|---|
-| `freeze_card` | Freeze a card |
-| `unfreeze_card` | Unfreeze a card |
-| `is_card_frozen` | Check freeze status |
-| `get_transactions` | List transactions between two dates |
-| `open_dispute` | Open a dispute on a transaction |
-| `get_dispute_status` | Check dispute status |
-| `list_disputes` | List all disputes for an account |
-
-```mermaid
-flowchart LR
-    Msg(["User message"]) --> Agent
-
-    subgraph Agent["Strands Agent"]
-        direction TB
-        Prompt["System prompt\n(user_tier · date · account_id)"]
-        KB["Knowledge base\ninlined in context"]
-        Mem["Session memory\n(FileSessionManager)"]
-    end
-
-    Agent -->|"tool calls"| Tools["freeze / unfreeze / is_frozen\nget_transactions\nopen / check / list disputes"]
-    Tools --> State["In-memory state\n(CardState · DisputeStore\n· Mock Transactions)"]
-
-    Agent --> Resp(["Structured response\n(answer + suggested_actions)"])
-```
+- `freeze_card` — Freeze a card
+- `unfreeze_card` — Unfreeze a card
+- `is_card_frozen` — Check freeze status
+- `get_transactions` — List transactions between two dates
+- `open_dispute` — Open a dispute on a transaction
+- `get_dispute_status` — Check dispute status
+- `list_disputes` — List all disputes for an account
 
 The implementation is intentionally straightforward — no RAG (the knowledge base is short enough to inline directly in the system prompt), no MCP, no external service calls. The goal is to keep the agent logic simple so the focus stays on observability and evaluations. For implementation details, follow the [Strands Agents tutorial](https://strandsagents.com/latest/documentation/docs/get-started/quick-start/).
 
