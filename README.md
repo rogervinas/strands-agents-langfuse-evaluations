@@ -22,8 +22,8 @@ That something is **traces** and **evaluations** — supported by a growing numb
 This PoC uses **Langfuse** because it is open-source and is self-hostable with a single `docker compose up`, providing these features:
 - **Tracing** — recording a structured tree of every LLM call, tool call, and sub-agent step: inputs, outputs, latency, cost.
 - **Evaluations** — running scored assessments of agent outputs:
-  - **Offline** — deterministic, reproducible, suitable for CI; run against a fixed dataset before or after a change. Covered in Steps 3 and 4.
-  - **Online** — async, triggered by live traces; catch issues that didn't appear in your fixed dataset. Covered in Step 5.
+  - **Offline** — deterministic, reproducible, suitable for CI; run against a fixed dataset before or after a change. Covered in [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations) and [Step 4: Langfuse Experiments](#step-4-langfuse-experiments).
+  - **Online** — async, triggered by live traces; catch issues that didn't appear in your fixed dataset. Covered in [Step 5: Online Evaluations (LLM-as-judge)](#step-5-online-evaluations-llm-as-judge).
 - **External Evaluations** — attaching scores to live traces programmatically from your own code.
 - **Annotation Queues** — routing traces to human reviewers via explicit programmatic calls.
 - **Prompt Management** — versioning prompt templates and pulling them at runtime via SDK.
@@ -263,12 +263,12 @@ A Langfuse **experiment** is an offline evaluation run: your agent is executed a
 
 A **dataset** is a versioned collection of test cases — each item has an `input`, an `expected_output`, and optional `metadata`. Each experiment run is named and stored against that dataset, with evaluator scores recorded per item. Both live in your Langfuse instance, not in local files.
 
-You need experiments because Step 3 (Strands Evals) only gives you a local pass/fail report with no history. Langfuse Experiments add:
+You need experiments because [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations) only gives you a local pass/fail report with no history. Langfuse Experiments add:
 
 - **Comparison across runs** — see how scores change between code versions, prompt changes, or model upgrades side by side in the dashboard
 - **Persistent results** — every run is stored; you can go back and audit any historical experiment
 
-Both Step 3 and Step 4 act as a CI quality gate — the script exits non-zero if scores drop below threshold.
+Both [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations) and [Step 4: Langfuse Experiments](#step-4-langfuse-experiments) act as a CI quality gate — the script exits non-zero if scores drop below threshold.
 
 Requires Langfuse running.
 
