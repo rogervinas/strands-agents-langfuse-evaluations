@@ -376,11 +376,34 @@ Go to [http://localhost:3000](http://localhost:3000) → **Settings → LLM Conn
 **2 — Set default evaluation model:**
 Go to [http://localhost:3000](http://localhost:3000) → **LLM-as-a-Judge** → set the **Default Evaluation Model** to the connection you just added.
 
-**3 — Create evaluator and rule:**
-Go to [http://localhost:3000](http://localhost:3000) → **LLM-as-a-Judge** → click **Create Evaluator** → select a managed evaluator:
+**3 — Create the evaluator:**
+Go to [http://localhost:3000](http://localhost:3000) → **LLM-as-a-Judge** → **Create Evaluator**. Two options:
 
-- For **live traces** (`Observations` target): use **Hallucination** or **Helpfulness** — ground truth is not available for live traffic
-- For **experiments** (`Experiments` target): use **Correctness** — map `{{ground_truth}}` to the dataset's `expected_output`
+- **Built-in evaluators** (e.g. **Helpfulness**, **Hallucination**) — often too generic for a specific domain.
+- **Custom Evaluator** — your own domain-aware prompt. This is what we use for the PoC.
+
+Fill in the custom evaluator:
+
+- **Name** — e.g. `banking-sentinel-helpfulness`
+- **Model** — leave **Use default evaluation model** checked (the model you set in step 2)
+- **Evaluation prompt** — reference the trace content with `{{input}}` and `{{output}}` (see below)
+- **Score reasoning prompt** and **Score range prompt** — leave at their defaults or customize at will
+
+Evaluation prompt:
+
+```text
+You are evaluating a banking customer-support assistant for ROGERVINAS bank.
+Customers often report problems informally, without using precise banking
+terms. Evaluate how helpful the assistant's reply is: does it identify the
+relevant transaction, explain the applicable policy (e.g. the dispute window),
+and offer concrete next steps (freeze card, open dispute)?
+
+Customer message:
+{{input}}
+
+Assistant reply:
+{{output}}
+```
 
 **4 — Configure the rule:**
 1. Set target to `Observations`, filter by `Type = GENERATION`
@@ -388,10 +411,12 @@ Go to [http://localhost:3000](http://localhost:3000) → **LLM-as-a-Judge** → 
 3. Add filter: `Tags` → `any of` → `banking-sentinel`
 4. Add filter: `Name` → `=` → `banking-sentinel-chat` — targets only the root span; avoids double-scoring the inner Strands generation (both carry the tag but have different names)
 5. Set **Sampling** (100% is fine for PoC — reduce in production to control costs)
-6. Map prompt variables: `input` → source `input`, `output` → source `output`
+6. Map the evaluator's prompt variables to the trace fields accordingly
 7. Click `Execute` — scores existing matching observations immediately and new ones going forward
 
-Results appear as scores on each trace in the Langfuse UI.
+Results appear as scores on each trace in the Langfuse UI:
+
+![](.doc/screenshot-online-evaluation.png)
 
 > **Note:** The online evaluations themselves produce traces — each LLM-as-judge call is a generation Langfuse records.
 
