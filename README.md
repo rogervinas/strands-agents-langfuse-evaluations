@@ -150,6 +150,8 @@ The implementation is intentionally minimal — a single process, file-based ses
 
 In production, the agent would run behind a load balancer with multiple replicas, connect to real external services via MCP or direct API calls, and swap the local file-based session storage for a persistent store — see the [Strands session management docs](https://strandsagents.com/latest/documentation/docs/user-guide/concepts/sessions/).
 
+![](.doc/screenshot-chat.png)
+
 ---
 
 ### Step 2: Langfuse Tracing
