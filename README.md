@@ -575,7 +575,7 @@ Langfuse acts as an active quality gate:
 - Traces, scores, and experiment history accumulate across every PR and deploy — production traces surface regressions and datasets grow from real failures.
 - A deployment job runs only after all eval jobs pass, so CI blocks deploys that would degrade quality — with score thresholds tuned per metric as you build up baseline data.
 
-This is the continuous [AI Engineering Loop](https://langfuse.com/academy/ai-engineering-loop):
+This is the continuous [AI Engineering Loop](https://langfuse.com/academy/ai-engineering-loop) as documented by Langfuse:
 
 [![](.doc/ai-engineering-loop.png)](https://langfuse.com/academy/ai-engineering-loop)
 
@@ -585,11 +585,15 @@ This is the continuous [AI Engineering Loop](https://langfuse.com/academy/ai-eng
 
 - [Strands Agents docs](https://strandsagents.com/latest/documentation/)
 - [Langfuse docs](https://langfuse.com/docs)
-- [Langfuse AI Engineering Loop](https://langfuse.com/academy/ai-engineering-loop)
 - [Langfuse × Strands Agents integration](https://langfuse.com/integrations/frameworks/strands-agents)
-- [Langfuse prompt management](https://langfuse.com/docs/prompt-management/get-started)
+- [Martin Fowler — Patterns of Distributed Systems](https://martinfowler.com/articles/patterns-of-distributed-systems/)
+- [Strands Agents quick start](https://strandsagents.com/latest/documentation/docs/get-started/quick-start/)
+- [Langfuse tracing](https://langfuse.com/docs/tracing)
+- [Strands Evals SDK](https://strandsagents.com/latest/documentation/docs/deploy/evaluation/)
+- [Langfuse datasets](https://langfuse.com/docs/datasets)
+- [Langfuse model-based evaluations](https://langfuse.com/docs/scores/model-based-evals)
 - [Langfuse user feedback](https://langfuse.com/docs/scores/user-feedback)
 - [Langfuse annotation queues](https://langfuse.com/docs/evaluation/evaluation-methods/annotation-queues)
-- [Martin Fowler — Patterns of Distributed Systems](https://martinfowler.com/articles/patterns-of-distributed-systems/)
+- [Langfuse prompt management](https://langfuse.com/docs/prompt-management/get-started)
 
 Happy GenAI coding! 💙
