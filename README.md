@@ -100,12 +100,6 @@ Email:      admin@local.dev
 Password:   password
 ```
 
-Wait for all services to be healthy:
-
-```bash
-docker compose -f docker-compose-langfuse.yml ps
-```
-
 To stop:
 
 ```bash
