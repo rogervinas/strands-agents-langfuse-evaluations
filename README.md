@@ -45,7 +45,6 @@ The app under evaluation is the **banking sentinel** — a customer support agen
   - [Step 6: External Evaluations](#step-6-external-evaluations)
   - [Step 7: Annotation Queues](#step-7-annotation-queues)
   - [Step 8: Prompt Management](#step-8-prompt-management)
-- [Testing](#testing)
 - [CI/CD](#cicd)
 - [Documentation](#documentation)
 
@@ -561,16 +560,6 @@ Benefits: version history, compare prompt versions across experiments, iterate w
 
 ---
 
-## Testing
-
-Unit tests cover the core business logic (`data.py`) and tool JSON contracts (`tools.py`). They run fully offline — no LLM or Langfuse required.
-
-```bash
-uv run pytest
-```
-
----
-
 ## CI/CD
 
 Three sequential jobs gate on each other — each stage must pass before the next starts:
@@ -581,16 +570,14 @@ Three sequential jobs gate on each other — each stage must pass before the nex
 
 This means a code or prompt change that degrades agent quality will fail CI before it can reach production.
 
-In a real scenario, Langfuse would already be running as a shared instance (cloud or self-hosted) rather than spun up per CI run — meaning experiment history accumulates across every PR and deploy. A typical pipeline would add a deployment job that only runs after all eval jobs pass, and score thresholds would be tuned per metric over time as you build up baseline data.
+In a real scenario, Langfuse becomes an active quality gate rather than a passive log:
 
-![](.doc/ai-engineering-loop.png)
+- Traces, scores, and experiment history accumulate across every PR and deploy — production traces surface regressions and datasets grow from real failures.
+- A deployment job runs only after all eval jobs pass, so CI blocks deploys that would degrade quality — with score thresholds tuned per metric as you build up baseline data.
 
-Once Langfuse is running as a shared instance, scores accumulate across every PR and deploy. A practical cadence:
+This is the continuous [AI Engineering Loop](https://langfuse.com/academy/ai-engineering-loop):
 
-- **Daily** — review dashboards, triage the worst traces, route failures to annotation queues
-- **Weekly** — convert recurring failure patterns into new dataset items, re-run experiments comparing current vs candidate prompt/model, ship only when scores improve or hold
-
-This turns Langfuse from a passive log into an active quality gate: production traces surface regressions, datasets grow from real failures, and CI blocks deploys that would degrade quality.
+[![](.doc/ai-engineering-loop.png)](https://langfuse.com/academy/ai-engineering-loop)
 
 ---
 
