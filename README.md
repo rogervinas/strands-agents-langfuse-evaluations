@@ -178,6 +178,8 @@ Open [http://localhost:3000](http://localhost:3000) → **Traces** to see it.
 
 > **Note:** Both the root span and the inner Strands `chat` generation carry the `banking-sentinel` tag — we will use this later to target traces in [Online Evaluations](#step-5-online-evaluations-llm-as-judge).
 
+![](.doc/screenshot-traces.png)
+
 ---
 
 ### Step 3: Strands Native Evaluations
