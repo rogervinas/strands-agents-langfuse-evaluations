@@ -93,7 +93,7 @@ Set `MODEL_PROVIDER` in `.env`:
 docker compose -f docker-compose-langfuse.yml up -d
 ```
 
-Open the Langfuse UI at [http://localhost:3000](http://localhost:3000) with these pre-provisioned credentials:
+Open the Langfuse UI at [http://localhost:3000](http://localhost:3000) → project `banking-sentinel`, with these pre-provisioned credentials:
 
 ```
 Email:      admin@local.dev
@@ -286,7 +286,7 @@ This step has three parts:
 
 Each item has an `input`, an `expected_output`, and optional `metadata`. Datasets can be created in two ways:
 
-- **Via UI**: go to [http://localhost:3000](http://localhost:3000) → project `banking-sentinel` → **Datasets** → `+ New dataset`, then add items manually
+- **Via UI**: go to [http://localhost:3000](http://localhost:3000) → **Datasets** → `+ New dataset`, then add items manually
 - **Programmatically** (idempotent — safe to run repeatedly), see [`evals/langfuse/create_dataset.py`](evals/langfuse/create_dataset.py):
 
 ```bash
@@ -316,7 +316,7 @@ def my_evaluator(
     )
 ```
 
-Two evaluators score each result — one deterministic, one LLM-as-judge. The LLM-as-judge runs **locally** using whatever `MODEL_PROVIDER` you have configured (Ollama, Bedrock, Gemini) — it is not Langfuse's evaluation infrastructure, just your own model called from Python:
+We implement the same two evaluators as in [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations) — one deterministic (**correctness**), one LLM-as-judge (**claim**). The LLM-as-judge runs **locally** using whatever `MODEL_PROVIDER` you have configured (Ollama, Bedrock, Gemini) — it is not Langfuse's evaluation infrastructure, just your own model called from Python (see [`evals/langfuse/run_experiment.py`](evals/langfuse/run_experiment.py)):
 
 ```python
 # evals/langfuse/run_experiment.py
@@ -347,13 +347,19 @@ result = langfuse.run_experiment(
 
 #### Run the experiment
 
+Run embedded — no server needed:
+
 ```bash
 uv run python -m evals.langfuse.run_experiment embedded
+```
 
+Run against a running server:
+
+```bash
 uv run python -m evals.langfuse.run_experiment api --url http://localhost:8000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) → project `banking-sentinel` → **Datasets** to see results.
+Open [http://localhost:3000](http://localhost:3000) → **Datasets** to see results.
 
 ---
 
@@ -364,13 +370,13 @@ Langfuse can automatically score live traces as they arrive — no code changes 
 **Setup (UI only — no stable API for self-hosted):**
 
 **1 — Add LLM Connection:**
-Go to **Settings → LLM Connections** → add your model provider API key.
+Go to [http://localhost:3000](http://localhost:3000) → **Settings → LLM Connections** → add your model provider API key.
 
 **2 — Set default evaluation model:**
-Go to **LLM-as-a-Judge** → set the **Default Evaluation Model** to the connection you just added.
+Go to [http://localhost:3000](http://localhost:3000) → **LLM-as-a-Judge** → set the **Default Evaluation Model** to the connection you just added.
 
 **3 — Create evaluator and rule:**
-Go to **LLM-as-a-Judge** → click `Create Evaluator` → select a managed evaluator:
+Go to [http://localhost:3000](http://localhost:3000) → **LLM-as-a-Judge** → click `Create Evaluator` → select a managed evaluator:
 
 - For **live traces** (`Observations` target): use **Hallucination** or **Helpfulness** — ground truth is not available for live traffic
 - For **experiments** (`Experiments` target): use **Correctness** — map `{{ground_truth}}` to the dataset's `expected_output`
@@ -462,7 +468,7 @@ if request.value == 0.0 and _annotation_queue_id:
 ```
 
 **Human review workflow:**
-1. Go to **Annotation Queues** in the Langfuse UI
+1. Go to [http://localhost:3000](http://localhost:3000) → **Annotation Queues**
 2. Open `banking-sentinel-review`
 3. For each trace: review the conversation, assign a score, click **Complete + next**
 4. Scores appear on the trace and contribute to your evaluation dashboard
@@ -502,7 +508,7 @@ Each run creates a new version. The `production` label is set automatically, so 
 
 **Create the prompt — Option B (UI):**
 
-Go to **Prompts** → `+ New prompt` → name `banking-sentinel-system`, type `Text` → paste the template using `{{variable}}` syntax (Mustache) → add the `production` label → save.
+Go to [http://localhost:3000](http://localhost:3000) → **Prompts** → `+ New prompt` → name `banking-sentinel-system`, type `Text` → paste the template using `{{variable}}` syntax (Mustache) → add the `production` label → save.
 
 Then enable Langfuse-managed prompts:
 
