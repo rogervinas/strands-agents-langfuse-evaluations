@@ -108,9 +108,17 @@ Wait for all services to be healthy:
 docker compose -f docker-compose-langfuse.yml ps
 ```
 
-To stop: `docker compose -f docker-compose-langfuse.yml down`
+To stop:
 
-To stop and delete all data: `docker compose -f docker-compose-langfuse.yml down -v`
+```bash
+docker compose -f docker-compose-langfuse.yml down
+```
+
+To stop and delete all data:
+
+```bash
+docker compose -f docker-compose-langfuse.yml down -v
+```
 
 ---
 
