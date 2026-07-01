@@ -242,6 +242,24 @@ Run against a running server:
 uv run python -m evals.strands.run_evaluations api --url http://localhost:8000
 ```
 
+Report should look like:
+
+```text
+============================================================
+Evaluator: CorrectnessEvaluator
+Overall score: 1.00
+  ✅ unauthorized-netflix-charge: score=1.00 — suggested_actions contains the expected 'FREEZE_CARD'.
+  ✅ expired-dispute-window: score=1.00 — suggested_actions contains the expected 'FREEZE_CARD'.
+
+============================================================
+Evaluator: ClaimEvaluator
+Overall score: 1.00
+  ✅ unauthorized-netflix-charge: score=1.00 — identifies the Netflix charge and offers to open a dispute.
+  ✅ expired-dispute-window: score=1.00 — explains the 14-day dispute window has expired.
+
+✅ Evaluation PASSED
+```
+
 ---
 
 ### Step 4: Langfuse Experiments
