@@ -360,6 +360,8 @@ uv run python -m evals.langfuse.run_experiment api --url http://localhost:8000
 
 Open [http://localhost:3000](http://localhost:3000) → **Datasets** to see results.
 
+![](.doc/screenshot-experiment.png)
+
 ---
 
 ### Step 5: Online Evaluations (LLM-as-judge)
