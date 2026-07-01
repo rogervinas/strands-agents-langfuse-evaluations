@@ -5,6 +5,10 @@ marp: true
 <style>
 h1, h2 { text-align: center; }
 img:not(.emoji) { display: block; margin: 0 auto; }
+.columns { display: flex; align-items: center; gap: 2rem; }
+.columns > div:first-child { flex: 2; font-size: 0.8em; }
+.columns > div:last-child { flex: 3; }
+.columns > div:last-child img { width: 100%; }
 </style>
 
 # AI was supposed to take my job ...
@@ -16,9 +20,9 @@ img:not(.emoji) { display: block; margin: 0 auto; }
 
 ### 🚀 Try it yourself
 
+- [github.com/rogervinas/strands-agents-langfuse-evaluations](https://github.com/rogervinas/strands-agents-langfuse-evaluations)
 - A hands-on demo about **evaluations** using [Langfuse](https://langfuse.com)
 - Clone it, run it, explore it step by step at your own pace
-- [github.com/rogervinas/strands-agents-langfuse-evaluations](https://github.com/rogervinas/strands-agents-langfuse-evaluations)
 
 ---
 
@@ -65,14 +69,26 @@ There are many platforms with similar features: LangSmith, Arize Phoenix, MLflow
 
 ### 🗺️ What this PoC covers
 
-- **The Banking Agent** — implementation
-- **Langfuse tracing**
-- **Offline evaluations — Strands Evals**
-- **Offline evaluations — Langfuse Experiments**
-- **Online evaluations**
-- **External evaluations**
-- **Annotation queues**
-- **Prompt management**
+<div class="columns">
+<div>
+
+- The Banking Agent (implementation)
+- Langfuse tracing
+- Offline evaluations
+  - Strands Evals
+  - Langfuse Experiments
+- Online evaluations
+- External evaluations
+- Annotation queues
+- Prompt management
+
+</div>
+<div>
+
+![](diagram1.png)
+
+</div>
+</div>
 
 ---
 
@@ -89,7 +105,11 @@ A customer support agent for **ROGERVINAS bank** built with [Strands Agents](htt
 
 The agent is intentionally simple — no RAG, no external service calls. The goal is to keep the agent logic minimal so the focus stays on **observability and evaluations**.
 
-<!-- screenshot: chat UI with a conversation -->
+---
+
+## 🏦 The PoC: Banking Sentinel
+
+![h:520px](screenshot-chat.png)
 
 ---
 
@@ -102,7 +122,11 @@ Every chat request produces a trace in Langfuse — a full tree of what the agen
 
 > ⚠️ **Traces are not standardised** — what you get depends entirely on the framework and instrumentation. The GenAI OTel semantic conventions are still experimental; SDKs and platforms implement them inconsistently. Always verify your traces in the UI before relying on them.
 
-<!-- screenshot: Langfuse trace view showing the span tree -->
+---
+
+## 🔍 Langfuse Tracing
+
+![h:520px](screenshot-traces.png)
 
 ---
 
@@ -120,8 +144,6 @@ Uses [Strands Evals SDK](https://strandsagents.com/latest/documentation/docs/dep
   - **API** — against a running server, black-box
 - Bring your own eval framework: DeepEval, Ragas, pytest ...
 
-<!-- screenshot: terminal output of the evaluation run -->
-
 ---
 
 ### 📋 Offline Evaluations — Langfuse Experiments
@@ -134,7 +156,11 @@ Execution:
 - Client-side, CI-friendly — any eval framework works
 - Exits non-zero if scores drop below threshold
 
-<!-- screenshot: Langfuse experiments dashboard showing scores across runs -->
+---
+
+## 📋 Offline Evaluations — Langfuse Experiments
+
+![w:1120px](screenshot-experiment.png)
 
 ---
 
@@ -148,7 +174,11 @@ Langfuse automatically scores live traces as they arrive — no code changes nee
 
 Many managed evaluators available (Hallucination, Helpfulness, Correctness ...) — and you can define custom ones
 
-<!-- screenshot: Langfuse trace with an online evaluation score -->
+---
+
+## ⚡ Online Evaluations — LLM-as-judge
+
+![w:1120px](screenshot-online-evaluation.png)
 
 ---
 
@@ -159,7 +189,11 @@ Attach scores to any trace programmatically from your own code.
 - User feedback 👍/👎 — the chat UI sends a score to Langfuse on every rating
 - Other use cases: guardrail results, content policy checks, agent self-scoring, custom evaluations
 
-<!-- screenshot: Langfuse trace with a user feedback score -->
+---
+
+## 🔗 External Evaluations
+
+![w:1120px](screenshot-user-feedback.png)
 
 ---
 
@@ -172,7 +206,17 @@ Route traces to human reviewers for manual scoring.
 - Other triggers: low score, specific patterns, random sampling
 - Reviewers score traces in the Langfuse UI — scores contribute to the evaluation dashboard
 
-<!-- screenshot: Langfuse annotation queue with a trace pending review -->
+---
+
+## 👥 Annotation Queues
+
+![h:520px](screenshot-annotation-queue-1.png)
+
+---
+
+## 👥 Annotation Queues - trace
+
+![w:1120px](screenshot-annotation-queue-2.png)
 
 ---
 
@@ -184,7 +228,17 @@ Store and version system prompts in Langfuse — iterate without redeploying.
 - Full version history — compare prompt versions across experiments
 - Rollback by reassigning the `production` label to any previous version
 
-<!-- screenshot: Langfuse prompt versions list -->
+---
+
+## ✏️ Prompt Management
+
+![h:520px](screenshot-prompts.png)
+
+---
+
+## ✏️ Prompt Management
+
+![w:1120px](screenshot-prompts-trace.png)
 
 ---
 
