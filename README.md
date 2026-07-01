@@ -513,45 +513,45 @@ The `quality` score then shows as a small badge on the root `banking-sentinel-ch
 
 Langfuse can store and version system prompts independently of your code — iterate on the prompt without redeploying the app.
 
-`create_agent()` in [`agent.py`](src/banking_sentinel/agent.py) returns `(agent, prompt_obj)`. When `USE_LANGFUSE_PROMPT=true`, it fetches the prompt from Langfuse; otherwise it uses the hardcoded template:
-
-```python
-def create_agent(langfuse, model, tools, user_tier, account_id, reference_date, session_manager=None) -> tuple:
-    if langfuse is not None and os.getenv("USE_LANGFUSE_PROMPT", "false").lower() == "true":
-        system_prompt, prompt_obj = _get_system_prompt_from_langfuse(langfuse, user_tier, account_id, reference_date)
-    else:
-        system_prompt, prompt_obj = _create_system_prompt(user_tier, account_id, reference_date), None
-    return Agent(model=model, tools=tools, system_prompt=system_prompt,
-                 session_manager=session_manager, callback_handler=lambda **_: None), prompt_obj
-```
-
-`api.py` passes `prompt_obj` back to Langfuse to link the prompt version to the trace:
-
-```python
-span.update(input=request.message, output=response.answer, prompt=prompt_obj)
-```
-
-**Create the prompt — Option A (script):**
+**1 — Create the prompt programmatically:**
 
 ```bash
 uv run python -m evals.langfuse.create_prompt
 ```
 
-Each run creates a new version. The `production` label is set automatically, so it is served at runtime.
+Each run creates a new version (see [`evals/langfuse/create_prompt.py`](evals/langfuse/create_prompt.py)). The `production` label is set automatically, so it is served at runtime.
 
-**Create the prompt — Option B (UI):**
+**2 — Or create the prompt via the UI:**
 
-Go to [http://localhost:3000](http://localhost:3000) → **Prompts** → **New prompt** → name `banking-sentinel-system`, type `Text` → paste the template using `{{variable}}` syntax (Mustache) → add the `production` label → save.
+Go to [http://localhost:3000](http://localhost:3000) → **Prompts** → **New prompt**, then:
 
-Then enable Langfuse-managed prompts:
+- Name it `banking-sentinel-system`, type `Text`
+- Paste the template using `{{variable}}` syntax (Mustache)
+- Add the `production` label
+- Save
 
+**3 — Use the prompt from code:**
+
+Set `USE_LANGFUSE_PROMPT=true` in `.env` and `create_agent()` in [`agent.py`](src/banking_sentinel/agent.py) fetches the prompt from Langfuse; otherwise it uses the hardcoded template:
+
+```python
+def create_agent(langfuse, model, tools, user_tier, account_id, reference_date, session_manager=None) -> tuple:
+    if langfuse is not None and os.getenv("USE_LANGFUSE_PROMPT", "false").lower() == "true":
+        ...  # fetch the versioned prompt via langfuse.get_prompt(...)
+    else:
+        ...  # use the hardcoded template
+    ...
 ```
-USE_LANGFUSE_PROMPT=true
+
+It returns `prompt_obj`, which [`api.py`](src/banking_sentinel/api.py) will pass back to Langfuse to link the prompt version to the trace:
+
+```python
+span.update(input=request.message, output=response.answer, prompt=prompt_obj)
 ```
 
 Benefits: version history, compare prompt versions across experiments, iterate without redeploying, A/B test prompts.
 
-> **Note:** `span.update(prompt=prompt_obj)` only works on `generation` type spans. The prompt links to our root `banking-sentinel-chat` generation span, not to the inner Strands LLM generation span (which we don't control directly). This is a general limitation of OTel-auto-instrumented frameworks — see [Langfuse Strands Agents integration](https://langfuse.com/integrations/frameworks/strands-agents). To rollback, reassign the `production` label to any previous version in the UI: **Prompts** → select version → set label.
+To roll back, reassign the `production` label to any previous version in the UI: **Prompts** → select version → set label.
 
 ---
 
