@@ -24,18 +24,11 @@ This PoC uses **Langfuse** because it is open-source and is self-hostable with a
 - **Evaluations** — running scored assessments of agent outputs:
   - **Offline** — deterministic, reproducible, suitable for CI; run against a fixed dataset before or after a change. Covered in Steps 3 and 4.
   - **Online** — async, triggered by live traces; catch issues that didn't appear in your fixed dataset. Covered in Step 5.
-- **Prompt Management** — versioning prompt templates and pulling them at runtime via SDK.
 - **External Evaluations** — attaching scores to live traces programmatically from your own code.
+- **Annotation Queues** — routing traces to human reviewers via explicit programmatic calls.
+- **Prompt Management** — versioning prompt templates and pulling them at runtime via SDK.
 
-The **banking sentinel** is a customer support agent for ROGERVINAS bank: 3 mock accounts with 5 transactions each, and tools to freeze/unfreeze cards, look up transactions, and open or track disputes. This project demonstrates:
-
-- **[Strands Agents](https://strandsagents.com)** — AWS-native agent SDK with tool use and session memory
-- **Langfuse tracing** — hybrid OTel + Langfuse SDK approach for full span hierarchy
-- **Offline evaluations** — Strands Evals SDK (standalone, CI-friendly) and Langfuse Experiments (with dashboard)
-- **Online evaluations** — scoring live production traces as they arrive, using LLM-as-judge
-- **External evaluations** — scoring traces via SDK from your own code
-- **Annotation queues** — routing traces to human reviewers via explicit programmatic calls
-- **Prompt management** — versioned system prompts pulled from Langfuse at runtime
+The app under evaluation is the **banking sentinel** — a customer support agent for ROGERVINAS bank built with [Strands Agents](https://strandsagents.com): 3 mock accounts with 5 transactions each, and tools to freeze/unfreeze cards, look up transactions, and open or track disputes.
 
 ```mermaid
 flowchart LR
