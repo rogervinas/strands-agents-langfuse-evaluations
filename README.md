@@ -285,7 +285,7 @@ This step has three parts:
 
 Each item has an `input`, an `expected_output`, and optional `metadata`. Datasets can be created in two ways:
 
-- **Via UI**: go to [http://localhost:3000](http://localhost:3000) → **Datasets** → `+ New dataset`, then add items manually
+- **Via UI**: go to [http://localhost:3000](http://localhost:3000) → **Datasets** → **New dataset**, then add items manually
 - **Programmatically** (idempotent — safe to run repeatedly), see [`evals/langfuse/create_dataset.py`](evals/langfuse/create_dataset.py):
 
 ```bash
@@ -375,7 +375,7 @@ Go to [http://localhost:3000](http://localhost:3000) → **Settings → LLM Conn
 Go to [http://localhost:3000](http://localhost:3000) → **LLM-as-a-Judge** → set the **Default Evaluation Model** to the connection you just added.
 
 **3 — Create evaluator and rule:**
-Go to [http://localhost:3000](http://localhost:3000) → **LLM-as-a-Judge** → click `Create Evaluator` → select a managed evaluator:
+Go to [http://localhost:3000](http://localhost:3000) → **LLM-as-a-Judge** → click **Create Evaluator** → select a managed evaluator:
 
 - For **live traces** (`Observations` target): use **Hallucination** or **Helpfulness** — ground truth is not available for live traffic
 - For **experiments** (`Experiments` target): use **Correctness** — map `{{ground_truth}}` to the dataset's `expected_output`
@@ -507,7 +507,7 @@ Each run creates a new version. The `production` label is set automatically, so 
 
 **Create the prompt — Option B (UI):**
 
-Go to [http://localhost:3000](http://localhost:3000) → **Prompts** → `+ New prompt` → name `banking-sentinel-system`, type `Text` → paste the template using `{{variable}}` syntax (Mustache) → add the `production` label → save.
+Go to [http://localhost:3000](http://localhost:3000) → **Prompts** → **New prompt** → name `banking-sentinel-system`, type `Text` → paste the template using `{{variable}}` syntax (Mustache) → add the `production` label → save.
 
 Then enable Langfuse-managed prompts:
 
