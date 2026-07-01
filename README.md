@@ -414,7 +414,7 @@ Assistant reply:
 6. Map the evaluator's prompt variables to the trace fields accordingly
 7. Click `Execute` — scores existing matching observations immediately and new ones going forward
 
-Results appear as scores on each trace in the Langfuse UI: a small 💬 score badge on the root `banking-sentinel-chat` span, with the detail in the **Scores** tab:
+Results appear as scores on each trace in the Langfuse UI: the `banking-sentinel-helpfulness` score shows as a small 💬 badge on the root `banking-sentinel-chat` span, with the full detail in the **Scores** tab:
 
 ![](.doc/screenshot-online-evaluation.png)
 
