@@ -128,7 +128,11 @@ docker compose -f docker-compose-langfuse.yml down -v
 uv run uvicorn banking_sentinel.api:app --reload
 ```
 
-Open [http://localhost:8000](http://localhost:8000). The chat UI includes 👍 / 👎 buttons on every assistant message — clicking one sends a score to Langfuse immediately (Step 6) and, on 👎, enqueues the trace for human review (Step 7).
+Open [http://localhost:8000](http://localhost:8000) and try it out:
+
+- Use the textboxes to simulate a different **User ID**, **Account ID**, **Tier**, and **Session ID**.
+- Chat with the agent — for example, say _"Help, I do not have Netflix!"_.
+- Each answer may include **suggested actions** you can click directly, plus 👍 / 👎 feedback buttons — clicking one sends a score to Langfuse immediately (see [External Evaluations](#step-6-external-evaluations)) and, on 👎, enqueues the trace for human review (see [Annotation Queues](#step-7-annotation-queues)).
 
 Agent traces are sent to Langfuse automatically via OpenTelemetry when `LANGFUSE_*` and `OTEL_*` env vars are set.
 
