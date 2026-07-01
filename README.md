@@ -154,36 +154,27 @@ In production, the agent would run behind a load balancer with multiple replicas
 
 ### Step 2: Langfuse Tracing
 
-OTel instrumentation quality varies across SDKs and observability platforms — some frameworks emit rich spans that map cleanly, others miss fields the platform expects. The [GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) define a standard for LLM-related spans, but most signals are still **experimental** — meaning SDKs and platforms implement them inconsistently. Before relying on auto-instrumentation, always verify your traces in the platform UI: check that `input`, `output`, token counts, and model names land where you expect.
+**Traces are not standardised** — what you get depends entirely on the framework and instrumentation. The GenAI OTel semantic conventions are still experimental, so SDKs and platforms implement them inconsistently — always verify your traces in the UI before relying on them.
 
-**The challenge:** Strands uses OTel to emit spans internally, but raw OTel spans may not carry all the context Langfuse expects (e.g. trace-level `input`, `output`). The Strands `[otel]` extra generates spans but does not set `input`/`output` on the root span — and we will need those fields in later steps.
-
-**Pattern used here:** `langfuse.start_as_current_observation()` wraps the entire `/chat` request. This is a Langfuse-native Python method, independent of Strands, that works with any Python code. It ensures `input`/`output` is set on the root trace span, while Strands OTel spans are captured as children automatically:
+In this PoC, for example, the Strands `[otel]` extra emits spans but does not set trace-level `input`/`output` on the root span — and we need those in later steps. So `api.py` wraps the entire `/chat` request in `langfuse.start_as_current_observation()`, which sets `input`/`output` on the root span while capturing the Strands OTel spans as children:
 
 ```python
 # api.py
 with langfuse.start_as_current_observation(name="banking-sentinel-chat", as_type="generation") as span:
-    with propagate_attributes(user_id=request.user_id, session_id=session_id,
-                              trace_name="banking-sentinel-chat", tags=["banking-sentinel"]):
-        tools = create_tools(state.card_state, state.dispute_store, state.transactions, state.reference_date)
-        session_manager = FileSessionManager(session_id=session_id, storage_dir="sessions")
-        agent, prompt_obj = create_agent(langfuse, _model, tools, state.user_tier, request.account_id, state.reference_date, session_manager=session_manager)
-        response = chat(agent, request.message)
+    # ... run the agent ...
     span.update(input=request.message, output=response.answer, prompt=prompt_obj)
-    trace_id = span.trace_id
 ```
 
 This produces the following span hierarchy in Langfuse:
 
 ```
 banking-sentinel-chat  ← Langfuse-native root span (input/output/user_id)
-  └── propagate_attributes()  ← propagates session/user to all child spans
-        └── Strands OTel spans  ← captured automatically
+  └── Strands OTel spans  ← captured automatically
 ```
 
 Open [http://localhost:3000](http://localhost:3000) → **Traces** to see it.
 
-> **Note:** Token usage and model name are tracked on the inner Strands spans (`invoke_agent`, `chat`), not on the root span — because we don't call the LLM directly. Usage is still visible in the trace, just one level down. Two spans share the `banking-sentinel` tag (root + Strands inner `chat` generation) — keep this in mind when configuring online evaluators in Step 5.
+> **Note:** Both the root span and the inner Strands `chat` generation carry the `banking-sentinel` tag — we will use this later to target traces in [Online Evaluations](#step-5-online-evaluations-llm-as-judge).
 
 ---
 
