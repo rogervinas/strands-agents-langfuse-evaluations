@@ -32,7 +32,7 @@ The app under evaluation is the **banking sentinel** — a customer support agen
 
 ![](.doc/diagram1.png)
 
-To get the most out of this walkthrough, first get the agent and Langfuse running ([Configuration](#configuration) → [Run](#run)), open the chat UI and play with it, then go through the [Implementation](#implementation) steps to see how each piece works.
+**Ready?** Get the agent and Langfuse running ([Configuration](#configuration) → [Run](#run)), open the chat UI and play with it, then go through the [Implementation](#implementation) steps to see how each piece works.
 
 - [Configuration](#configuration)
 - [Run](#run)
