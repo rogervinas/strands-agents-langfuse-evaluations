@@ -530,6 +530,10 @@ Go to [http://localhost:3000](http://localhost:3000) → **Prompts** → **New p
 - Add the `production` label
 - Save
 
+Either way, the prompt appears in **Prompts**, versioned and labeled `production`:
+
+![](.doc/screenshot-prompts.png)
+
 **3 — Use the prompt from code:**
 
 Set `USE_LANGFUSE_PROMPT=true` in `.env` and `create_agent()` in [`agent.py`](src/banking_sentinel/agent.py) fetches the prompt from Langfuse; otherwise it uses the hardcoded template:
@@ -549,9 +553,11 @@ It returns `prompt_obj`, which [`api.py`](src/banking_sentinel/api.py) will pass
 span.update(input=request.message, output=response.answer, prompt=prompt_obj)
 ```
 
-Benefits: version history, compare prompt versions across experiments, iterate without redeploying, A/B test prompts.
+The trace then shows a `Prompt: banking-sentinel-system - v1` tag linking to the exact version used:
 
-To roll back, reassign the `production` label to any previous version in the UI: **Prompts** → select version → set label.
+![](.doc/screenshot-prompts-trace.png)
+
+Benefits: version history, compare prompt versions across experiments, iterate without redeploying, A/B test prompts.
 
 ---
 
