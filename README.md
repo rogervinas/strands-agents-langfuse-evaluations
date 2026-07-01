@@ -65,20 +65,11 @@ The domain: a banking customer support agent — the **Sentinel** — for ROGERV
 - `get_dispute_status` — Check dispute status
 - `list_disputes` — List all disputes for an account
 
-The implementation is intentionally straightforward — no RAG (the knowledge base is short enough to inline directly in the system prompt), no MCP, no external service calls. The goal is to keep the agent logic simple so the focus stays on observability and evaluations. For implementation details, follow the [Strands Agents tutorial](https://strandsagents.com/latest/documentation/docs/get-started/quick-start/).
+The implementation is intentionally minimal — a single process, file-based session storage, no RAG (the knowledge base is short enough to inline directly in the system prompt), no MCP, no external service calls. A production agent would run behind a load balancer with multiple replicas and connect to real external services via MCP or direct API calls. The goal here is to keep the agent simple so the focus stays on observability and evaluations. For implementation details, follow the [Strands Agents tutorial](https://strandsagents.com/latest/documentation/docs/get-started/quick-start/).
 
 `FileSessionManager` persists conversation history to local disk — fine for development, but in production you would replace it with `S3SessionManager` (built into Strands) or a custom `RepositorySessionManager` backed by your own store. See: [Strands session management docs](https://strandsagents.com/latest/documentation/docs/user-guide/concepts/sessions/).
 
-Run the agent:
-
-```bash
-uv run uvicorn banking_sentinel.api:app --reload
-```
-
-Open [http://localhost:8000](http://localhost:8000) to use the chat UI.
-
-> **Note:** This setup is intentionally minimal — a single process, file-based session storage, and no external service integrations. A production agent would replace `FileSessionManager` with `S3SessionManager` or a database-backed store, run behind a load balancer with multiple replicas, and connect to real external services via MCP or direct API calls. The goal here is to keep the agent architecture simple so the focus stays on observability and evaluations.
-
+See [Configuration](#configuration) and [Run](#run) to set up and start the agent.
 
 ---
 
