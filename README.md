@@ -182,7 +182,7 @@ Open [http://localhost:3000](http://localhost:3000) → **Traces** to see it:
 
 ### Step 3: Strands Native Evaluations
 
-The [Strands Evals SDK](https://strandsagents.com/latest/documentation/docs/deploy/evaluation/) provides `Case`, `Experiment`, and `OutputEvaluator`. No Langfuse required — runs fully offline and produces a local report.
+The [Strands Evals SDK](https://strandsagents.com/latest/documentation/docs/deploy/evaluation/) provides `Case`, `Experiment`, and `OutputEvaluator`. No Langfuse required — runs fully offline and produces a local report. The full code for this step lives in [`evals/strands/run_evaluations.py`](evals/strands/run_evaluations.py).
 
 Each `Case` bundles an input and expected output:
 
@@ -229,20 +229,6 @@ claim_evaluator = ClaimEvaluator(
 There are two ways to run the task:
 - **Embedded** — the agent is instantiated in-process; external services are mocked, and you can inspect internal state (white-box). Fast, no server needed, ideal for CI. Use this when you want fast, isolated, reproducible runs.
 - **API** — the task hits a running server with real external services (black-box). Use this to validate against a live deployment or when mocking is not practical.
-
-The task function runs the agent in-process or via HTTP:
-
-```python
-def embedded_task(case: Case) -> dict:
-    """Runs the agent in-process. Inject any CardState/DisputeStore to mock specific scenarios."""
-    inp = case.input
-    transactions = build_transactions(REFERENCE_DATE)
-    tools = create_tools(CardState(), DisputeStore(transactions), transactions, REFERENCE_DATE)
-    agent, _ = create_agent(None, _model, tools, inp["accountTier"], inp["accountId"], REFERENCE_DATE)
-    response = chat(agent, inp["message"])
-    return {"output": {"answer": response.answer, "suggested_actions": [a.value for a in response.suggested_actions]}}
-```
-
 
 Run:
 
