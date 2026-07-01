@@ -414,13 +414,13 @@ Assistant reply:
 6. Map the evaluator's prompt variables to the trace fields accordingly
 7. Click `Execute` — scores existing matching observations immediately and new ones going forward
 
-Results appear as scores on each trace in the Langfuse UI:
+Results appear as scores on each trace in the Langfuse UI: a small 💬 score badge on the root `banking-sentinel-chat` span, with the detail in the **Scores** tab:
 
 ![](.doc/screenshot-online-evaluation.png)
 
 > **Note:** The online evaluations themselves produce traces — each LLM-as-judge call is a generation Langfuse records.
 
-> **Note:** The [Langfuse API](https://langfuse.com/docs/scores/model-based-evals) to create evaluators and rules programmatically is unstable and **only available on Langfuse Cloud** — not in self-hosted deployments. Use the UI for self-hosted.
+> **Note:** The [Langfuse API](https://langfuse.com/docs/scores/model-based-evals) to create evaluators and rules programmatically is unstable and **only available on Langfuse Cloud** — not in self-hosted deployments.
 
 ---
 
@@ -434,7 +434,6 @@ Langfuse lets you attach scores to any trace programmatically from your own code
 - **Custom pipelines** — any score your application logic can produce
 
 In this PoC we implement **user feedback** as our example. Automated evaluators catch a lot, but human judgment is still essential — collecting 👍/👎 feedback from real users gives you a ground-truth signal that no automated evaluator can fully replace.
-See: [Langfuse user feedback docs](https://langfuse.com/docs/scores/user-feedback)
 
 **How it works:**
 
@@ -593,6 +592,7 @@ This turns Langfuse from a passive log into an active quality gate: production t
 - [Langfuse AI Engineering Loop](https://langfuse.com/academy/ai-engineering-loop)
 - [Langfuse × Strands Agents integration](https://langfuse.com/integrations/frameworks/strands-agents)
 - [Langfuse prompt management](https://langfuse.com/docs/prompt-management/get-started)
+- [Langfuse user feedback](https://langfuse.com/docs/scores/user-feedback)
 - [Langfuse annotation queues](https://langfuse.com/docs/evaluation/evaluation-methods/annotation-queues)
 - [Martin Fowler — Patterns of Distributed Systems](https://martinfowler.com/articles/patterns-of-distributed-systems/)
 
