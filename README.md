@@ -128,6 +128,8 @@ Open [http://localhost:8000](http://localhost:8000) and try it out:
 
 Agent traces are sent to Langfuse automatically via OpenTelemetry, as the `LANGFUSE_*` and `OTEL_*` env vars are set in `.env`.
 
+![](.doc/screenshot-chat.png)
+
 ---
 
 ## Implementation
