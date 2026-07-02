@@ -238,7 +238,7 @@ requires-dist = [
     { name = "python-dotenv", specifier = "==1.2.2" },
     { name = "strands-agents", extras = ["ollama", "gemini", "otel"], specifier = "==1.42.0" },
     { name = "strands-agents-evals", marker = "extra == 'evals'", specifier = "==0.2.1" },
-    { name = "strands-agents-tools", specifier = "==0.8.0" },
+    { name = "strands-agents-tools", specifier = "==0.8.2" },
     { name = "uvicorn", extras = ["standard"], specifier = "==0.49.0" },
 ]
 provides-extras = ["dev", "evals"]
@@ -2086,7 +2086,7 @@ wheels = [
 
 [[package]]
 name = "strands-agents-tools"
-version = "0.8.0"
+version = "0.8.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -2107,9 +2107,9 @@ dependencies = [
     { name = "tzdata", marker = "sys_platform == 'win32'" },
     { name = "watchdog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d4/74/aed74502a19a18ce1ddcd56e1dc4a0de6e9f2cb6babcc9f2d1969f253c0b/strands_agents_tools-0.8.0.tar.gz", hash = "sha256:fd93104d2d8dcff780505e8a2fca0cb2fa7a3da6bae01369073b60da0e08c5aa", size = 490638, upload-time = "2026-06-03T19:20:03.872Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/88/9f/1c2468c86c622b3a20f7b6331234f773ca59df5afdc9726f5c85c699789c/strands_agents_tools-0.8.2.tar.gz", hash = "sha256:fa390c28a31cc7695587180feda8ac9b7f53fab4ece56296e8c039ac6361670a", size = 491890, upload-time = "2026-06-25T22:35:15.72Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0a/37/9f611363451cf38f912c7551b73308339e6af54bf1b5e9a3e8efc7ae0972/strands_agents_tools-0.8.0-py3-none-any.whl", hash = "sha256:7446ae423794b6f886fb36e1a0f8a62fe0546978c18b805e6f50dcdddee1559e", size = 319602, upload-time = "2026-06-03T19:20:01.92Z" },
+    { url = "https://files.pythonhosted.org/packages/5b/db/a247c24525b6a701e3e9781dd2a103ca89ee8731fd3b89961d8455fa5f5d/strands_agents_tools-0.8.2-py3-none-any.whl", hash = "sha256:fc27780eae94cdbcfbd4b08daebf1ccb83831a4d5ffa2094d719326b08ce9cc6", size = 319967, upload-time = "2026-06-25T22:35:13.87Z" },
 ]
 
 [[package]]
