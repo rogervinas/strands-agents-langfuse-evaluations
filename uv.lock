@@ -237,7 +237,7 @@ requires-dist = [
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = "==1.4.0" },
     { name = "python-dotenv", specifier = "==1.2.2" },
     { name = "strands-agents", extras = ["ollama", "gemini", "otel"], specifier = "==1.42.0" },
-    { name = "strands-agents-evals", marker = "extra == 'evals'", specifier = "==0.2.1" },
+    { name = "strands-agents-evals", marker = "extra == 'evals'", specifier = "==1.0.1" },
     { name = "strands-agents-tools", specifier = "==0.8.0" },
     { name = "uvicorn", extras = ["standard"], specifier = "==0.49.0" },
 ]
@@ -2065,7 +2065,7 @@ otel = [
 
 [[package]]
 name = "strands-agents-evals"
-version = "0.2.1"
+version = "1.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "boto3" },
@@ -2079,9 +2079,9 @@ dependencies = [
     { name = "tenacity" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ca/b3/c91fef56959f1a603ffd3983733669a360a9583a66fc0141c1b7a00341d1/strands_agents_evals-0.2.1.tar.gz", hash = "sha256:fa10c644f3f936a4a029002fb0b8efe89e0e38ce421d1d7d2b8078f7cf3f9e58", size = 298825, upload-time = "2026-05-29T19:32:51.249Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/37/cd/bf660bb933447b2cef740fac53e20afee03bb49c43e5d496c1e85925ebe7/strands_agents_evals-1.0.1.tar.gz", hash = "sha256:bcf11f1ee5f2d3b5703733595b20d5b3d87843a127057b4226d04cd75d670261", size = 451203, upload-time = "2026-06-25T22:42:07.502Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c6/c7/64892265b28c81e194fa4754901223789bf71e5920ed7343dfae7b1d3ca8/strands_agents_evals-0.2.1-py3-none-any.whl", hash = "sha256:bd395fa4844b8908f59fa4a6ce642beaa3d87d1088b90b0fc7cbe1951784c396", size = 236611, upload-time = "2026-05-29T19:32:49.706Z" },
+    { url = "https://files.pythonhosted.org/packages/98/30/1ab14993e2f809d3b79d20b6befc133048ee8758a3a5701f1164a369d3f8/strands_agents_evals-1.0.1-py3-none-any.whl", hash = "sha256:b2cee1ca232c3120831b08d68965441a48aeed9fceba18b832bce7cbaa4b981a", size = 352737, upload-time = "2026-06-25T22:42:06.062Z" },
 ]
 
 [[package]]
