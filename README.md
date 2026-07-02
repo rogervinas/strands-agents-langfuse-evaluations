@@ -1,5 +1,7 @@
 [![CI](https://github.com/rogervinas/strands-agents-langfuse-evaluations/actions/workflows/ci.yml/badge.svg)](https://github.com/rogervinas/strands-agents-langfuse-evaluations/actions/workflows/ci.yml)
 ![StrandsAgents](https://img.shields.io/badge/StrandsAgents-1.42.0-blue?labelColor=black)
+![StrandsEvals](https://img.shields.io/badge/StrandsEvals-0.2.1-blue?labelColor=black)
+![Langfuse](https://img.shields.io/badge/Langfuse-4.7.1-blue?labelColor=black)
 
 ![Gemini](https://img.shields.io/badge/Gemini-✓-4285F4?labelColor=black)
 ![Bedrock](https://img.shields.io/badge/Bedrock-✓-FF9900?labelColor=black)
