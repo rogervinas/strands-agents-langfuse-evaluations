@@ -86,7 +86,7 @@ services:
       LANGFUSE_INIT_USER_PASSWORD: ${LANGFUSE_INIT_USER_PASSWORD:-password}
 
   clickhouse:
-    image: docker.io/clickhouse/clickhouse-server:26.6
+    image: docker.io/clickhouse/clickhouse-server:26.5
     restart: always
     user: "101:101"
     environment:
