@@ -107,7 +107,7 @@ services:
       start_period: 1s
 
   minio:
-    image: docker.io/minio/minio:RELEASE.2026-06-04T00-54-11Z
+    image: cgr.dev/chainguard/minio:latest
     restart: always
     entrypoint: sh
     # create the 'langfuse' bucket before starting the service
