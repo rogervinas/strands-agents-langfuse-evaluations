@@ -122,7 +122,6 @@ def run(task):
     experiment = Experiment(cases=CASES, evaluators=[correctness_evaluator, claim_evaluator])
     report = experiment.run_evaluations(task)
 
-    # strands-agents-evals >= 1.0.1 returns a single flat EvaluationReport; group by evaluator.
     evaluator_indices: dict[str, list[int]] = {}
     for i, case in enumerate(report.cases):
         name = case["evaluator"]
