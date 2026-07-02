@@ -90,6 +90,8 @@ Set `MODEL_PROVIDER` in `.env`:
 
 ### Langfuse
 
+`docker-compose-langfuse.yml` is the [official Langfuse self-hosted docker-compose](https://github.com/langfuse/langfuse/blob/main/docker-compose.yml), with no modifications.
+
 ```bash
 docker compose -f docker-compose-langfuse.yml up -d
 ```
