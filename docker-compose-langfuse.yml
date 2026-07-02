@@ -86,7 +86,7 @@ services:
       LANGFUSE_INIT_USER_PASSWORD: ${LANGFUSE_INIT_USER_PASSWORD:-password}
 
   clickhouse:
-    image: docker.io/clickhouse/clickhouse-server
+    image: docker.io/clickhouse/clickhouse-server:26
     restart: always
     user: "101:101"
     environment:
@@ -107,7 +107,7 @@ services:
       start_period: 1s
 
   minio:
-    image: cgr.dev/chainguard/minio
+    image: docker.io/minio/minio:RELEASE.2026-06-04T00-54-11Z
     restart: always
     entrypoint: sh
     # create the 'langfuse' bucket before starting the service
