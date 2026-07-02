@@ -565,8 +565,8 @@ Benefits: version history, compare prompt versions across experiments, iterate w
 For this PoC, CI runs three sequential jobs that gate on each other — each stage must pass before the next starts:
 
 1. **Build** — installs dependencies, builds the package, runs unit tests
-2. **Standalone Evals** — runs Strands native evaluations in embedded mode (no Langfuse). Fails if any score drops below 0.8.
-3. **Langfuse Evals** — runs Langfuse experiments and reports results to the dashboard. Fails if any score drops below 0.8. For this PoC we start Langfuse with Docker just for the CI run, but a real setup would point at a shared, always-on instance.
+2. **Standalone Evals** — runs Strands native evaluations in embedded mode (no Langfuse). Fails if any score drops below a threshold.
+3. **Langfuse Evals** — runs Langfuse experiments and reports results to the dashboard. Fails if any score drops below a threshold. For this PoC we start Langfuse with Docker just for the CI run, but a real setup would point at a shared, always-on instance.
 
 This means a code or prompt change that degrades agent quality will fail CI before it can reach production.
 
@@ -586,7 +586,6 @@ This is the continuous [AI Engineering Loop](https://langfuse.com/academy/ai-eng
 - [Strands Agents docs](https://strandsagents.com/latest/documentation/)
 - [Langfuse docs](https://langfuse.com/docs)
 - [Langfuse × Strands Agents integration](https://langfuse.com/integrations/frameworks/strands-agents)
-- [Martin Fowler — Patterns of Distributed Systems](https://martinfowler.com/articles/patterns-of-distributed-systems/)
 - [Strands Agents quick start](https://strandsagents.com/latest/documentation/docs/get-started/quick-start/)
 - [Langfuse tracing](https://langfuse.com/docs/tracing)
 - [Strands Evals SDK](https://strandsagents.com/latest/documentation/docs/deploy/evaluation/)
