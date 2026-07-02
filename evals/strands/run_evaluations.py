@@ -120,17 +120,25 @@ def api_task(api_url: str):
 
 def run(task):
     experiment = Experiment(cases=CASES, evaluators=[correctness_evaluator, claim_evaluator])
-    reports = experiment.run_evaluations(task)
+    report = experiment.run_evaluations(task)
+
+    evaluator_indices: dict[str, list[int]] = {}
+    for i, case in enumerate(report.cases):
+        name = case["evaluator"]
+        evaluator_indices.setdefault(name, []).append(i)
 
     failed = False
-    for report in reports:
+    for evaluator_name, indices in evaluator_indices.items():
+        scores = [report.scores[i] for i in indices]
+        overall = sum(scores) / len(scores) if scores else 0.0
         print(f"\n{'='*60}")
-        print(f"Evaluator: {report.evaluator_name}")
-        print(f"Overall score: {report.overall_score:.2f}")
-        for i, case in enumerate(CASES):
+        print(f"Evaluator: {evaluator_name}")
+        print(f"Overall score: {overall:.2f}")
+        for i in indices:
             icon = "✅" if report.test_passes[i] else "❌"
-            print(f"  {icon} {case.name}: score={report.scores[i]:.2f} — {report.reasons[i]}")
-        if report.overall_score < 0.8:
+            case_name = report.cases[i].get("name", f"case_{i}")
+            print(f"  {icon} {case_name}: score={report.scores[i]:.2f} — {report.reasons[i]}")
+        if overall < 0.8:
             failed = True
 
     if failed:
