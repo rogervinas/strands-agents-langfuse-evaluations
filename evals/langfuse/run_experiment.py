@@ -32,7 +32,7 @@ def embedded_task(*, item, **kwargs):
     card_state = CardState()
     dispute_store = DisputeStore(transactions)
     tools = create_tools(card_state, dispute_store, transactions, REFERENCE_DATE)
-    agent, _ = create_agent(None, _model, tools, inp["accountTier"], inp["accountId"], REFERENCE_DATE)
+    agent, _ = create_agent(get_client(), _model, tools, inp["accountTier"], inp["accountId"], REFERENCE_DATE)
     response = chat(agent, inp["message"])
     return {
         "answer": response.answer,
@@ -114,6 +114,11 @@ def run(task):
     print(f"\nRun: {result.run_name}")
     if result.dataset_run_url:
         print(f"Results: {result.dataset_run_url}")
+
+    if not result.item_results:
+        print("\n❌ Experiment FAILED: no items were evaluated")
+        langfuse.flush()
+        sys.exit(1)
 
     failed = False
     for item_result in result.item_results:
