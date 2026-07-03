@@ -8,9 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from langfuse import get_client
-from langfuse.api.resources.annotation_queues.types.create_annotation_queue_request import CreateAnnotationQueueRequest
-from langfuse.api.resources.commons.types.score_config_data_type import ScoreConfigDataType
-from langfuse.api.resources.score_configs.types.create_score_config_request import CreateScoreConfigRequest
+from langfuse.api import CreateAnnotationQueueRequest, CreateScoreConfigRequest, ScoreConfigDataType
 
 SCORE_CONFIG_NAME = "quality"
 QUEUE_NAME = "banking-sentinel-review"
