@@ -2,7 +2,7 @@
 ![StrandsAgents](https://img.shields.io/badge/StrandsAgents-1.42.0-blue?labelColor=black)
 ![StrandsEvals](https://img.shields.io/badge/StrandsEvals-0.2.1-blue?labelColor=black)
 ![LangfuseServer](https://img.shields.io/badge/Langfuse_Server-3.155.1-blue?labelColor=black)
-![LangfuseSDK](https://img.shields.io/badge/Langfuse_SDK-3.15.0-blue?labelColor=black)
+![Langfuse](https://img.shields.io/badge/Langfuse-3.15.0-blue?labelColor=black)
 
 ![Gemini](https://img.shields.io/badge/Gemini-✓-4285F4?labelColor=black)
 ![Bedrock](https://img.shields.io/badge/Bedrock-✓-FF9900?labelColor=black)
