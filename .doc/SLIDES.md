@@ -184,7 +184,7 @@ Execution:
 
 ---
 
-## 📋 Offline Evaluations — Langfuse Experiments (runs)
+## 📋 Offline Evaluations — Langfuse Experiments (experiments)
 
 ![w:1120px](screenshot-experiment-runs.png)
 

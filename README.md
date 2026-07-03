@@ -1,8 +1,8 @@
 [![CI](https://github.com/rogervinas/strands-agents-langfuse-evaluations/actions/workflows/ci.yml/badge.svg)](https://github.com/rogervinas/strands-agents-langfuse-evaluations/actions/workflows/ci.yml)
-![StrandsAgents](https://img.shields.io/badge/StrandsAgents-1.42.0-blue?labelColor=black)
-![StrandsEvals](https://img.shields.io/badge/StrandsEvals-0.2.1-blue?labelColor=black)
-![Langfuse](https://img.shields.io/badge/Langfuse-3.15.0-blue?labelColor=black)
-![LangfuseServer](https://img.shields.io/badge/Langfuse_Server-3.155.1-blue?labelColor=black)
+![StrandsAgents](https://img.shields.io/badge/StrandsAgents-1.45.0-blue?labelColor=black)
+![StrandsEvals](https://img.shields.io/badge/StrandsEvals-1.0.1-blue?labelColor=black)
+![Langfuse](https://img.shields.io/badge/Langfuse-4.12.0-blue?labelColor=black)
+![LangfuseServer](https://img.shields.io/badge/Langfuse_Server-3.203-blue?labelColor=black)
 
 ![Gemini](https://img.shields.io/badge/Gemini-✓-4285F4?labelColor=black)
 ![Bedrock](https://img.shields.io/badge/Bedrock-✓-FF9900?labelColor=black)
@@ -44,7 +44,7 @@ The app under evaluation is the **banking sentinel** — a customer support agen
   - [Step 2: Tracing](#step-2-tracing)
   - [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations)
   - [Step 4: Experiments](#step-4-experiments)
-  - [Step 5: Online Evaluations (LLM-as-judge)](#step-5-online-evaluations-llm-as-judge)
+  - [Step 5: Online Evaluations (Evaluators)](#step-5-online-evaluations-evaluators)
   - [Step 6: External Evaluations](#step-6-external-evaluations)
   - [Step 7: Annotation Queues](#step-7-annotation-queues)
   - [Step 8: Prompt Management](#step-8-prompt-management)
@@ -366,13 +366,13 @@ Run against a running server:
 uv run python -m evals.langfuse.run_experiment api --url http://localhost:8000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) → **Datasets** → **Runs** to see the experiment runs:
+Open [http://localhost:3000](http://localhost:3000) → **Datasets** → **Experiments** to see the experiment runs:
 
 ![](.doc/screenshot-experiment-runs.png)
 
 ---
 
-### Step 5: Online Evaluations (LLM-as-judge)
+### Step 5: Online Evaluations (Evaluators)
 
 Langfuse can automatically score live traces as they arrive — no code changes needed. In this PoC all chat traces are tagged `banking-sentinel`, and the root span of each is named `banking-sentinel-chat`, making them easy to target.
 
@@ -382,19 +382,20 @@ Langfuse can automatically score live traces as they arrive — no code changes 
 Go to [http://localhost:3000](http://localhost:3000) → **Settings → LLM Connections** → add your model provider API key.
 
 **2 — Set default evaluation model:**
-Go to [http://localhost:3000](http://localhost:3000) → **LLM-as-a-Judge** → set the **Default Evaluation Model** to the connection you just added.
+Go to [http://localhost:3000](http://localhost:3000) → **Evaluators** → set the **Default Evaluation Model** to the connection you just added.
 
 **3 — Create the evaluator:**
-Go to [http://localhost:3000](http://localhost:3000) → **LLM-as-a-Judge** → **Create Evaluator**. Two options:
+Go to [http://localhost:3000](http://localhost:3000) → **Evaluators** → **Create Evaluator**. Two options:
 
-- **Built-in evaluators** (e.g. **Helpfulness**, **Hallucination**) — often too generic for a specific domain.
-- **Custom Evaluator** — your own domain-aware prompt. This is what we use for the PoC.
+- **Create from scratch** (custom prompt) — your own domain-aware prompt. This is what we use for the PoC.
+- **Use existing** (built-in templates, e.g. **Helpfulness**, **Hallucination**) — often too generic for a specific domain.
 
 Fill in the custom evaluator:
 
 - **Name** — e.g. `banking-sentinel-helpfulness`
 - **Model** — leave **Use default evaluation model** checked (the model you set in step 2)
 - **Evaluation prompt** — reference the trace content with `{{input}}` and `{{output}}` (see below)
+- **Score type** — `numeric`, `boolean`, or `categorical`
 - **Score reasoning prompt** and **Score range prompt** — leave at their defaults or customize at will
 
 Evaluation prompt:
@@ -504,10 +505,13 @@ if request.value == 0.0 and _annotation_queue_id:
 ```
 
 **3 — Review the queue:**
-1. Go to [http://localhost:3000](http://localhost:3000) → **Annotation Queues**
+1. Go to [http://localhost:3000](http://localhost:3000) → **Human Annotation**
 2. Open `banking-sentinel-review`
-3. For each trace: review the conversation, assign a `quality` score (and optionally add a comment), click **Mark Completed**
-4. Scores appear on the trace and contribute to your evaluation dashboard
+3. Review the conversation
+4. Assign a `quality` score (and optionally add a comment)
+5. Correct the output if necessary
+6. Click **Mark Completed**
+7. Scores and corrected output appear on the trace and contribute to your evaluation dashboard
 
 Annotating an item — assign the `quality` score and an optional comment:
 

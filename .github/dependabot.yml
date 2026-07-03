@@ -8,8 +8,7 @@ updates:
       all:
         patterns:
           - "*"
-    ignore:
-      - dependency-name: "langfuse"
+
 
   - package-ecosystem: docker
     directory: /
