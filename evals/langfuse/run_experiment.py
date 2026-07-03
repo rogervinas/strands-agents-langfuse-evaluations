@@ -115,6 +115,11 @@ def run(task):
     if result.dataset_run_url:
         print(f"Results: {result.dataset_run_url}")
 
+    if not result.item_results:
+        print("\n❌ Experiment FAILED: no items were evaluated")
+        langfuse.flush()
+        sys.exit(1)
+
     failed = False
     for item_result in result.item_results:
         metadata = getattr(item_result.item, "metadata", None) or {}
