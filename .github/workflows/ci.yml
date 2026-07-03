@@ -88,6 +88,9 @@ jobs:
       - name: Create Langfuse annotation queue
         run: uv run python -m evals.langfuse.create_annotation_queue
 
+      - name: Create Langfuse prompt
+        run: uv run python -m evals.langfuse.create_prompt
+
       - name: Create Langfuse dataset
         run: uv run python -m evals.langfuse.create_dataset
 
