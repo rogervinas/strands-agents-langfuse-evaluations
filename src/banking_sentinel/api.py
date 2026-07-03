@@ -7,8 +7,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from langfuse import get_client, propagate_attributes
-from langfuse.api.resources.annotation_queues.types.annotation_queue_object_type import AnnotationQueueObjectType
-from langfuse.api.resources.annotation_queues.types.create_annotation_queue_item_request import CreateAnnotationQueueItemRequest
+from langfuse.api import AnnotationQueueObjectType
 from pydantic import BaseModel
 from strands.session.file_session_manager import FileSessionManager
 
@@ -104,10 +103,8 @@ def feedback_endpoint(request: FeedbackRequest):
         if request.value == 0.0 and _annotation_queue_id:
             langfuse.api.annotation_queues.create_queue_item(
                 _annotation_queue_id,
-                request=CreateAnnotationQueueItemRequest(
-                    object_id=request.trace_id,
-                    object_type=AnnotationQueueObjectType.TRACE,
-                ),
+                object_id=request.trace_id,
+                object_type=AnnotationQueueObjectType.TRACE,
             )
             logger.info("Trace added to annotation queue: %s", request.trace_id)
         langfuse.flush()

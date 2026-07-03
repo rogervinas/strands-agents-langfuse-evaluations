@@ -44,7 +44,7 @@ The app under evaluation is the **banking sentinel** — a customer support agen
   - [Step 2: Tracing](#step-2-tracing)
   - [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations)
   - [Step 4: Experiments](#step-4-experiments)
-  - [Step 5: Online Evaluations (LLM-as-judge)](#step-5-online-evaluations-llm-as-judge)
+  - [Step 5: Online Evaluations (Evaluators)](#step-5-online-evaluations-evaluators)
   - [Step 6: External Evaluations](#step-6-external-evaluations)
   - [Step 7: Annotation Queues](#step-7-annotation-queues)
   - [Step 8: Prompt Management](#step-8-prompt-management)
@@ -372,7 +372,7 @@ Open [http://localhost:3000](http://localhost:3000) → **Datasets** → **Exper
 
 ---
 
-### Step 5: Online Evaluations (LLM-as-judge)
+### Step 5: Online Evaluations (Evaluators)
 
 Langfuse can automatically score live traces as they arrive — no code changes needed. In this PoC all chat traces are tagged `banking-sentinel`, and the root span of each is named `banking-sentinel-chat`, making them easy to target.
 
@@ -387,8 +387,8 @@ Go to [http://localhost:3000](http://localhost:3000) → **Evaluators** → set 
 **3 — Create the evaluator:**
 Go to [http://localhost:3000](http://localhost:3000) → **Evaluators** → **Create Evaluator**. Two options:
 
-- **Built-in evaluators** (e.g. **Helpfulness**, **Hallucination**) — often too generic for a specific domain.
-- **Custom Evaluator** — your own domain-aware prompt. This is what we use for the PoC.
+- **Create from scratch** (custom prompt) — your own domain-aware prompt. This is what we use for the PoC.
+- **Use existing** (built-in templates, e.g. **Helpfulness**, **Hallucination**) — often too generic for a specific domain.
 
 Fill in the custom evaluator:
 
@@ -505,10 +505,13 @@ if request.value == 0.0 and _annotation_queue_id:
 ```
 
 **3 — Review the queue:**
-1. Go to [http://localhost:3000](http://localhost:3000) → **Annotation Queues**
+1. Go to [http://localhost:3000](http://localhost:3000) → **Human Annotation**
 2. Open `banking-sentinel-review`
-3. For each trace: review the conversation, assign a `quality` score (and optionally add a comment), click **Mark Completed**
-4. Scores appear on the trace and contribute to your evaluation dashboard
+3. Review the conversation
+4. Assign a `quality` score (and optionally add a comment)
+5. Correct the output if necessary
+6. Click **Mark Completed**
+7. Scores and corrected output appear on the trace and contribute to your evaluation dashboard
 
 Annotating an item — assign the `quality` score and an optional comment:
 
