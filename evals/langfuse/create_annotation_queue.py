@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from langfuse import get_client
-from langfuse.api import CreateAnnotationQueueRequest, CreateScoreConfigRequest, ScoreConfigDataType
+from langfuse.api import ScoreConfigDataType
 
 SCORE_CONFIG_NAME = "quality"
 QUEUE_NAME = "banking-sentinel-review"
@@ -25,13 +25,11 @@ def setup():
         print(f"Score config '{SCORE_CONFIG_NAME}' already exists (id: {score_config.id})")
     else:
         score_config = langfuse.api.score_configs.create(
-            request=CreateScoreConfigRequest(
-                name=SCORE_CONFIG_NAME,
-                data_type=ScoreConfigDataType.NUMERIC,
-                min_value=0.0,
-                max_value=1.0,
-                description="Overall quality of the agent response (0 = poor, 1 = good)",
-            ),
+            name=SCORE_CONFIG_NAME,
+            data_type=ScoreConfigDataType.NUMERIC,
+            min_value=0.0,
+            max_value=1.0,
+            description="Overall quality of the agent response (0 = poor, 1 = good)",
         )
         print(f"✅ Score config created: '{SCORE_CONFIG_NAME}' (id: {score_config.id})")
 
@@ -43,11 +41,9 @@ def setup():
         print(f"Queue '{QUEUE_NAME}' already exists (id: {queue.id})")
     else:
         queue = langfuse.api.annotation_queues.create_queue(
-            request=CreateAnnotationQueueRequest(
-                name=QUEUE_NAME,
-                description="Traces flagged for human review (e.g. negative user feedback)",
-                score_config_ids=[score_config.id],
-            ),
+            name=QUEUE_NAME,
+            description="Traces flagged for human review (e.g. negative user feedback)",
+            score_config_ids=[score_config.id],
         )
         print(f"✅ Queue created: '{QUEUE_NAME}' (id: {queue.id})")
 
