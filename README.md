@@ -365,7 +365,7 @@ Run against a running server:
 uv run python -m evals.langfuse.run_experiment api --url http://localhost:8000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) → **Datasets** → **Runs** to see the experiment runs:
+Open [http://localhost:3000](http://localhost:3000) → **Datasets** → **Experiments** to see the experiment runs:
 
 ![](.doc/screenshot-experiment-runs.png)
 
@@ -381,10 +381,10 @@ Langfuse can automatically score live traces as they arrive — no code changes 
 Go to [http://localhost:3000](http://localhost:3000) → **Settings → LLM Connections** → add your model provider API key.
 
 **2 — Set default evaluation model:**
-Go to [http://localhost:3000](http://localhost:3000) → **LLM-as-a-Judge** → set the **Default Evaluation Model** to the connection you just added.
+Go to [http://localhost:3000](http://localhost:3000) → **Evaluators** → set the **Default Evaluation Model** to the connection you just added.
 
 **3 — Create the evaluator:**
-Go to [http://localhost:3000](http://localhost:3000) → **LLM-as-a-Judge** → **Create Evaluator**. Two options:
+Go to [http://localhost:3000](http://localhost:3000) → **Evaluators** → **Create Evaluator**. Two options:
 
 - **Built-in evaluators** (e.g. **Helpfulness**, **Hallucination**) — often too generic for a specific domain.
 - **Custom Evaluator** — your own domain-aware prompt. This is what we use for the PoC.
@@ -394,6 +394,7 @@ Fill in the custom evaluator:
 - **Name** — e.g. `banking-sentinel-helpfulness`
 - **Model** — leave **Use default evaluation model** checked (the model you set in step 2)
 - **Evaluation prompt** — reference the trace content with `{{input}}` and `{{output}}` (see below)
+- **Score type** — `numeric`, `boolean`, or `categorical`
 - **Score reasoning prompt** and **Score range prompt** — leave at their defaults or customize at will
 
 Evaluation prompt:
