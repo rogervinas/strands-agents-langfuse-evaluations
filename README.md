@@ -1,7 +1,7 @@
 [![CI](https://github.com/rogervinas/strands-agents-langfuse-evaluations/actions/workflows/ci.yml/badge.svg)](https://github.com/rogervinas/strands-agents-langfuse-evaluations/actions/workflows/ci.yml)
 ![StrandsAgents](https://img.shields.io/badge/StrandsAgents-1.42.0-blue?labelColor=black)
 ![StrandsEvals](https://img.shields.io/badge/StrandsEvals-0.2.1-blue?labelColor=black)
-![Langfuse](https://img.shields.io/badge/Langfuse-4.7.1-blue?labelColor=black)
+![Langfuse](https://img.shields.io/badge/Langfuse-3.15.0-blue?labelColor=black)
 
 ![Gemini](https://img.shields.io/badge/Gemini-✓-4285F4?labelColor=black)
 ![Bedrock](https://img.shields.io/badge/Bedrock-✓-FF9900?labelColor=black)
@@ -296,6 +296,10 @@ Each item has an `input`, an `expected_output`, and optional `metadata`. Dataset
 uv run python -m evals.langfuse.create_dataset
 ```
 
+Open [http://localhost:3000](http://localhost:3000) → **Datasets** → **Items** to see the dataset items:
+
+![](.doc/screenshot-experiment-items.png)
+
 #### Implement the experiment
 
 **Evaluators** are plain Python callables — there are no built-in evaluators in the SDK and no base class to inherit from. Any function that matches this signature works:
@@ -361,9 +365,9 @@ Run against a running server:
 uv run python -m evals.langfuse.run_experiment api --url http://localhost:8000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) → **Datasets** to see results:
+Open [http://localhost:3000](http://localhost:3000) → **Datasets** → **Runs** to see the experiment runs:
 
-![](.doc/screenshot-experiment.png)
+![](.doc/screenshot-experiment-runs.png)
 
 ---
 
