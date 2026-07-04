@@ -44,7 +44,7 @@ The app under evaluation is the **banking sentinel** — a customer support agen
   - [Step 2: Tracing](#step-2-tracing)
   - [Step 3: Strands Native Evaluations](#step-3-strands-native-evaluations)
   - [Step 4: Experiments](#step-4-experiments)
-  - [Step 5: Online Evaluations (Evaluators)](#step-5-online-evaluations-evaluators)
+  - [Step 5: Online Evaluations](#step-5-online-evaluations)
   - [Step 6: External Evaluations](#step-6-external-evaluations)
   - [Step 7: Annotation Queues](#step-7-annotation-queues)
   - [Step 8: Prompt Management](#step-8-prompt-management)
@@ -372,7 +372,7 @@ Open [http://localhost:3000](http://localhost:3000) → **Datasets** → **Exper
 
 ---
 
-### Step 5: Online Evaluations (Evaluators)
+### Step 5: Online Evaluations
 
 Langfuse can automatically score live traces as they arrive — no code changes needed. In this PoC all chat traces are tagged `banking-sentinel`, and the root span of each is named `banking-sentinel-chat`, making them easy to target.
 
