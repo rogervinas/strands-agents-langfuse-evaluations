@@ -46,7 +46,7 @@ jobs:
       - name: Run standalone evals
         env:
           MODEL_PROVIDER: gemini
-          GEMINI_MODEL: gemini-3.5-flash
+          GEMINI_MODEL: gemma-4-31b-it
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: uv run python -m evals.strands.run_evaluations embedded
 
@@ -56,7 +56,7 @@ jobs:
     needs: evals-standalone
     env:
       MODEL_PROVIDER: gemini
-      GEMINI_MODEL: gemini-3.5-flash
+      GEMINI_MODEL: gemma-4-31b-it
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
       LANGFUSE_PUBLIC_KEY: publickey-local
       LANGFUSE_SECRET_KEY: secretkey-local
