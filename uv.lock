@@ -235,17 +235,17 @@ evals = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = "==0.139.0" },
+    { name = "fastapi", specifier = "==0.139.2" },
     { name = "httpx", marker = "extra == 'evals'", specifier = "==0.28.1" },
-    { name = "langfuse", specifier = "==4.13.0" },
+    { name = "langfuse", specifier = "==4.14.0" },
     { name = "pydantic", specifier = "==2.13.4" },
     { name = "pytest", marker = "extra == 'dev'", specifier = "==9.1.1" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = "==1.4.0" },
     { name = "python-dotenv", specifier = "==1.2.2" },
-    { name = "strands-agents", extras = ["ollama", "gemini", "otel"], specifier = "==1.45.0" },
-    { name = "strands-agents-evals", marker = "extra == 'evals'", specifier = "==1.0.1" },
-    { name = "strands-agents-tools", specifier = "==0.8.2" },
-    { name = "uvicorn", extras = ["standard"], specifier = "==0.49.0" },
+    { name = "strands-agents", extras = ["ollama", "gemini", "otel"], specifier = "==1.47.0" },
+    { name = "strands-agents-evals", marker = "extra == 'evals'", specifier = "==1.0.2" },
+    { name = "strands-agents-tools", specifier = "==0.8.3" },
+    { name = "uvicorn", extras = ["standard"], specifier = "==0.51.0" },
 ]
 provides-extras = ["dev", "evals"]
 
@@ -564,7 +564,7 @@ wheels = [
 
 [[package]]
 name = "fastapi"
-version = "0.139.0"
+version = "0.139.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "annotated-doc" },
@@ -573,9 +573,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "typing-inspection" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d3/af/a5f50ccfa659ec1802cb4ca842c23f06d906a8cc9aef6016a2caeea3d4ed/fastapi-0.139.0.tar.gz", hash = "sha256:99ab7b2d92223c76d6cf10757ab3f89d45b38267fc20b2a136cf02f6beac3145", size = 423016, upload-time = "2026-07-01T16:35:33.436Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/cd/95/d3f0ae10836324a2eab98a52b61210ac609f08200bf4bb0dc8132d32f78a/fastapi-0.139.2.tar.gz", hash = "sha256:333145a6891e9b5b3cfceb69baf817e8240cde4d4588ae5a10bf56ffacb6255e", size = 423428, upload-time = "2026-07-16T15:06:17.912Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9e/7c/8e3c6ad324ea5cb36604fc3f968554887891c316d9dfde57761611d907ad/fastapi-0.139.0-py3-none-any.whl", hash = "sha256:cf15e1e9e667ddb0ad63811e60bd11390d1aac838ca4a7a23f421807b2308189", size = 130339, upload-time = "2026-07-01T16:35:32.19Z" },
+    { url = "https://files.pythonhosted.org/packages/5f/c7/cb03251d9dfb177246a9809a76f189d21df32dbd4a845951881d11323b7f/fastapi-0.139.2-py3-none-any.whl", hash = "sha256:b9ad015a835173d59865e2f5d8296fbc2b317bf56a2ba1a5bfbdd03de2fd4b1c", size = 130234, upload-time = "2026-07-16T15:06:19.557Z" },
 ]
 
 [[package]]
@@ -879,7 +879,7 @@ wheels = [
 
 [[package]]
 name = "langfuse"
-version = "4.13.0"
+version = "4.14.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "backoff" },
@@ -891,9 +891,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "wrapt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/52/0c/a830958f9377e31114e8cbe74395a0adc515afaa3d02d8be5372d39e549c/langfuse-4.13.0.tar.gz", hash = "sha256:41b6b13e1e4e96f903a24e2bb69a38b83a8a296d12de11a345e33ec2763f10d2", size = 350477, upload-time = "2026-07-02T14:33:41.764Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ae/40/752661e4376dcaa73bf839703296530d91807e90e219e1fc0d24c5460bc2/langfuse-4.14.0.tar.gz", hash = "sha256:31b875c8d09eee39c558584b9424bbd5ed014965c5944c4528a37947ae4b7787", size = 363802, upload-time = "2026-07-10T11:33:39.153Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2f/5c/87ddf37cfeb43332e84f173fe8ef64ff6ce8ed6defcbef3fa0c63f545393/langfuse-4.13.0-py3-none-any.whl", hash = "sha256:0e0c5af8c8f299d6878c328518ce8414a188d1f6333ad2109aa8208f2e41500a", size = 611573, upload-time = "2026-07-02T14:33:40.143Z" },
+    { url = "https://files.pythonhosted.org/packages/76/c7/ca0f591e1184415ffcd920a4107f3d2638ab5af7ff7e498d99a9b8b2bb13/langfuse-4.14.0-py3-none-any.whl", hash = "sha256:632b74abfa14d9ad3dccbe3322bf7e11b0dce9be0de451b0d134db9bff246d44", size = 638356, upload-time = "2026-07-10T11:33:37.419Z" },
 ]
 
 [[package]]
@@ -2018,7 +2018,7 @@ wheels = [
 
 [[package]]
 name = "strands-agents"
-version = "1.45.0"
+version = "1.47.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "boto3" },
@@ -2034,9 +2034,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "watchdog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1a/ca/42bedf73ca6d47939e20ad58e90f649e78d53a38f40b5d31ca8078458a61/strands_agents-1.45.0.tar.gz", hash = "sha256:c7e65978d319a5de74b52e7511099951f473c9ccc10368c1ebe13d87f8625d06", size = 1101805, upload-time = "2026-06-25T20:40:23.06Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/2e/05/5eb8431ff340739b1c21b0da7d19ec9604b9c4953a1c4638df915321573c/strands_agents-1.47.0.tar.gz", hash = "sha256:97770cb6beb6e5fd1a58849f41201eb7edb43fd67ad3de6544ada2f342c2bcf0", size = 1157139, upload-time = "2026-07-10T14:45:05.809Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/80/81/b189a0944d95465de4b97f8b3fb351df458cfe594572a6dfe7068363a515/strands_agents-1.45.0-py3-none-any.whl", hash = "sha256:9a38363a255f9fd89dbdbd766fdf240524ee4af403865412ed139dc904fbb5ad", size = 579326, upload-time = "2026-06-25T20:40:21.121Z" },
+    { url = "https://files.pythonhosted.org/packages/d0/cb/ceae892c5823bea9254160efc02a4553f2ced9d183676110c03c3a9ff0f3/strands_agents-1.47.0-py3-none-any.whl", hash = "sha256:1f6ce17404ff02079244ad7a4a180a2a7150546275e4b91187d71472ba8fe3f2", size = 600611, upload-time = "2026-07-10T14:45:03.942Z" },
 ]
 
 [package.optional-dependencies]
@@ -2052,7 +2052,7 @@ otel = [
 
 [[package]]
 name = "strands-agents-evals"
-version = "1.0.1"
+version = "1.0.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "boto3" },
@@ -2066,14 +2066,14 @@ dependencies = [
     { name = "tenacity" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/37/cd/bf660bb933447b2cef740fac53e20afee03bb49c43e5d496c1e85925ebe7/strands_agents_evals-1.0.1.tar.gz", hash = "sha256:bcf11f1ee5f2d3b5703733595b20d5b3d87843a127057b4226d04cd75d670261", size = 451203, upload-time = "2026-06-25T22:42:07.502Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4e/95/e1863278b3a436d471932ca96ea20458be7422d94f6c9ff0e668e0648966/strands_agents_evals-1.0.2.tar.gz", hash = "sha256:1ec01a126517791f2db5e4fc43f8c4b25195d76627d9aae7f55845cc6edb66d2", size = 458313, upload-time = "2026-07-09T19:43:49.461Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/98/30/1ab14993e2f809d3b79d20b6befc133048ee8758a3a5701f1164a369d3f8/strands_agents_evals-1.0.1-py3-none-any.whl", hash = "sha256:b2cee1ca232c3120831b08d68965441a48aeed9fceba18b832bce7cbaa4b981a", size = 352737, upload-time = "2026-06-25T22:42:06.062Z" },
+    { url = "https://files.pythonhosted.org/packages/82/c5/8fad5e1b0b76791b9ce1d39843c792651f2c3fa8d548645f4d3daee7b809/strands_agents_evals-1.0.2-py3-none-any.whl", hash = "sha256:8d04cfe33e42c3ff6cdaf8a260896e43e20d1db8f45c8de3bfa2f016b41a8a3d", size = 352731, upload-time = "2026-07-09T19:43:47.864Z" },
 ]
 
 [[package]]
 name = "strands-agents-tools"
-version = "0.8.2"
+version = "0.8.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -2094,9 +2094,9 @@ dependencies = [
     { name = "tzdata", marker = "sys_platform == 'win32'" },
     { name = "watchdog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/88/9f/1c2468c86c622b3a20f7b6331234f773ca59df5afdc9726f5c85c699789c/strands_agents_tools-0.8.2.tar.gz", hash = "sha256:fa390c28a31cc7695587180feda8ac9b7f53fab4ece56296e8c039ac6361670a", size = 491890, upload-time = "2026-06-25T22:35:15.72Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/17/dd/aaa1f17ec10db4a9f49e2e48bd3cd5fb646c1c284e4fe6fa0a6a32380914/strands_agents_tools-0.8.3.tar.gz", hash = "sha256:19f6d3d617e9ef85b0a31c475f0a3f81d8ea60a2ed7dc6bd8f17fdd586c94d46", size = 511310, upload-time = "2026-07-09T19:55:59.262Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5b/db/a247c24525b6a701e3e9781dd2a103ca89ee8731fd3b89961d8455fa5f5d/strands_agents_tools-0.8.2-py3-none-any.whl", hash = "sha256:fc27780eae94cdbcfbd4b08daebf1ccb83831a4d5ffa2094d719326b08ce9cc6", size = 319967, upload-time = "2026-06-25T22:35:13.87Z" },
+    { url = "https://files.pythonhosted.org/packages/b1/8b/1500ae455cc8434a54f013278320042d88ba9daffb5dafaed1fa8b48c3f3/strands_agents_tools-0.8.3-py3-none-any.whl", hash = "sha256:bc17fbad5ad7957bef33538fb5e0c386f7883dab92c557e92175e7ff16b42dac", size = 327194, upload-time = "2026-07-09T19:55:57.473Z" },
 ]
 
 [[package]]
@@ -2161,20 +2161,19 @@ wheels = [
 
 [[package]]
 name = "uvicorn"
-version = "0.49.0"
+version = "0.51.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "h11" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c4/1f/fa18009dea8469069cca78a4e877a008ab78f08b064bfc9ab891579077ff/uvicorn-0.49.0.tar.gz", hash = "sha256:ebf4271aa580d9de97f93192d4595176df6e91f9aae919ca73e4fc07df1e66a3", size = 91284, upload-time = "2026-06-03T22:01:30.448Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a2/65/b7c6c443ccc58678c91e1e973bbe2a878591538655d6e1d47f24ba1c51f3/uvicorn-0.51.0.tar.gz", hash = "sha256:f6f4b69b657c312f516dd2d268ab9ae6f254b11e4bac504f37b2ab58b24dd0b0", size = 94412, upload-time = "2026-07-08T10:59:05.962Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/88/fa/e1388bbcf24ef3274f45c0c1c7b501fd14971037c1b6ee23610553307497/uvicorn-0.49.0-py3-none-any.whl", hash = "sha256:ba3d14c3ee7e41c6c654c46c9eb489d33213cdd30aa1696eab1374337c13f68f", size = 71376, upload-time = "2026-06-03T22:01:29.037Z" },
+    { url = "https://files.pythonhosted.org/packages/45/ec/dbb7e5a6b91f86bfb9eb7d2988a2730907b6a729875b949c7f022e8b88fa/uvicorn-0.51.0-py3-none-any.whl", hash = "sha256:5d38af6cd620f2ae3849fb44fd4879e0890aa1febe8d47eb355fb45d93fe6a5b", size = 73219, upload-time = "2026-07-08T10:59:04.44Z" },
 ]
 
 [package.optional-dependencies]
 standard = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
     { name = "httptools" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
