@@ -3,22 +3,22 @@ name = "banking-sentinel"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
-    "strands-agents[ollama,gemini,otel]==1.52.0",
-    "strands-agents-tools==0.8.6",
-    "langfuse==4.14.4",
-    "fastapi==0.141.1",
-    "uvicorn[standard]==0.52.3",
-    "pydantic==2.13.4",
-    "python-dotenv==1.2.3",
+    "strands-agents[ollama,gemini,otel]==1.62.0",
+    "strands-agents-tools==0.8.10",
+    "langfuse==5.0.4",
+    "fastapi==0.162.0",
+    "uvicorn[standard]==0.54.0",
+    "pydantic==2.14.1",
+    "python-dotenv==1.2.4",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest==9.1.1",
-    "pytest-asyncio==1.4.0",
+    "pytest-asyncio==1.4.1",
 ]
 evals = [
-    "strands-agents-evals==1.1.1",
+    "strands-agents-evals==1.7.0",
     "httpx==0.28.1",
 ]
 
